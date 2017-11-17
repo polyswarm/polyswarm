@@ -1,0 +1,3 @@
+[submodule "raiden"]
+	path = raiden
+	url = https://github.com/raiden-network/raiden.git

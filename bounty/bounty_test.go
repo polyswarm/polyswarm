@@ -3,6 +3,7 @@ package bounty
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/polyswarm/perigord/contract"
+	"github.com/polyswarm/polyswarm/bindings"
 )
 
 // todo load testkey text from dir
@@ -40,9 +42,9 @@ func getFakeVirusPathAndHash() (string, string) {
 func TestBountyPosterClass(t *testing.T) {
 	conn, err := ethclient.Dial("/home/user/etherdev/geth.ipc")
 
-	err, t, poster, e, receiver := getBountyPosterAndReceiver(err, t, conn)
-	if e != nil {
-		t.Fatal(e)
+	poster, receiver, err := getBountyPosterAndReceiver(conn)
+	if err != nil {
+		t.Fatal(err)
 		t.FailNow()
 	}
 
@@ -105,7 +107,11 @@ func TestBountyPosterClass(t *testing.T) {
 func TestBountyPosterAssertTooClass(t *testing.T) {
 	conn, err := ethclient.Dial("/home/user/etherdev/geth.ipc")
 
-	err, t, poster, _, receiver := getBountyPosterAndReceiver(err, t, conn)
+	poster, receiver, err := getBountyPosterAndReceiver(conn)
+	if err != nil {
+		t.Fatal(err)
+		t.FailNow()
+	}
 
 	bountyWatchChan := make(chan *Bounty)
 
@@ -192,27 +198,17 @@ func postFakeVirusBounty(t *testing.T, poster *BountyPoster) (*Bounty, error) {
 	t.Log("fake bounty recpt", rcpt.String())
 	return bnty, err
 }
-func getBountyPosterAndReceiver(err error, t *testing.T, conn *ethclient.Client) (error, *testing.T, *BountyPoster, error, *BountyPoster) {
-	addr := contract.AddressOf("BountyRegistry")
-	if addr == nil {
-		t.Fatal("contract not deployed")
-		t.FailNow()
-	}
-	bp, e := NewBountyPoster(conn, TEST_KEY, TEST_PASS)
-	if e != nil {
-		t.Fatal(e)
-		t.FailNow()
+
+func getBountyPosterAndReceiver(conn *ethclient.Client) (*BountyPoster, *BountyPoster, error) {
+	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
+	if !ok {
+		return nil, nil, errors.New("Registry not deployed")
 	}
 
-	bp.SetRegistry(*addr)
-	// start recipient setup
-	br, e := NewBountyPoster(conn, TEST_KEY, TEST_PASS)
-	if e != nil {
-		t.Fatal(e)
-		t.FailNow()
-	}
+	poster := NewBountyPoster(registry_session, conn)
+	receiver := NewBountyPoster(registry_session, conn)
 
-	return err, t, bp, e, br
+	return poster, receiver, nil
 }
 
 var (

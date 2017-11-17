@@ -1,19 +1,22 @@
 package tests
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"io"
 	"os"
 	"path"
+	"time"
 
 	. "gopkg.in/check.v1"
 
-	_ "github.com/polyswarm/perigord/contract"
+	"github.com/polyswarm/perigord/contract"
 	"github.com/polyswarm/perigord/migration"
 	"github.com/polyswarm/perigord/testing"
 
-	_ "github.com/polyswarm/polyswarm/bindings"
+	"github.com/polyswarm/polyswarm/bindings"
+	"github.com/polyswarm/polyswarm/bounty"
 )
 
 type bountySuite struct {
@@ -53,6 +56,122 @@ func getFakeVirusPathAndHash() (string, string) {
 	return p, fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func (s *bountySuite) TestBounty(c *C) {
+func postFakeVirusBounty(poster *bounty.BountyPoster) (*bounty.Bounty, error) {
+	pth, _ := getFakeVirusPathAndHash()
+	bnty, err := bounty.NewBounty(pth, 12, 20, 10)
+	if err != nil {
+		return nil, err
+	}
+	bnty.Upload()
+	_, err = poster.PostBounty(context.Background(), bnty)
+	if err != nil {
+		return nil, err
+	}
 
+	return bnty, nil
+}
+
+func (s *bountySuite) TestBountyPosterClass(c *C) {
+	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
+	c.Assert(registry_session, NotNil)
+	c.Assert(ok, Equals, true)
+
+	receiver := bounty.NewBountyPoster(registry_session, s.network.Client())
+	poster := bounty.NewBountyPoster(registry_session, s.network.Client())
+
+	bountyWatchChan := make(chan *bounty.Bounty)
+	err := receiver.WatchForBounties(context.Background(), bountyWatchChan)
+	c.Assert(err, IsNil)
+
+	// sychronous
+	bnty, err := postFakeVirusBounty(poster)
+	c.Assert(err, IsNil)
+
+	ctractBnty, err := poster.GetActiveBounties()
+	c.Assert(err, IsNil)
+
+	foundBounty := false
+	for _, b := range ctractBnty {
+		if b.GuidEq(bnty) {
+			foundBounty = true
+		}
+	}
+	c.Assert(foundBounty, Equals, true)
+
+	stopTimer := time.After(time.Second * 30)
+	for {
+		select {
+		case newBountyStruct, chanOk := <-bountyWatchChan:
+			c.Assert(chanOk, Equals, true)
+			if newBountyStruct.Guid.Cmp(bnty.Guid) != 0 {
+				break
+			}
+			c.Log("got matching bounty", newBountyStruct.ArtifactURI)
+			return
+		case <-stopTimer:
+			c.Fatal("Failed to get bounty event in alotted time")
+			return
+		}
+	}
+
+	c.Fatal("Failed to find posted bounty guid")
+}
+
+func (s *bountySuite) TestBountyPosterAssertTooClass(c *C) {
+	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
+	c.Assert(registry_session, NotNil)
+	c.Assert(ok, Equals, true)
+
+	receiver := bounty.NewBountyPoster(registry_session, s.network.Client())
+	poster := bounty.NewBountyPoster(registry_session, s.network.Client())
+
+	bountyWatchChan := make(chan *bounty.Bounty)
+	assertWatchChan := make(chan *bounty.Assertion)
+
+	err := receiver.WatchForBounties(context.Background(), bountyWatchChan)
+	c.Assert(err, IsNil)
+
+	err = poster.WatchForAssertions(context.Background(), assertWatchChan)
+	c.Assert(err, IsNil)
+
+	time.Sleep(time.Millisecond * 100)
+	bnty, err := postFakeVirusBounty(poster)
+
+	stopChan := time.After(time.Second * 30)
+	for {
+		select {
+		case newBountyStruct := <-bountyWatchChan:
+			if newBountyStruct.Guid.Cmp(bnty.Guid) != 0 {
+				break
+			}
+
+			asrt, _ := bounty.NewAssertion(true, 100, "")
+			asrt.SetGuid(newBountyStruct.Guid)
+			rcpt, err := receiver.PostAssertion(context.Background(), newBountyStruct, asrt)
+			c.Assert(err, IsNil)
+
+			c.Log("assert receipt", rcpt.String())
+			assertTimeout := time.After(time.Second * 20)
+			for {
+				select {
+				case newAssertStruct := <-assertWatchChan:
+					if newAssertStruct.Guid.Cmp(asrt.Guid) != 0 || newAssertStruct.Guid.Cmp(bnty.Guid) != 0 {
+						break
+					}
+					c.Log("Suceeded getting assertion back on contract side", newAssertStruct.Guid.String())
+					return
+				case <-assertTimeout:
+					c.Fatal("Failed to get assertion event in allotted time")
+					return
+				}
+			}
+
+		case <-stopChan:
+			c.Fatal("Failed to get bounty event in allotted time")
+			return
+
+		}
+	}
+
+	c.Fatal("Failed to find posted bounty guid")
 }

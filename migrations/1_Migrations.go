@@ -16,8 +16,8 @@ import (
 type MigrationsDeployer struct{}
 
 func (d *MigrationsDeployer) Deploy(ctx context.Context, network *migration.Network) (common.Address, *types.Transaction, interface{}, error) {
-    auth := network.NewTransactor(0)
-	address, transaction, contract, err := bindings.DeployMigrations(auth, network.Backend())
+	auth := network.NewTransactor(0)
+	address, transaction, contract, err := bindings.DeployMigrations(auth, network.Client())
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
@@ -34,8 +34,8 @@ func (d *MigrationsDeployer) Deploy(ctx context.Context, network *migration.Netw
 }
 
 func (d *MigrationsDeployer) Bind(ctx context.Context, network *migration.Network, address common.Address) (interface{}, error) {
-    auth := network.NewTransactor(0)
-	contract, err := bindings.NewMigrations(address, network.Backend())
+	auth := network.NewTransactor(0)
+	contract, err := bindings.NewMigrations(address, network.Client())
 	if err != nil {
 		return nil, err
 	}

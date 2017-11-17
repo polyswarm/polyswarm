@@ -16,8 +16,8 @@ import (
 type BountyRegistryDeployer struct{}
 
 func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *migration.Network) (common.Address, *types.Transaction, interface{}, error) {
-    auth := network.NewTransactor(0)
-	address, transaction, contract, err := bindings.DeployBountyRegistry(auth, network.Backend())
+	auth := network.NewTransactor(0)
+	address, transaction, contract, err := bindings.DeployBountyRegistry(auth, network.Client())
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
@@ -34,8 +34,8 @@ func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *migration.
 }
 
 func (d *BountyRegistryDeployer) Bind(ctx context.Context, network *migration.Network, address common.Address) (interface{}, error) {
-    auth := network.NewTransactor(0)
-	contract, err := bindings.NewBountyRegistry(address, network.Backend())
+	auth := network.NewTransactor(0)
+	contract, err := bindings.NewBountyRegistry(address, network.Client())
 	if err != nil {
 		return nil, err
 	}

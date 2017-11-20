@@ -2,4 +2,6 @@ project: github.com/polyswarm/polyswarm
 license: Apache 2.0
 
 networks:
-    dev: http://localhost:8545
+    dev:
+        url: /home/user/etherdev/geth.ipc
+        keystore: scripts/keystore

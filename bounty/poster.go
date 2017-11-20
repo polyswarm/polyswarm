@@ -25,25 +25,47 @@ type BountyPoster struct {
 }
 
 func NewBountyPoster(session *bindings.BountyRegistrySession, client *ethclient.Client) *BountyPoster {
+	session.TransactOpts.GasLimit = big.NewInt(1000000)
 	return &BountyPoster{
 		session: session,
 		client:  client,
 	}
 }
 
-func (bp *BountyPoster) checkTxnUntilReceipt(ctx context.Context, txn *types.Transaction, logHeading string) (*types.Receipt, error) {
-	tmout, _ := context.WithTimeout(ctx, time.Second*30)
-	rcpt, err := bp.client.TransactionReceipt(tmout, txn.Hash())
+func pollTransactionUntilTime(conn *ethclient.Client, txn *types.Transaction, d time.Duration) (*types.Receipt, error) {
+	sliceSz := time.Millisecond * 200
+	slices := d / (sliceSz)
+
+	for i := 1; i < int(slices.Nanoseconds()); i++ {
+		ctx := context.Background()
+		receipt, err := conn.TransactionReceipt(ctx, txn.Hash())
+		if err != nil && err != ethereum.NotFound {
+			return nil, err
+
+		}
+
+		if err == nil {
+			if txn.Gas().Cmp(receipt.GasUsed) == 0 {
+				return nil, errors.New("out of gas")
+			}
+
+			return receipt, err
+		}
+
+		time.Sleep(sliceSz)
+	}
+
+	return nil, errors.New("Failed to get txn before timeout")
+}
+
+func (bp *BountyPoster) checkTxnUntilReceipt(txn *types.Transaction, logHeading string) (*types.Receipt, error) {
+	receipt, err := pollTransactionUntilTime(bp.client, txn, 300*time.Second)
 	if err != nil {
 		return nil, err
 	}
 
-	if txn.Gas().Cmp(rcpt.GasUsed) == 0 {
-		return nil, errors.New("out of gas")
-	}
 	h := ""
-
-	for _, l := range rcpt.Logs {
+	for _, l := range receipt.Logs {
 		for _, t := range l.Topics {
 			h += t.String() + ", "
 		}
@@ -51,19 +73,19 @@ func (bp *BountyPoster) checkTxnUntilReceipt(ctx context.Context, txn *types.Tra
 	}
 
 	log.Println(logHeading, "events will appear under following topic hashes: ", h)
-	return rcpt, nil
+	return receipt, nil
 }
 
-func (bp *BountyPoster) PostBounty(ctx context.Context, bnty *Bounty) (*types.Receipt, error) {
+func (bp *BountyPoster) PostBounty(bnty *Bounty) (*types.Receipt, error) {
 	txn, err := bp.session.RegisterBounty(bnty.BountyFee, bnty.BountyAmount, bnty.ArtifactHash, bnty.ArtifactURI, bnty.BlockDeadline, bnty.Guid)
 	if err != nil {
 		return nil, err
 	}
 
-	return bp.checkTxnUntilReceipt(ctx, txn, "bounty")
+	return bp.checkTxnUntilReceipt(txn, "bounty")
 }
 
-func (bp *BountyPoster) PostAssertion(ctx context.Context, bnty *Bounty, astn *Assertion) (*types.Receipt, error) {
+func (bp *BountyPoster) PostAssertion(bnty *Bounty, astn *Assertion) (*types.Receipt, error) {
 	astn.Author = bp.session.TransactOpts.From
 	astn.SetGuid(bnty.Guid)
 	txn, err := bp.session.RegisterAssertion(bnty.Originator, bnty.Guid, astn.Malicious, astn.AssertBid, astn.Metadata)
@@ -72,19 +94,16 @@ func (bp *BountyPoster) PostAssertion(ctx context.Context, bnty *Bounty, astn *A
 
 	}
 
-	return bp.checkTxnUntilReceipt(ctx, txn, "assertion")
+	return bp.checkTxnUntilReceipt(txn, "assertion")
 }
 
-func (bp *BountyPoster) WatchForAssertions(ctx context.Context, aChan chan *Assertion) error {
-	assertH := common.HexToHash("0x0b496f3ca4b1224bf741d2ce2e3657c9df30bdb6c2e02f598ad531e786f06f93")
-
+func (bp *BountyPoster) WatchForAssertions(aChan chan *Assertion) error {
 	q := ethereum.FilterQuery{
 		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
-		Topics:    [][]common.Hash{{assertH}},
 	}
 
 	logChan := make(chan types.Log)
-	sub, err := bp.client.SubscribeFilterLogs(ctx, q, logChan)
+	sub, err := bp.client.SubscribeFilterLogs(context.Background(), q, logChan)
 	if err != nil {
 		return err
 	}
@@ -101,7 +120,6 @@ func (bp *BountyPoster) WatchForAssertions(ctx context.Context, aChan chan *Asse
 		for {
 			select {
 			case logMsg := <-logChan:
-
 				type ex struct {
 					Author common.Address
 					Guid   *big.Int
@@ -116,9 +134,8 @@ func (bp *BountyPoster) WatchForAssertions(ctx context.Context, aChan chan *Asse
 				} else {
 					log.Println("new assertion", lm.Author.String(), lm.Guid.String(), lm.Num.String())
 					assertStruct, err := bp.session.Assertions(lm.Guid, lm.Num)
-
 					if err != nil {
-						log.Fatalln("Failed to get assertion based on event")
+						log.Fatalln("Failed to get assertion based on event: ", err)
 						break
 
 					}
@@ -151,7 +168,7 @@ func (bp *BountyPoster) WatchForAssertions(ctx context.Context, aChan chan *Asse
 	return nil
 }
 
-func (bp *BountyPoster) WatchForBounties(ctx context.Context, bChan chan *Bounty) error {
+func (bp *BountyPoster) WatchForBounties(bChan chan *Bounty) error {
 	// todo this is jacked from log message on bounty submit... kinda lame not sure how its generated ... if the signature si changed we'll ahve to deal
 	bountyH := common.HexToHash("0x1ba76ebd15dae915e57648382e814958cb98e8f8a5d42e17b9df31d235c7a7b5")
 
@@ -161,7 +178,7 @@ func (bp *BountyPoster) WatchForBounties(ctx context.Context, bChan chan *Bounty
 	}
 
 	logChan := make(chan types.Log)
-	sub, err := bp.client.SubscribeFilterLogs(ctx, q, logChan)
+	sub, err := bp.client.SubscribeFilterLogs(context.Background(), q, logChan)
 	if err != nil {
 		return err
 	}
@@ -208,9 +225,11 @@ func (bp *BountyPoster) WatchForBounties(ctx context.Context, bChan chan *Bounty
 					nb.BountyAmount = bountyStruct.BountyAmount
 					nb.BountyFee = bountyStruct.BountyFee
 
+					log.Println("bounty struct: ", nb)
+
 					bChan <- nb
 					if err != nil {
-						log.Fatalln("Failed to get bounty based on event")
+						log.Fatalln("Failed to get bounty based on event: ", err)
 					}
 					log.Println("Bounty URI", bountyStruct.ArtifactURI, bountyStruct.ArtifactHash)
 				}
@@ -229,36 +248,20 @@ func (bp *BountyPoster) WatchForBounties(ctx context.Context, bChan chan *Bounty
 }
 
 func (bp *BountyPoster) GetActiveBounties() ([]Bounty, error) {
-	return []Bounty{}, nil
-}
+	bts := []Bounty{}
+	for i := 0; ; i++ {
+		bountyStruct, err := bp.session.Bounties(bp.session.TransactOpts.From, big.NewInt(int64(i)))
+		if err != nil {
+			break
+		}
 
-//func (bp *BountyPoster) GetActiveBounties() ([]Bounty, error) {
-//	bts := []Bounty{}
-//	for i := 0; ; i++ {
-//		bountyStruct, err := getBounty(bp, i)
-//		if err != nil {
-//			break
-//		}
-//		b := Bounty{}
-//		b.Guid = bountyStruct.Guid
-//		b.ArtifactURI = bountyStruct.ArtifactURI
-//		b.ArtifactHash = bountyStruct.ArtifactHash
-//		// todo what else?
-//		bts = append(bts, b)
-//
-//	}
-//	return bts, nil
-//
-//}
-//
-//func getBounty(bp *BountyPoster, i int) (struct {
-//	Originator    common.Address
-//	BountyFee     *big.Int BountyAmount  *big.Int
-//	ArtifactHash  string
-//	ArtifactURI   string
-//	BlockDeadline *big.Int
-//	Guid          *big.Int
-//}, error) {
-//	bountyStruct, err := bp.bountyReg.Bounties(nil, getOriginAccountJson(bp.keyJson), big.NewInt(int64(i)))
-//	return bountyStruct, err
-//}
+		b := Bounty{}
+		b.Guid = bountyStruct.Guid
+		b.ArtifactURI = bountyStruct.ArtifactURI
+		b.ArtifactHash = bountyStruct.ArtifactHash
+		// todo what else?
+		bts = append(bts, b)
+	}
+
+	return bts, nil
+}

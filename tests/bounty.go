@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -63,7 +62,7 @@ func postFakeVirusBounty(poster *bounty.BountyPoster) (*bounty.Bounty, error) {
 		return nil, err
 	}
 	bnty.Upload()
-	_, err = poster.PostBounty(context.Background(), bnty)
+	_, err = poster.PostBounty(bnty)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +70,7 @@ func postFakeVirusBounty(poster *bounty.BountyPoster) (*bounty.Bounty, error) {
 	return bnty, nil
 }
 
-func (s *bountySuite) TestBountyPosterClass(c *C) {
+func (s *bountySuite) TestBountyPoster(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
@@ -80,7 +79,7 @@ func (s *bountySuite) TestBountyPosterClass(c *C) {
 	poster := bounty.NewBountyPoster(registry_session, s.network.Client())
 
 	bountyWatchChan := make(chan *bounty.Bounty)
-	err := receiver.WatchForBounties(context.Background(), bountyWatchChan)
+	err := receiver.WatchForBounties(bountyWatchChan)
 	c.Assert(err, IsNil)
 
 	// sychronous
@@ -117,7 +116,7 @@ func (s *bountySuite) TestBountyPosterClass(c *C) {
 	c.Fatal("Failed to find posted bounty guid")
 }
 
-func (s *bountySuite) TestBountyPosterAssertTooClass(c *C) {
+func (s *bountySuite) TestBountyPosterAssert(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
@@ -128,14 +127,15 @@ func (s *bountySuite) TestBountyPosterAssertTooClass(c *C) {
 	bountyWatchChan := make(chan *bounty.Bounty)
 	assertWatchChan := make(chan *bounty.Assertion)
 
-	err := receiver.WatchForBounties(context.Background(), bountyWatchChan)
+	err := receiver.WatchForBounties(bountyWatchChan)
 	c.Assert(err, IsNil)
 
-	err = poster.WatchForAssertions(context.Background(), assertWatchChan)
+	err = poster.WatchForAssertions(assertWatchChan)
 	c.Assert(err, IsNil)
 
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Second * 10)
 	bnty, err := postFakeVirusBounty(poster)
+	c.Assert(err, IsNil)
 
 	stopChan := time.After(time.Second * 30)
 	for {
@@ -147,7 +147,7 @@ func (s *bountySuite) TestBountyPosterAssertTooClass(c *C) {
 
 			asrt, _ := bounty.NewAssertion(true, 100, "")
 			asrt.SetGuid(newBountyStruct.Guid)
-			rcpt, err := receiver.PostAssertion(context.Background(), newBountyStruct, asrt)
+			rcpt, err := receiver.PostAssertion(newBountyStruct, asrt)
 			c.Assert(err, IsNil)
 
 			c.Log("assert receipt", rcpt.String())
@@ -169,7 +169,6 @@ func (s *bountySuite) TestBountyPosterAssertTooClass(c *C) {
 		case <-stopChan:
 			c.Fatal("Failed to get bounty event in allotted time")
 			return
-
 		}
 	}
 

@@ -17,7 +17,10 @@ import (
 type NectarTokenDeployer struct{}
 
 func (d *NectarTokenDeployer) Deploy(ctx context.Context, network *migration.Network) (common.Address, *types.Transaction, interface{}, error) {
-	auth := network.NewTransactor(0)
+	account := network.Accounts()[0]
+	network.Unlock(account, "blah")
+
+	auth := network.NewTransactor(account)
 	address, transaction, contract, err := bindings.DeployNectarToken(auth, network.Client(), big.NewInt(1000000), "Nectar Token", 18, "NCT")
 	if err != nil {
 		return common.Address{}, nil, nil, err
@@ -35,7 +38,10 @@ func (d *NectarTokenDeployer) Deploy(ctx context.Context, network *migration.Net
 }
 
 func (d *NectarTokenDeployer) Bind(ctx context.Context, network *migration.Network, address common.Address) (interface{}, error) {
-	auth := network.NewTransactor(0)
+	account := network.Accounts()[0]
+	network.Unlock(account, "blah")
+
+	auth := network.NewTransactor(account)
 	contract, err := bindings.NewNectarToken(address, network.Client())
 	if err != nil {
 		return nil, err
@@ -56,7 +62,7 @@ func init() {
 	contract.AddContract("NectarToken", &NectarTokenDeployer{})
 
 	migration.AddMigration(&migration.Migration{
-		Number: 3,
+		Number: 2,
 		F: func(ctx context.Context, network *migration.Network) error {
 			if err := contract.Deploy(ctx, "NectarToken", network); err != nil {
 				return err

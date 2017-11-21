@@ -9,13 +9,14 @@ import (
 
 	"github.com/polyswarm/perigord/contract"
 	"github.com/polyswarm/perigord/migration"
+	"github.com/polyswarm/perigord/network"
 
 	"github.com/polyswarm/polyswarm/bindings"
 )
 
 type BountyRegistryDeployer struct{}
 
-func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *migration.Network) (common.Address, *types.Transaction, interface{}, error) {
+func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *network.Network) (common.Address, *types.Transaction, interface{}, error) {
 	account := network.Accounts()[0]
 	network.Unlock(account, "blah")
 
@@ -36,7 +37,7 @@ func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *migration.
 	return address, transaction, session, nil
 }
 
-func (d *BountyRegistryDeployer) Bind(ctx context.Context, network *migration.Network, address common.Address) (interface{}, error) {
+func (d *BountyRegistryDeployer) Bind(ctx context.Context, network *network.Network, address common.Address) (interface{}, error) {
 	account := network.Accounts()[0]
 	network.Unlock(account, "blah")
 
@@ -62,7 +63,7 @@ func init() {
 
 	migration.AddMigration(&migration.Migration{
 		Number: 3,
-		F: func(ctx context.Context, network *migration.Network) error {
+		F: func(ctx context.Context, network *network.Network) error {
 			if err := contract.Deploy(ctx, "BountyRegistry", network); err != nil {
 				return err
 			}

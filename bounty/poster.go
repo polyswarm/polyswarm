@@ -98,8 +98,11 @@ func (bp *BountyPoster) PostAssertion(bnty *Bounty, astn *Assertion) (*types.Rec
 }
 
 func (bp *BountyPoster) WatchForAssertions(aChan chan *Assertion) error {
+	assertH := common.HexToHash("0x0b496f3ca4b1224bf741d2ce2e3657c9df30bdb6c2e02f598ad531e786f06f93")
+
 	q := ethereum.FilterQuery{
 		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
+		Topics:    [][]common.Hash{{assertH}},
 	}
 
 	logChan := make(chan types.Log)

@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"crypto/sha256"
 	"fmt"
 	"io"
@@ -62,7 +63,7 @@ func postFakeVirusBounty(poster *bounty.BountyPoster) (*bounty.Bounty, error) {
 		return nil, err
 	}
 	bnty.Upload()
-	_, err = poster.PostBounty(bnty)
+	_, err = poster.PostBounty(context.Background(), bnty)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +148,7 @@ func (s *bountySuite) TestBountyPosterAssert(c *C) {
 
 			asrt, _ := bounty.NewAssertion(true, 100, "")
 			asrt.SetGuid(newBountyStruct.Guid)
-			rcpt, err := receiver.PostAssertion(newBountyStruct, asrt)
+			rcpt, err := receiver.PostAssertion(context.Background(), newBountyStruct, asrt)
 			c.Assert(err, IsNil)
 
 			c.Log("assert receipt", rcpt.String())

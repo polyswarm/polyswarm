@@ -39,7 +39,7 @@ func checkOutOfGas(tx *types.Transaction, rcpt *types.Receipt) bool {
 }
 
 func waitMined(ctx context.Context, backend bind.DeployBackend, tx *types.Transaction) (*types.Receipt, error) {
-	ctx, _ = context.WithTimeout(ctx, 30*time.Second)
+	ctx, _ = context.WithTimeout(ctx, 60*time.Second)
 
 	rcpt, err := bind.WaitMined(ctx, backend, tx)
 	if err != nil {
@@ -77,8 +77,6 @@ func (bp *BountyPoster) PostAssertion(ctx context.Context, bnty *Bounty, astn *A
 }
 
 func (bp *BountyPoster) WatchForAssertions(aChan chan *Assertion) error {
-	assertH := common.HexToHash("0x0b496f3ca4b1224bf741d2ce2e3657c9df30bdb6c2e02f598ad531e786f06f93")
-
 	q := ethereum.FilterQuery{
 		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
 		Topics:    [][]common.Hash{{eventSignatureToTopicHash("NewAssertion(address,uint128,uint256)")}},
@@ -144,6 +142,7 @@ func (bp *BountyPoster) WatchForAssertions(aChan chan *Assertion) error {
 
 		}
 	}()
+
 	return nil
 }
 
@@ -181,7 +180,6 @@ func (bp *BountyPoster) WatchForBounties(bChan chan *Bounty) error {
 				var nbe NewBountyEvent
 				if err := abi.Unpack(&nbe, "NewBounty", logMsg.Data); err != nil {
 					log.Println("ignoring event non-bounty post: ", err)
-
 				} else {
 					log.Println("new bounty amount addr", nbe.Amount.String(), nbe.Originator.String())
 					bountyStruct, err := bp.session.Bounties(nbe.Originator, nbe.Num)
@@ -210,11 +208,12 @@ func (bp *BountyPoster) WatchForBounties(bChan chan *Bounty) error {
 			}
 		}
 	}()
+
 	return nil
 }
 
-func (bp *BountyPoster) GetActiveBounties() ([]Bounty, error) {
-	bts := []Bounty{}
+func (bp *BountyPoster) GetActiveBounties() []*Bounty {
+	bts := []*Bounty{}
 	for i := 0; ; i++ {
 		bountyStruct, err := bp.session.Bounties(bp.session.TransactOpts.From, big.NewInt(int64(i)))
 		if err != nil {
@@ -225,9 +224,21 @@ func (bp *BountyPoster) GetActiveBounties() ([]Bounty, error) {
 		b.Guid = bountyStruct.Guid
 		b.ArtifactURI = bountyStruct.ArtifactURI
 		b.ArtifactHash = bountyStruct.ArtifactHash
-		// todo what else?
-		bts = append(bts, b)
+		// TODO what else?
+		bts = append(bts, &b)
 	}
 
-	return bts, nil
+	return bts
+}
+
+func (bp *BountyPoster) GetBountyByGuid(guid *big.Int) *Bounty {
+	activeBounties := bp.GetActiveBounties()
+
+	for _, bnty := range activeBounties {
+		if bnty.Guid.Cmp(guid) == 0 {
+			return bnty
+		}
+	}
+
+	return nil
 }

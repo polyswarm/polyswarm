@@ -2,16 +2,13 @@
 // TODO: add log messages
 // TODO: always be explicit between 'storage' and 'memory'
 
-pragma solidity ^0.4.15;
+pragma solidity ^0.4.18;
 
 contract BountyRegistry {
-	
-	
 	//// 
 	// VARIABLES
 	////
-	// TODO: make scope for all of these explicit
-	address owner;
+	address internal owner;
 	uint256 public constant BOUNTY_LISTING_FEE = 10;
 	uint256 public constant BOUNTY_ASSERTION_FEE = 1;
 	uint public constant BOUNTY_BID_MINIMUM = 1;
@@ -41,10 +38,6 @@ contract BountyRegistry {
 	// assertions is a map from GUID to a list of Assertions
 	// it maps to a list because Go abigen doesn't do nested types well.
 	mapping (uint128 => Assertion[]) public assertions;
-	
-	// warning! if you change event signatures you will have to extract log topics from unit tests and reimplement in bounty data...
-	// TODO fix this...
-	
 	
 	////
 	// EVENTS
@@ -84,7 +77,6 @@ contract BountyRegistry {
 	// Transactional (requires Gas)
 	// returns nil
 	{
-		
 		// TODO check this bid and make transfer into contract escrow
 		require(assertBid >= BOUNTY_BID_MINIMUM);
         	

@@ -30,8 +30,7 @@ type Assertion struct {
 	AssertBid *big.Int
 	Metadata  string
 
-	// todo this is not part of dstruct in solidity contract.
-
+	// TODO this is not part of dstruct in solidity contract.
 	Guid *big.Int
 }
 

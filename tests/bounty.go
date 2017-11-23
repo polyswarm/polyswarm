@@ -87,8 +87,7 @@ func (s *bountySuite) TestBountyPoster(c *C) {
 	bnty, err := postFakeVirusBounty(poster)
 	c.Assert(err, IsNil)
 
-	ctractBnty, err := poster.GetActiveBounties()
-	c.Assert(err, IsNil)
+	ctractBnty := poster.GetActiveBounties()
 
 	foundBounty := false
 	for _, b := range ctractBnty {

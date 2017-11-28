@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"math/big"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -25,16 +27,35 @@ import (
 
 var bountyPoster *bounty.BountyPoster
 
+func ReadDir(dirname string) ([]string, error) {
+	files, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		return nil, err
+	}
+
+	filenames := make([]string, len(files))
+	for i, file := range files {
+		filenames[i] = filepath.Join(dirname, file.Name())
+	}
+
+	return filenames, nil
+}
+
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		t, err := template.ParseFiles("templates/bounties.html.tpl")
+		template_files, err := ReadDir("templates")
 		if err != nil {
 			log.Fatalln("Error parsing template: ", err)
 		}
 
+		t, err := template.ParseFiles(template_files...)
+		if err != nil {
+			log.Fatalln("Error parsing templates: ", err)
+		}
+
 		bounties := bountyPoster.GetActiveBounties()
 		w.WriteHeader(http.StatusOK)
-		t.Execute(w, bounties)
+		t.ExecuteTemplate(w, "bounties", bounties)
 	} else {
 		http.Error(w, "Invalid request method", 405)
 	}
@@ -42,13 +63,18 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 
 func BountyHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		t, err := template.ParseFiles("templates/bounty.html.tpl")
+		template_files, err := ReadDir("templates")
 		if err != nil {
 			log.Fatalln("Error parsing template: ", err)
 		}
 
+		t, err := template.ParseFiles(template_files...)
+		if err != nil {
+			log.Fatalln("Error parsing templates: ", err)
+		}
+
 		w.WriteHeader(http.StatusOK)
-		t.Execute(w, nil)
+		t.ExecuteTemplate(w, "bounty", nil)
 	} else if r.Method == "POST" {
 		r.ParseMultipartForm(1 << 20)
 
@@ -111,12 +137,18 @@ func BountyHandler(w http.ResponseWriter, r *http.Request) {
 
 func AssertionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		t, err := template.ParseFiles("templates/assertion.html.tpl")
+		template_files, err := ReadDir("templates")
 		if err != nil {
 			log.Fatalln("Error parsing template: ", err)
 		}
+
+		t, err := template.ParseFiles(template_files...)
+		if err != nil {
+			log.Fatalln("Error parsing templates: ", err)
+		}
+
 		w.WriteHeader(http.StatusOK)
-		t.Execute(w, nil)
+		t.ExecuteTemplate(w, "assertion", nil)
 	} else if r.Method == "POST" {
 		r.ParseForm()
 

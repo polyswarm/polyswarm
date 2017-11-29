@@ -32,11 +32,13 @@ contract BountyRegistry {
 		uint128 guid;
 	}
 	
-	// bounties is a map from addresses to a list of Bountys
-	mapping (address => Bounty[]) public bounties;
+	// bountiesByAddress is a map from addresses to a list of Bountys
+	mapping (address => Bounty[]) public bountiesByAddress;
+
+	// bountyByGuid is a map from GUID to a Bounty
+	mapping (uint128 => Bounty) public bountyByGuid;
 
 	// assertions is a map from GUID to a list of Assertions
-	// it maps to a list because Go abigen doesn't do nested types well.
 	mapping (uint128 => Assertion[]) public assertions;
 	
 	////
@@ -79,48 +81,22 @@ contract BountyRegistry {
 	{
 		// TODO check this bid and make transfer into contract escrow
 		require(assertBid >= BOUNTY_BID_MINIMUM);
+        require(bountyAuthor != address(0));
+        require(bountyByGuid[bountyGuid].originator == bountyAuthor);
         	
-		Bounty[] memory authorBounties = bounties[bountyAuthor];
+        // Instantiate an Assertion and populate it with function arguments.
+        Assertion memory a;
+        a.author = msg.sender;
+        a.malicious = malicious;
+        a.blockTime = block.number;
+        a.assertBid = assertBid;
+        a.metadata = metadata;
 
-		// In mappings, returned value is initialized with 0 if entry doesn't exist.
-		// Seems the current best approach is to check a field that *must* be non-zero
+        assertions[bountyGuid].push(a);
+        uint cLen = assertions[bountyGuid].length-1;
 
-		// Ensure bounty author has submitted at least one bounty
-		require(authorBounties.length != 0x0);
-        
-		// TODO: we have a loop of indeterminate length in a function that requires Gas
-		// What happens if we run out of Gas during this loop?
-		// TODO: check for overflow of i
-		bool found = false; // TODO: scope
-		for (uint i = 0; i < authorBounties.length; i++) {
-			
-			Bounty memory candidateBounty = authorBounties[i];
-			if (candidateBounty.guid == bountyGuid) {
-				
-				// Instantiate an Assertion and populate it with function arguments.
-				Assertion memory a;
-				a.author = msg.sender;
-				a.malicious = malicious;
-				a.blockTime = block.number;
-				a.assertBid = assertBid;
-				a.metadata = metadata;
-
-                		// TODO ensure we remove these when bounty is complete
-				
-				assertions[candidateBounty.guid].push(a);
-				// TODO: make an explicit size
-				var cLen = assertions[candidateBounty.guid].length-1;
-				
-				// TODO: check return value
-				NewAssertion(msg.sender, bountyGuid, cLen);
-				
-				found = true;
-				break;
-			}
-		}
-
-		// If the bounty GUID wasn't found, refund Gas and return something useful.
-		require(found);
+        // TODO: check return value
+        NewAssertion(msg.sender, bountyGuid, cLen);
 	}
 	
 	function registerBounty (
@@ -134,7 +110,8 @@ contract BountyRegistry {
 	// Transactional (requires Gas)
 	// returns nil	
 	{
-		// TODO: ensure no duplicate bounty GUIDs
+        // Check if a bounty with this GUID has already been initialized
+        require(bountyByGuid[guid].originator == address(0));
 
 		// Check whether posted Fee is sufficient.
 		// TODO: check that ambassador has enough token as second part here.
@@ -152,9 +129,9 @@ contract BountyRegistry {
 		b.bountyFee = bFee;
 		b.guid = guid;
 		
-		bounties[msg.sender].push(b);
-		
-		uint cLen = bounties[msg.sender].length-1;
+        bountyByGuid[guid] = b;
+		bountiesByAddress[msg.sender].push(b);
+		uint cLen = bountiesByAddress[msg.sender].length-1;
 		
 		// TODO: check return value
 		NewBounty(msg.sender, cLen, b.bountyAmount, b.blockDeadline);

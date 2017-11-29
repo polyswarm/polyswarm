@@ -182,7 +182,7 @@ func (bp *BountyPoster) WatchForBounties(bChan chan *Bounty) error {
 					log.Println("ignoring event non-bounty post: ", err)
 				} else {
 					log.Println("new bounty amount addr", nbe.Amount.String(), nbe.Originator.String())
-					bountyStruct, err := bp.session.Bounties(nbe.Originator, nbe.Num)
+					bountyStruct, err := bp.session.BountiesByAddress(nbe.Originator, nbe.Num)
 					if err != nil {
 						log.Fatalln("Failed to get bounty based on event: ", err)
 					}
@@ -215,7 +215,7 @@ func (bp *BountyPoster) WatchForBounties(bChan chan *Bounty) error {
 func (bp *BountyPoster) GetActiveBounties() []*Bounty {
 	bts := []*Bounty{}
 	for i := 0; ; i++ {
-		bountyStruct, err := bp.session.Bounties(bp.session.TransactOpts.From, big.NewInt(int64(i)))
+		bountyStruct, err := bp.session.BountiesByAddress(bp.session.TransactOpts.From, big.NewInt(int64(i)))
 		if err != nil {
 			break
 		}

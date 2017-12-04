@@ -2,14 +2,14 @@
 
 * Early Stages of development *
 
-# Introduction
+## Introduction
 
 This repository contains a Perigord project which represents the end-to-end
 (early) test network implementation of Bounties as described in our whitepaper
 (https://polyswarm.io/polyswarm-whitepaper.pdf). Offers are coming soon. All
 contracts in this repo are subject to change.
 
-# Bounties
+## Bounties
 
 Bounties in PolySwarm give enterprises the ability to submit artifacts to
 PolySwarm and receive responses from experts on the maliciousness of artifacts.
@@ -18,7 +18,7 @@ interface for posting suspect artifacts to PolySwarm. Experts can use the same
 interface to stream bounties and post their assertions (opinions) on files of
 interest for which they have expertise.
 
-## Posting (Enterprise/Users)
+### Posting (Enterprise/Users)
 
 There are several components of each bounty posted:
 
@@ -32,7 +32,7 @@ There are several components of each bounty posted:
 Enterprises can leverage the public methods in `bounty/poster.go` as a Golang
 based interface for posting suspect artifacts to PolySwarm.
 
-## Assertions
+### Assertions
 
 Experts can use the same interface to stream bounties and post their assertions
 (opinions) on files of interest for which they have expertise.
@@ -46,16 +46,16 @@ Assertions against posted bounties consist of:
 * Optional metadata (such as e.g. malware family) which provides value-add to
   the bounty poster
 
-# Offers
+## Offers
 
 Offers are a work in progress, but will represent a direct offer from an
 enterprise to a security expert to analyze an artifact. To issue an offer, the
 enterprise will open a Raiden-style channel with the expert and issue zero or
 more offers.
 
-# Running
+## Running
 
-## Native
+### Native
 
 Steps:
 
@@ -65,7 +65,7 @@ Steps:
 3) Run tests with `go test`
 4) Run web interface with `go run main.go`
 
-## Docker
+### Docker
 
 Steps:
 

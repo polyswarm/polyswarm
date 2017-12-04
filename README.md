@@ -1,6 +1,6 @@
 # PolySwarm Alpha
 
-* Early Stages of development *
+*Early Stages of development*
 
 ## Introduction
 

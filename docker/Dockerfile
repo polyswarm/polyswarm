@@ -12,7 +12,7 @@ RUN set -x && \
 
 RUN set -x && \
     cd /tmp && \
-    git clone https://github.com/raiden-network/raiden.git --branch v0.2.0 && \
+    git clone https://github.com/raiden-network/raiden.git && \
     cd raiden && \
     pip install --upgrade -r requirements.txt && \
     python setup.py develop
@@ -26,6 +26,7 @@ ADD /scripts/keystore /keystore
 WORKDIR /go/src/github.com/polyswarm/polyswarm
 RUN go get .
 
+EXPOSE 5001
 EXPOSE 8080
 
 CMD ["go", "run", "main.go"]

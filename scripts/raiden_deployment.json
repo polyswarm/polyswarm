@@ -1,0 +1,6 @@
+{
+  "NettingChannelLibrary.sol:NettingChannelLibrary": "4a72a943ba5f260148cc864936d72ed1d573c8aa",
+  "EndpointRegistry.sol:EndpointRegistry": "dd89c957a4fae86b9dd729a90aa42469d94034e9",
+  "ChannelManagerLibrary.sol:ChannelManagerLibrary": "e1562f18ff1278edbbf1201624512f9c4dceaac7",
+  "Registry.sol:Registry": "191343ea2e338b7a061336fd224e83a83386439b"
+}

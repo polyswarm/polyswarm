@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 
@@ -182,6 +183,20 @@ func main() {
 	}
 
 	bountyPoster = bounty.NewBountyPoster(bountyRegistrySession, nw.Client())
+
+	url := nw.Url()
+	keystore_path := nw.KeystorePath()
+	go func() {
+		// Hardcode some of these parameters for now, these come from deploying
+		// the raiden contracts onto our local test network
+		cmd := exec.Command("raiden", "--eth-rpc-endpoint", "172.17.0.1", "--keystore-path", keystore_path,
+			"--password-file", "scripts/password",
+			"--address", "c3e33c2bb955d691f085544235a7e2698fbca900",
+			"--discovery-contract-address", "e1562f18ff1278edbbf1201624512f9c4dceaac7",
+			"--registry-contract-address", "191343ea2e338b7a061336fd224e83a83386439b",
+		)
+		cmd.Run()
+	}()
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", IndexHandler)

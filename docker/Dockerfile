@@ -6,16 +6,15 @@ RUN set -x && \
     apt-get update && \
     apt-get -y install \
         libssl-dev \
-        python \
-        python-pip && \
+        python3 \
+        python3-pip && \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -x && \
-    cd /tmp && \
-    git clone https://github.com/raiden-network/raiden.git && \
-    cd raiden && \
-    pip install --upgrade -r requirements.txt && \
-    python setup.py develop
+    cd /usr/src && \
+    git clone https://github.com/raiden-network/microraiden.git && \
+    cd microraiden && \
+    pip3 install -e microraiden
 
 RUN mkdir -p /go/src/github.com/polyswarm/polyswarm
 ENV GOPATH=/go
@@ -26,7 +25,6 @@ ADD /scripts/keystore /keystore
 WORKDIR /go/src/github.com/polyswarm/polyswarm
 RUN go get .
 
-EXPOSE 5001
 EXPOSE 8080
 
 CMD ["go", "run", "main.go"]

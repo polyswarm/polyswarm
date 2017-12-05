@@ -42,7 +42,6 @@ func ReadDir(dirname string) []string {
 
 	return filenames
 }
-
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		bounties := bountyPoster.GetActiveBounties()
@@ -184,7 +183,6 @@ func main() {
 
 	bountyPoster = bounty.NewBountyPoster(bountyRegistrySession, nw.Client())
 
-	url := nw.Url()
 	keystore_path := nw.KeystorePath()
 	go func() {
 		// Hardcode some of these parameters for now, these come from deploying

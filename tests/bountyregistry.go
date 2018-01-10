@@ -16,25 +16,26 @@ import (
 	"github.com/polyswarm/perigord/testing"
 
 	"github.com/polyswarm/polyswarm/bindings"
-	"github.com/polyswarm/polyswarm/bounty"
+	"github.com/polyswarm/polyswarm/bountyregistry"
 )
 
-type bountySuite struct {
+type BountyRegistrySuite struct {
 	network *network.Network
 }
 
-var _ = Suite(&bountySuite{})
+var _ = Suite(&BountyRegistrySuite{})
 
-func (s *bountySuite) SetUpTest(c *C) {
+func (s *BountyRegistrySuite) SetUpTest(c *C) {
 	network, err := testing.SetUpTest()
 	if err != nil {
+		fmt.Println(err)
 		c.Fail()
 	}
 
 	s.network = network
 }
 
-func (s *bountySuite) TearDownTest(c *C) {
+func (s *BountyRegistrySuite) TearDownTest(c *C) {
 	testing.TearDownTest()
 }
 
@@ -56,9 +57,9 @@ func getFakeVirusPathAndHash() (string, string) {
 	return p, fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func postFakeVirusBounty(poster *bounty.BountyPoster) (*bounty.Bounty, error) {
+func postFakeVirusBounty(poster *bountyregistry.BountyRegistry) (*bountyregistry.Bounty, error) {
 	pth, _ := getFakeVirusPathAndHash()
-	bnty, err := bounty.NewBounty(pth, 12, 20, 10)
+	bnty, err := bountyregistry.NewBounty(pth, 12, 20, 10)
 	if err != nil {
 		return nil, err
 	}
@@ -71,15 +72,15 @@ func postFakeVirusBounty(poster *bounty.BountyPoster) (*bounty.Bounty, error) {
 	return bnty, nil
 }
 
-func (s *bountySuite) TestBountyPoster(c *C) {
+func (s *BountyRegistrySuite) TestBountyRegistry(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
 
-	receiver := bounty.NewBountyPoster(registry_session, s.network.Client())
-	poster := bounty.NewBountyPoster(registry_session, s.network.Client())
+	receiver := bountyregistry.NewBountyRegistry(registry_session, s.network.Client())
+	poster := bountyregistry.NewBountyRegistry(registry_session, s.network.Client())
 
-	bountyWatchChan := make(chan *bounty.Bounty)
+	bountyWatchChan := make(chan *bountyregistry.Bounty)
 	err := receiver.WatchForBounties(bountyWatchChan)
 	c.Assert(err, IsNil)
 
@@ -116,16 +117,16 @@ func (s *bountySuite) TestBountyPoster(c *C) {
 	c.Fatal("Failed to find posted bounty guid")
 }
 
-func (s *bountySuite) TestBountyPosterAssert(c *C) {
+func (s *BountyRegistrySuite) TestBountyRegistryAssert(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
 
-	receiver := bounty.NewBountyPoster(registry_session, s.network.Client())
-	poster := bounty.NewBountyPoster(registry_session, s.network.Client())
+	receiver := bountyregistry.NewBountyRegistry(registry_session, s.network.Client())
+	poster := bountyregistry.NewBountyRegistry(registry_session, s.network.Client())
 
-	bountyWatchChan := make(chan *bounty.Bounty)
-	assertWatchChan := make(chan *bounty.Assertion)
+	bountyWatchChan := make(chan *bountyregistry.Bounty)
+	assertWatchChan := make(chan *bountyregistry.Assertion)
 
 	err := receiver.WatchForBounties(bountyWatchChan)
 	c.Assert(err, IsNil)
@@ -145,7 +146,7 @@ func (s *bountySuite) TestBountyPosterAssert(c *C) {
 				break
 			}
 
-			asrt, _ := bounty.NewAssertion(true, 100, "")
+			asrt, _ := bountyregistry.NewAssertion(true, 100, "")
 			asrt.SetGuid(newBountyStruct.Guid)
 			rcpt, err := receiver.PostAssertion(context.Background(), newBountyStruct, asrt)
 			c.Assert(err, IsNil)

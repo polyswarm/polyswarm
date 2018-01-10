@@ -1,4 +1,4 @@
-package bounty
+package bountyregistry
 
 import (
 	"crypto/sha256"

@@ -1,10 +1,16 @@
 pragma solidity ^0.4.18;
 
-contract BountyRegistry {
-    //// 
-    // VARIABLES
-    ////
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
+import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "NectarToken.sol";
+
+
+contract BountyRegistry is Ownable {
+    using SafeMath for uint256;
+
     address internal owner;
+    NectarToken token;
+
     uint256 public constant BOUNTY_LISTING_FEE = 10;
     uint256 public constant BOUNTY_ASSERTION_FEE = 1;
     uint256 public constant BOUNTY_BID_MINIMUM = 1;
@@ -13,7 +19,6 @@ contract BountyRegistry {
     struct Bounty {
         address author;
         uint128 guid;
-        uint256 bountyFee;
         uint256 bountyAmount;
         string artifactHash;
         string artifactURI;
@@ -32,9 +37,6 @@ contract BountyRegistry {
     mapping (address => Bounty[]) public bountiesByAddress;
     mapping (uint128 => Assertion[]) public assertionsByGuid;
     
-    ////
-    // EVENTS
-    ////
     event NewBounty(
         address author,
         uint128 guid,
@@ -48,16 +50,11 @@ contract BountyRegistry {
         uint256 index
     );
 
-    //// 
-    // CONSTRUCTOR
-    ////
-    function BountyRegistry() public payable {
+    function BountyRegistry(address nectarTokenAddr) public {
         owner = msg.sender;
+        token = NectarToken(nectarTokenAddr);
     }
 
-    ////
-    // PUBLIC FUNCTIONS
-    ////
     function registerAssertion(
         address bountyAuthor, 
         uint128 bountyGuid, 
@@ -66,20 +63,24 @@ contract BountyRegistry {
         string metadata
     )
         public
-        payable
     {
-        // TODO check this bid and make transfer into contract escrow
-        require(assertBid >= BOUNTY_BID_MINIMUM);
+        // Check if this bounty has been initialized
         require(bountyAuthor != address(0));
         require(bountiesByGuid[bountyGuid].author == bountyAuthor);
-            
+        // Check that our bid amount is sufficient
+        require(assertBid >= BOUNTY_BID_MINIMUM);
+
+        // Assess fees and transfer bid amount into escrow
+        require(token.transferFrom(msg.sender, address(this), assertBid.add(BOUNTY_ASSERTION_FEE))); 
+ 
         // Instantiate an Assertion and populate it with function arguments.
-        Assertion memory a;
-        a.author = msg.sender;
-        a.malicious = malicious;
-        a.blockTime = block.number;
-        a.assertBid = assertBid;
-        a.metadata = metadata;
+        Assertion memory a = Assertion(
+            msg.sender,
+            malicious,
+            block.number,
+            assertBid,
+            metadata
+        );
 
         uint256 index = assertionsByGuid[bountyGuid].push(a) - 1;
 
@@ -87,7 +88,6 @@ contract BountyRegistry {
     }
     
     function registerBounty(
-        uint256 bFee, 
         uint256 bountyAmt, 
         string aHash, 
         string aURI, 
@@ -95,30 +95,48 @@ contract BountyRegistry {
         uint128 guid
     )
         public
-        payable
     {
         // Check if a bounty with this GUID has already been initialized
         require(bountiesByGuid[guid].author == address(0));
-
-        // Check whether posted Fee is sufficient.
-        // TODO: check that ambassador has enough token as second part here.
-        require(bFee >= BOUNTY_LISTING_FEE);
+        // Check that our bounty amount is sufficient
         require(bountyAmt >= BOUNTY_AMOUNT_MINIMUM);
+
+        // Assess fees and transfer bounty amount into escrow
+        require(token.transferFrom(msg.sender, address(this), bountyAmt.add(BOUNTY_LISTING_FEE))); 
         
         // Instantiate a Bounty and populate with function arguments.
-        Bounty memory b;
-        b.author = msg.sender;
-        b.guid = guid;
-        b.blockDeadline = block.number + numBlocksDeadline;
-        b.artifactHash = aHash;
-        b.artifactURI = aURI;
-        b.bountyAmount = bountyAmt;
-        b.bountyFee = bFee;
-        
+        Bounty memory b = Bounty(
+            msg.sender,
+            guid,
+            bountyAmt,
+            aHash,
+            aURI,
+            block.number + numBlocksDeadline
+        );
         bountiesByGuid[guid] = b;
         bountiesByAddress[msg.sender].push(b);
         
-        NewBounty(msg.sender, b.guid, b.bountyAmount, b.blockDeadline);
+        NewBounty(
+            msg.sender,
+            b.guid,
+            b.bountyAmount,
+            b.blockDeadline
+        );
+    }
+
+    // TODO: The final verdict will be determined by arbiters, for now the only
+    // vote that counts is the contract owner
+    function settleBounty(
+        uint128 guid,
+        bool malicious
+    )
+        public
+    {
+        // Check if this bounty has been initialized
+        require(bountiesByGuid[guid].author != address(0));
+        // Check if the deadline has expired
+        require(bountiesByGuid[guid].blockDeadline <= block.number);
+
+        // Iterate all assertions and pay out accordingly from contract escrow
     }
 }
-

@@ -33,7 +33,7 @@ func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclien
 }
 
 func (br *BountyRegistry) PostBounty(ctx context.Context, bnty *Bounty) (*types.Receipt, error) {
-	tx, err := br.session.RegisterBounty(bnty.BountyFee, bnty.BountyAmount, bnty.ArtifactHash, bnty.ArtifactURI, bnty.BlockDeadline, bnty.Guid)
+	tx, err := br.session.RegisterBounty(bnty.BountyAmount, bnty.ArtifactHash, bnty.ArtifactURI, bnty.BlockDeadline, bnty.Guid)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,6 @@ func (br *BountyRegistry) WatchForBounties(bChan chan *Bounty) error {
 					nb.Guid = bountyStruct.Guid
 					nb.BlockDeadline = bountyStruct.BlockDeadline
 					nb.BountyAmount = bountyStruct.BountyAmount
-					nb.BountyFee = bountyStruct.BountyFee
 
 					bChan <- nb
 					log.Println("Bounty URI", bountyStruct.ArtifactURI, bountyStruct.ArtifactHash)

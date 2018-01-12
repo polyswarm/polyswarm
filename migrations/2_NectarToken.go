@@ -2,7 +2,6 @@ package migrations
 
 import (
 	"context"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -22,7 +21,7 @@ func (d *NectarTokenDeployer) Deploy(ctx context.Context, network *network.Netwo
 	network.Unlock(account, "blah")
 
 	auth := network.NewTransactor(account)
-	address, transaction, contract, err := bindings.DeployNectarToken(auth, network.Client(), big.NewInt(1000000), "Nectar Token", 18, "NCT")
+	address, transaction, contract, err := bindings.DeployNectarToken(auth, network.Client())
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}

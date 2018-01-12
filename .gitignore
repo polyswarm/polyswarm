@@ -1,3 +1,4 @@
 bindings/
 build/
 dev.json
+*.swp

@@ -58,11 +58,10 @@ func getFakeVirusPathAndHash() (string, string) {
 
 func postFakeVirusBounty(poster *bounty.BountyRegistry) (*bounty.Bounty, error) {
 	pth, _ := getFakeVirusPathAndHash()
-	bnty, err := bounty.NewBounty(pth, 12, 20, 10)
+	bnty, err := bounty.NewBounty(pth, 20, 10)
 	if err != nil {
 		return nil, err
 	}
-	bnty.Upload()
 	_, err = poster.PostBounty(context.Background(), bnty)
 	if err != nil {
 		return nil, err
@@ -91,7 +90,7 @@ func (s *BountyRegistrySuite) TestBountyRegistry(c *C) {
 
 	foundBounty := false
 	for _, b := range ctractBnty {
-		if b.GuidEq(bnty) {
+		if b.Guid.Cmp(bnty.Guid) == 0 {
 			foundBounty = true
 		}
 	}
@@ -145,7 +144,7 @@ func (s *BountyRegistrySuite) TestBountyRegistryAssert(c *C) {
 				break
 			}
 
-			asrt, _ := bounty.NewAssertion(true, 100, "")
+			asrt := bounty.NewAssertion(true, 100, "")
 			rcpt, err := receiver.PostAssertion(context.Background(), newBountyStruct, asrt)
 			c.Assert(err, IsNil)
 

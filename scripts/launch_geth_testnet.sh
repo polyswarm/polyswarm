@@ -1,15 +1,15 @@
 #!/bin/bash
 
-DEV_DIR=$HOME/etherdev
+DIR=/tmp/geth_private_testnet
 
-mkdir -p $DEV_DIR/etc $DEV_DIR/keystore
-cp ./genesis.json $DEV_DIR
-cp ./keystore/* $DEV_DIR/keystore/
-echo -n blah > $DEV_DIR/etc/pw
+# cd to script directory
+mkdir -p $DIR
+cd "${0%/*}"
 
-geth --datadir $DEV_DIR --nodiscover --maxpeers 0 --mine --minerthreads 1 --rpc init $DEV_DIR/genesis.json
-geth --datadir $DEV_DIR --nodiscover --maxpeers 0 --mine --minerthreads 1 --rpc --rpcaddr "0.0.0.0" --rpcapi "eth,web3,personal,net" console
+cp ./genesis.json $DIR/
+cp -r ./keystore $DIR/
+mkdir -p $DIR/etc
+echo -n blah > $DIR/etc/pw
 
-geth --exec "personal.unlockAccount(eth.accounts[0], \"blah\", 0)" attach http://localhost:8545
-geth --exec "personal.unlockAccount(eth.accounts[1], \"blah\", 0)" attach http://localhost:8545
-geth --exec "personal.unlockAccount(eth.accounts[2], \"blah\", 0)" attach http://localhost:8545
+geth --datadir $DIR --nodiscover --maxpeers 0 init $DIR/genesis.json
+geth --datadir $DIR --nodiscover --maxpeers 0 --mine --minerthreads 1 --rpc --rpcapi "eth,web3,personal,net" console

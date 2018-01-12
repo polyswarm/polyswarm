@@ -1,4 +1,4 @@
-package bountyregistry
+package bounty
 
 import (
 	"crypto/sha256"
@@ -12,13 +12,13 @@ import (
 
 // todo this constantly needs to be kept up to date with the contract abi since it only returns anon structure
 type Bounty struct {
-	Originator    common.Address
+	Author        common.Address
+	Guid          *big.Int
 	BountyFee     *big.Int
 	BountyAmount  *big.Int
 	ArtifactHash  string
 	ArtifactURI   string
 	BlockDeadline *big.Int
-	Guid          *big.Int
 
 	localFilePath string
 }
@@ -30,8 +30,20 @@ type Assertion struct {
 	AssertBid *big.Int
 	Metadata  string
 
-	// TODO this is not part of dstruct in solidity contract.
-	Guid *big.Int
+	BountyGuid *big.Int
+}
+
+type NewBountyEvent struct {
+	Author   common.Address
+	Guid     *big.Int
+	Amount   *big.Int
+	Deadline *big.Int
+}
+
+type NewAssertionEvent struct {
+	Author     common.Address
+	BountyGuid *big.Int
+	Index      *big.Int
 }
 
 func NewAssertion(mal bool, bid int, metadata string) (*Assertion, error) {
@@ -46,10 +58,6 @@ func NewAssertion(mal bool, bid int, metadata string) (*Assertion, error) {
 
 func (a *Assertion) SetAuthor(oa common.Address) {
 	a.Author = oa
-}
-
-func (a *Assertion) SetGuid(g *big.Int) {
-	a.Guid = g
 }
 
 func NewBounty(pth string, fee, bountyAmount, blocksFromNow int) (*Bounty, error) {

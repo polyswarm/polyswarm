@@ -3,5 +3,5 @@ license: Apache 2.0
 
 networks:
     dev:
-        url: /home/user/etherdev/geth.ipc
-        keystore: /home/user/etherdev/keystore
+        url: /tmp/geth_private_testnet/geth.ipc
+        keystore: /tmp/geth_private_testnet/keystore

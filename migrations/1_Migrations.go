@@ -9,9 +9,8 @@ import (
 
 	"github.com/polyswarm/perigord/contract"
 	"github.com/polyswarm/perigord/migration"
+	"github.com/polyswarm/perigord/migration/bindings"
 	"github.com/polyswarm/perigord/network"
-
-	"github.com/polyswarm/polyswarm/bindings"
 )
 
 type MigrationsDeployer struct{}

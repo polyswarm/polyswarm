@@ -1,6 +1,3 @@
-// TODO: come up with a better name than bounty "amount"
-// TODO: always be explicit between 'storage' and 'memory'
-
 pragma solidity ^0.4.18;
 
 contract BountyRegistry {
@@ -10,8 +7,18 @@ contract BountyRegistry {
     address internal owner;
     uint256 public constant BOUNTY_LISTING_FEE = 10;
     uint256 public constant BOUNTY_ASSERTION_FEE = 1;
-    uint public constant BOUNTY_BID_MINIMUM = 1;
-    uint public constant BOUNTY_AMOUNT_MINIMUM = 1;
+    uint256 public constant BOUNTY_BID_MINIMUM = 1;
+    uint256 public constant BOUNTY_AMOUNT_MINIMUM = 1;
+
+    struct Bounty {
+        address author;
+        uint128 guid;
+        uint256 bountyFee;
+        uint256 bountyAmount;
+        string artifactHash;
+        string artifactURI;
+        uint256 blockDeadline;
+    }
 
     struct Assertion {
         address author;
@@ -20,68 +27,51 @@ contract BountyRegistry {
         uint256 assertBid;
         string metadata;
     }
-    
-    struct Bounty {
-        address originator;
-        uint256 bountyFee;
-        uint256 bountyAmount;
-        string artifactHash;
-        string artifactURI;
-        uint256 blockDeadline; // block number
-        uint128 guid;
-    }
-    
-    // bountiesByAddress is a map from addresses to a list of Bountys
+   
+    mapping (uint128 => Bounty) public bountiesByGuid;
     mapping (address => Bounty[]) public bountiesByAddress;
-
-    // bountyByGuid is a map from GUID to a Bounty
-    mapping (uint128 => Bounty) public bountyByGuid;
-
-    // assertions is a map from GUID to a list of Assertions
-    mapping (uint128 => Assertion[]) public assertions;
+    mapping (uint128 => Assertion[]) public assertionsByGuid;
     
     ////
     // EVENTS
     ////
-    event NewBounty (
-        address originator,  
-        uint num, 
-        uint256 amount, 
+    event NewBounty(
+        address author,
+        uint128 guid,
+        uint256 amount,
         uint256 deadlineBlock
     );
     
-    event NewAssertion (
-        address author, 
-        uint128 guid, 
-        uint num
+    event NewAssertion(
+        address author,
+        uint128 bountyGuid,
+        uint256 index
     );
-        
+
     //// 
     // CONSTRUCTOR
     ////
-    function BountyRegistry () 
-    // returns nil
-    {
+    function BountyRegistry() public payable {
         owner = msg.sender;
     }
 
     ////
     // PUBLIC FUNCTIONS
     ////
-    function registerAssertion (
+    function registerAssertion(
         address bountyAuthor, 
         uint128 bountyGuid, 
         bool malicious, 
         uint256 assertBid, 
-        string metadata)
-    public
-    // Transactional (requires Gas)
-    // returns nil
+        string metadata
+    )
+        public
+        payable
     {
         // TODO check this bid and make transfer into contract escrow
         require(assertBid >= BOUNTY_BID_MINIMUM);
         require(bountyAuthor != address(0));
-        require(bountyByGuid[bountyGuid].originator == bountyAuthor);
+        require(bountiesByGuid[bountyGuid].author == bountyAuthor);
             
         // Instantiate an Assertion and populate it with function arguments.
         Assertion memory a;
@@ -91,25 +81,24 @@ contract BountyRegistry {
         a.assertBid = assertBid;
         a.metadata = metadata;
 
-        assertions[bountyGuid].push(a);
-        uint cLen = assertions[bountyGuid].length-1;
+        uint256 index = assertionsByGuid[bountyGuid].push(a) - 1;
 
-        NewAssertion(msg.sender, bountyGuid, cLen);
+        NewAssertion(msg.sender, bountyGuid, index);
     }
     
-    function registerBounty (
+    function registerBounty(
         uint256 bFee, 
         uint256 bountyAmt, 
         string aHash, 
         string aURI, 
         uint256 numBlocksDeadline, 
-        uint128 guid) 
-    public
-    // Transactional (requires Gas)
-    // returns nil    
+        uint128 guid
+    )
+        public
+        payable
     {
         // Check if a bounty with this GUID has already been initialized
-        require(bountyByGuid[guid].originator == address(0));
+        require(bountiesByGuid[guid].author == address(0));
 
         // Check whether posted Fee is sufficient.
         // TODO: check that ambassador has enough token as second part here.
@@ -118,19 +107,18 @@ contract BountyRegistry {
         
         // Instantiate a Bounty and populate with function arguments.
         Bounty memory b;
-        b.originator = msg.sender;
+        b.author = msg.sender;
+        b.guid = guid;
         b.blockDeadline = block.number + numBlocksDeadline;
         b.artifactHash = aHash;
         b.artifactURI = aURI;
         b.bountyAmount = bountyAmt;
         b.bountyFee = bFee;
-        b.guid = guid;
         
-        bountyByGuid[guid] = b;
+        bountiesByGuid[guid] = b;
         bountiesByAddress[msg.sender].push(b);
-        uint cLen = bountiesByAddress[msg.sender].length-1;
         
-        NewBounty(msg.sender, cLen, b.bountyAmount, b.blockDeadline);
+        NewBounty(msg.sender, b.guid, b.bountyAmount, b.blockDeadline);
     }
 }
 

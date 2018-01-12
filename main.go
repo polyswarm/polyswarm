@@ -12,11 +12,11 @@ import (
 	"github.com/polyswarm/perigord/network"
 
 	"github.com/polyswarm/polyswarm/bindings"
-	"github.com/polyswarm/polyswarm/bountyregistry"
+	"github.com/polyswarm/polyswarm/bounty"
 	_ "github.com/polyswarm/polyswarm/migrations"
 )
 
-var bountyRegistry *bountyregistry.BountyRegistry
+var bountyRegistry *bounty.BountyRegistry
 
 func main() {
 	network.InitNetworks()
@@ -26,7 +26,7 @@ func main() {
 		log.Fatalln("could not connect to dev network: ", err)
 	}
 
-	if err := migration.RunMigrations(context.Background(), nw); err != nil {
+	if err := migration.RunMigrations(context.Background(), nw, false); err != nil {
 		log.Fatalln("error running migrations: ", err)
 	}
 
@@ -35,7 +35,7 @@ func main() {
 		log.Fatalln("Invalid bounty registry session")
 	}
 
-	bountyRegistry = bountyregistry.NewBountyRegistry(bountyRegistrySession, nw.Client())
+	bountyRegistry = bounty.NewBountyRegistry(bountyRegistrySession, nw.Client())
 	//keystore_path := nw.KeystorePath()
 
 	r := mux.NewRouter().StrictSlash(true)

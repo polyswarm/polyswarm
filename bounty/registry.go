@@ -1,4 +1,4 @@
-package bountyregistry
+package bounty
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -13,9 +14,9 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
+	"github.com/polyswarm/perigord"
 	"github.com/polyswarm/perigord/contract"
 	"github.com/polyswarm/polyswarm/bindings"
-	"github.com/polyswarm/polyswarm/ethutil"
 )
 
 type BountyRegistry struct {
@@ -24,7 +25,7 @@ type BountyRegistry struct {
 }
 
 func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclient.Client) *BountyRegistry {
-	session.TransactOpts.GasLimit = big.NewInt(1000000)
+	session.TransactOpts.GasLimit = 1000000
 	return &BountyRegistry{
 		session: session,
 		client:  client,
@@ -37,24 +38,27 @@ func (br *BountyRegistry) PostBounty(ctx context.Context, bnty *Bounty) (*types.
 		return nil, err
 	}
 
-	return ethutil.WaitMined(ctx, br.client, tx)
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+	return perigord.WaitMined(ctx, br.client, tx)
 }
 
 func (br *BountyRegistry) PostAssertion(ctx context.Context, bnty *Bounty, astn *Assertion) (*types.Receipt, error) {
 	astn.Author = br.session.TransactOpts.From
-	astn.SetGuid(bnty.Guid)
-	tx, err := br.session.RegisterAssertion(bnty.Originator, bnty.Guid, astn.Malicious, astn.AssertBid, astn.Metadata)
+	tx, err := br.session.RegisterAssertion(bnty.Author, bnty.Guid, astn.Malicious, astn.AssertBid, astn.Metadata)
 	if err != nil {
 		return nil, err
 	}
 
-	return ethutil.WaitMined(ctx, br.client, tx)
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+	return perigord.WaitMined(ctx, br.client, tx)
 }
 
 func (br *BountyRegistry) WatchForBounties(bChan chan *Bounty) error {
 	q := ethereum.FilterQuery{
 		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
-		Topics:    [][]common.Hash{{ethutil.EventSignatureToTopicHash("NewBounty(address,uint256,uint256,uint256)")}},
+		Topics:    [][]common.Hash{{perigord.EventSignatureToTopicHash("NewBounty(address,uint128,uint256,uint256)")}},
 	}
 
 	logChan := make(chan types.Log)
@@ -75,19 +79,12 @@ func (br *BountyRegistry) WatchForBounties(bChan chan *Bounty) error {
 		for {
 			select {
 			case logMsg := <-logChan:
-				type NewBountyEvent struct {
-					Originator common.Address
-					Num        *big.Int
-					Amount     *big.Int
-					Deadline   *big.Int
-				}
-
 				var nbe NewBountyEvent
 				if err := abi.Unpack(&nbe, "NewBounty", logMsg.Data); err != nil {
-					log.Println("ignoring event non-bounty post: ", err)
+					log.Println("Ignoring event non-bounty post: ", err)
 				} else {
-					log.Println("new bounty amount addr", nbe.Amount.String(), nbe.Originator.String())
-					bountyStruct, err := br.session.BountiesByAddress(nbe.Originator, nbe.Num)
+					log.Println("New bounty amount addr", nbe.Amount.String(), nbe.Author.String())
+					bountyStruct, err := br.session.BountiesByGuid(nbe.Guid)
 					if err != nil {
 						log.Fatalln("Failed to get bounty based on event: ", err)
 					}
@@ -95,7 +92,7 @@ func (br *BountyRegistry) WatchForBounties(bChan chan *Bounty) error {
 					// todo this is lame, done because we don't have type generated in registry solidity interface
 					nb := new(Bounty)
 
-					nb.Originator = bountyStruct.Originator
+					nb.Author = bountyStruct.Author
 					nb.ArtifactHash = bountyStruct.ArtifactHash
 					nb.ArtifactURI = bountyStruct.ArtifactURI
 					nb.Guid = bountyStruct.Guid
@@ -120,7 +117,7 @@ func (br *BountyRegistry) WatchForBounties(bChan chan *Bounty) error {
 func (br *BountyRegistry) WatchForAssertions(aChan chan *Assertion) error {
 	q := ethereum.FilterQuery{
 		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
-		Topics:    [][]common.Hash{{ethutil.EventSignatureToTopicHash("NewAssertion(address,uint128,uint256)")}},
+		Topics:    [][]common.Hash{{perigord.EventSignatureToTopicHash("NewAssertion(address,uint128,uint256)")}},
 	}
 
 	logChan := make(chan types.Log)
@@ -141,22 +138,16 @@ func (br *BountyRegistry) WatchForAssertions(aChan chan *Assertion) error {
 		for {
 			select {
 			case logMsg := <-logChan:
-				type NewAssertionEvent struct {
-					Author common.Address
-					Guid   *big.Int
-					Num    *big.Int
-				}
-
 				var nae NewAssertionEvent
 				if err := abi.Unpack(&nae, "NewAssertion", logMsg.Data); err != nil {
-					log.Println("ignoring event: ", err)
+					log.Println("Ignoring event: ", err)
 				} else {
-					log.Println("new assertion", nae.Author.String(), nae.Guid.String(), nae.Num.String())
-					assertStruct, err := br.session.Assertions(nae.Guid, nae.Num)
+					log.Println("New assertion", nae.Author.String(), nae.BountyGuid.String())
+					assertStruct, err := br.session.AssertionsByGuid(nae.BountyGuid, nae.Index)
+
 					if err != nil {
 						log.Fatalln("Failed to get assertion based on event: ", err)
 						break
-
 					}
 
 					// todo this is lame, done because we don't have type generated in registry solidity interface
@@ -168,8 +159,7 @@ func (br *BountyRegistry) WatchForAssertions(aChan chan *Assertion) error {
 					na.AssertBid = assertStruct.AssertBid
 					na.Metadata = assertStruct.Metadata
 
-					// todo this is not part of solidity dstruct, but must be added...
-					na.Guid = nae.Guid
+					na.BountyGuid = nae.BountyGuid
 
 					aChan <- na
 					log.Println("Assertion", na.Author.String(), na.Malicious, na.BlockTime.String())

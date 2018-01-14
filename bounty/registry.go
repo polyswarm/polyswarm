@@ -2,9 +2,12 @@ package bounty
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"io"
 	"log"
 	"math/big"
+	"os"
 	"strings"
 	"time"
 
@@ -14,45 +17,94 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
+	"github.com/ipfs/go-ipfs-api"
+
 	"github.com/polyswarm/perigord"
 	"github.com/polyswarm/perigord/contract"
 	"github.com/polyswarm/polyswarm/bindings"
+
+	"github.com/satori/go.uuid"
 )
 
 type BountyRegistry struct {
 	session *bindings.BountyRegistrySession
 	client  *ethclient.Client
+	ipfssh  *shell.Shell
 }
 
-func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclient.Client) *BountyRegistry {
+func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclient.Client, ipfs string) *BountyRegistry {
 	session.TransactOpts.GasLimit = 1000000
 	return &BountyRegistry{
 		session: session,
 		client:  client,
+		ipfssh:  shell.NewShell(ipfs),
 	}
 }
 
-func (br *BountyRegistry) PostBounty(ctx context.Context, bnty *Bounty) (*types.Receipt, error) {
-	tx, err := br.session.PostBounty(bnty.Guid, bnty.Amount, bnty.ArtifactHash, bnty.ArtifactURI, bnty.ExpirationBlock)
+func (br *BountyRegistry) Upload(path string) ([32]byte, string, error) {
+	hash := [32]byte{}
+
+	f, err := os.Open(path)
+	defer f.Close()
+	if err != nil {
+		return hash, "", err
+	}
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return hash, "", err
+	}
+	copy(hash[:], h.Sum(nil))
+
+	f.Seek(0, io.SeekStart)
+	ipfs_hash, err := br.ipfssh.Add(f)
+	if err != nil {
+		return hash, "", err
+	}
+
+	return hash, "/ipfs/" + ipfs_hash, nil
+}
+
+func (br *BountyRegistry) PostBounty(ctx context.Context, path string, amount, blockDuration int) (*big.Int, error) {
+	guidInt := new(big.Int)
+	guidInt.SetBytes(uuid.NewV4().Bytes())
+
+	amountInt := big.NewInt(int64(amount))
+	blockDurationInt := big.NewInt(int64(amount))
+
+	uri, hash, err := br.Upload(path)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := br.session.PostBounty(guidInt, amountInt, uri, hash, blockDurationInt)
 	if err != nil {
 		return nil, err
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
-	return perigord.WaitMined(ctx, br.client, tx)
+	_, err = perigord.WaitMined(ctx, br.client, tx)
+	return guidInt, err
 }
 
-func (br *BountyRegistry) PostAssertion(ctx context.Context, bnty *Bounty, astn *Assertion) (*types.Receipt, error) {
-	astn.Author = br.session.TransactOpts.From
-	tx, err := br.session.PostAssertion(bnty.Guid, astn.Verdict, astn.Bid, astn.Metadata)
+func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int, malicious bool, bid int, metadata string) error {
+	verdict := Malicious
+	if !malicious {
+		verdict = Benign
+	}
+
+	bidInt := big.NewInt(int64(bid))
+
+	tx, err := br.session.PostAssertion(bountyGuid, verdict, bidInt, metadata)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
-	return perigord.WaitMined(ctx, br.client, tx)
+	_, err = perigord.WaitMined(ctx, br.client, tx)
+	return err
 }
 
 func (br *BountyRegistry) WatchForBounties(bChan chan BountyEvent) error {

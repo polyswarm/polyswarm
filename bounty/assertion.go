@@ -26,16 +26,3 @@ type AssertionEvent struct {
 	Assertion  *Assertion
 	BountyGuid *big.Int
 }
-
-func NewAssertion(mal bool, bid int, metadata string) *Assertion {
-	verdict := Malicious
-	if !mal {
-		verdict = Benign
-	}
-
-	return &Assertion{
-		Verdict:  verdict,
-		Bid:      big.NewInt(int64(bid)),
-		Metadata: metadata,
-	}
-}

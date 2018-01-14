@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 
@@ -35,7 +36,7 @@ func main() {
 		log.Fatalln("Invalid bounty registry session")
 	}
 
-	bountyRegistry = bounty.NewBountyRegistry(bountyRegistrySession, nw.Client())
+	bountyRegistry = bounty.NewBountyRegistry(bountyRegistrySession, nw.Client(), os.Getenv("IPFS_URI"))
 	//keystore_path := nw.KeystorePath()
 
 	r := mux.NewRouter().StrictSlash(true)

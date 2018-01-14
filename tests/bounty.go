@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"math/big"
 	"os"
 	"path"
 	"time"
@@ -18,6 +19,8 @@ import (
 	"github.com/polyswarm/polyswarm/bindings"
 	"github.com/polyswarm/polyswarm/bounty"
 )
+
+const IPFS_URL = "localhost:5001"
 
 type BountyRegistrySuite struct {
 	network *network.Network
@@ -56,18 +59,9 @@ func getFakeVirusPathAndHash() (string, string) {
 	return p, fmt.Sprintf("%x", h.Sum(nil))
 }
 
-func postFakeVirusBounty(poster *bounty.BountyRegistry) (*bounty.Bounty, error) {
+func postFakeVirusBounty(poster *bounty.BountyRegistry) (*big.Int, error) {
 	pth, _ := getFakeVirusPathAndHash()
-	bnty, err := bounty.NewBounty(pth, 20, 300)
-	if err != nil {
-		return nil, err
-	}
-	_, err = poster.PostBounty(context.Background(), bnty)
-	if err != nil {
-		return nil, err
-	}
-
-	return bnty, nil
+	return poster.PostBounty(context.Background(), pth, 20, 300)
 }
 
 func (s *BountyRegistrySuite) TestBountyRegistry(c *C) {
@@ -75,22 +69,22 @@ func (s *BountyRegistrySuite) TestBountyRegistry(c *C) {
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
 
-	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client())
-	poster := bounty.NewBountyRegistry(registry_session, s.network.Client())
+	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_URL)
+	poster := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_URL)
 
 	bountyWatchChan := make(chan bounty.BountyEvent)
 	err := receiver.WatchForBounties(bountyWatchChan)
 	c.Assert(err, IsNil)
 
 	// sychronous
-	bnty, err := postFakeVirusBounty(poster)
+	guid, err := postFakeVirusBounty(poster)
 	c.Assert(err, IsNil)
 
 	ctractBnty := poster.GetActiveBounties()
 
 	foundBounty := false
 	for _, b := range ctractBnty {
-		if b.Guid.Cmp(bnty.Guid) == 0 {
+		if b.Guid.Cmp(guid) == 0 {
 			foundBounty = true
 		}
 	}
@@ -101,7 +95,7 @@ func (s *BountyRegistrySuite) TestBountyRegistry(c *C) {
 		select {
 		case newBountyStruct, chanOk := <-bountyWatchChan:
 			c.Assert(chanOk, Equals, true)
-			if newBountyStruct.Guid.Cmp(bnty.Guid) != 0 {
+			if newBountyStruct.Guid.Cmp(guid) != 0 {
 				break
 			}
 			c.Log("got matching bounty", newBountyStruct.ArtifactURI)
@@ -120,8 +114,8 @@ func (s *BountyRegistrySuite) TestBountyRegistryAssert(c *C) {
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
 
-	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client())
-	poster := bounty.NewBountyRegistry(registry_session, s.network.Client())
+	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_URL)
+	poster := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_URL)
 
 	bountyWatchChan := make(chan bounty.BountyEvent)
 	assertWatchChan := make(chan bounty.AssertionEvent)
@@ -133,22 +127,20 @@ func (s *BountyRegistrySuite) TestBountyRegistryAssert(c *C) {
 	c.Assert(err, IsNil)
 
 	time.Sleep(time.Second * 10)
-	bnty, err := postFakeVirusBounty(poster)
+	guid, err := postFakeVirusBounty(poster)
 	c.Assert(err, IsNil)
 
 	stopChan := time.After(time.Second * 30)
 	for {
 		select {
 		case newBountyStruct := <-bountyWatchChan:
-			if newBountyStruct.Guid.Cmp(bnty.Guid) != 0 {
+			if newBountyStruct.Guid.Cmp(guid) != 0 {
 				break
 			}
 
-			asrt := bounty.NewAssertion(true, 100, "")
-			rcpt, err := receiver.PostAssertion(context.Background(), newBountyStruct, asrt)
+			err := receiver.PostAssertion(context.Background(), guid, true, 100, "")
 			c.Assert(err, IsNil)
 
-			c.Log("assert receipt", rcpt.String())
 			assertTimeout := time.After(time.Second * 20)
 			for {
 				select {

@@ -10,13 +10,6 @@ RUN set -x && \
         python-pip && \
     rm -rf /var/lib/apt/lists/*
 
-RUN set -x && \
-    cd /tmp && \
-    git clone https://github.com/raiden-network/raiden.git && \
-    cd raiden && \
-    pip install --upgrade -r requirements.txt && \
-    python setup.py develop
-
 RUN mkdir -p /go/src/github.com/polyswarm/polyswarm
 ENV GOPATH=/go
 ADD . /go/src/github.com/polyswarm/polyswarm

@@ -2,7 +2,6 @@ package bounty
 
 import (
 	"crypto/sha256"
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/satori/go.uuid"
 	"io"
@@ -13,26 +12,32 @@ import (
 
 // Keep these in sync with the BountyRegistry contract
 type Bounty struct {
-	Author        common.Address
-	Guid          *big.Int
-	BountyAmount  *big.Int
-	ArtifactHash  string
-	ArtifactURI   string
-	BlockDeadline *big.Int
+	Author          common.Address
+	Guid            *big.Int
+	Amount          *big.Int
+	ArtifactHash    [32]byte
+	ArtifactURI     string
+	ExpirationBlock *big.Int
+	Verdict         uint8
 }
 
-type NewBountyEvent struct {
-	Author   common.Address
-	Guid     *big.Int
-	Amount   *big.Int
-	Deadline *big.Int
+type NewBountyEventLog struct {
+	Author          common.Address
+	Guid            *big.Int
+	Amount          *big.Int
+	ArtifactHash    [32]byte
+	ArtifactURI     string
+	ExpirationBlock *big.Int
 }
+
+// Type generated from WatchForBounties
+type BountyEvent *Bounty
 
 func NewBounty(pth string, bountyAmount, blocksFromNow int) (*Bounty, error) {
 	b := Bounty{
-		BountyAmount:  big.NewInt(int64(bountyAmount)),
-		BlockDeadline: big.NewInt(int64(blocksFromNow)),
-		Guid:          new(big.Int),
+		Amount:          big.NewInt(int64(bountyAmount)),
+		ExpirationBlock: big.NewInt(int64(blocksFromNow)),
+		Guid:            new(big.Int),
 	}
 
 	b.Guid.SetBytes(uuid.NewV4().Bytes())
@@ -60,8 +65,9 @@ func (b *Bounty) SetArtifact(pth string) error {
 		return err
 	}
 
-	b.ArtifactHash = fmt.Sprintf("%x", h.Sum(nil))
+	// TODO: ipfs
 	b.ArtifactURI = "file://" + pth
+	copy(b.ArtifactHash[:], h.Sum(nil))
 
 	return nil
 }

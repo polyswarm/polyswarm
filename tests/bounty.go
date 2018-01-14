@@ -58,7 +58,7 @@ func getFakeVirusPathAndHash() (string, string) {
 
 func postFakeVirusBounty(poster *bounty.BountyRegistry) (*bounty.Bounty, error) {
 	pth, _ := getFakeVirusPathAndHash()
-	bnty, err := bounty.NewBounty(pth, 20, 10)
+	bnty, err := bounty.NewBounty(pth, 20, 300)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (s *BountyRegistrySuite) TestBountyRegistry(c *C) {
 	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client())
 	poster := bounty.NewBountyRegistry(registry_session, s.network.Client())
 
-	bountyWatchChan := make(chan *bounty.Bounty)
+	bountyWatchChan := make(chan bounty.BountyEvent)
 	err := receiver.WatchForBounties(bountyWatchChan)
 	c.Assert(err, IsNil)
 
@@ -123,8 +123,8 @@ func (s *BountyRegistrySuite) TestBountyRegistryAssert(c *C) {
 	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client())
 	poster := bounty.NewBountyRegistry(registry_session, s.network.Client())
 
-	bountyWatchChan := make(chan *bounty.Bounty)
-	assertWatchChan := make(chan *bounty.Assertion)
+	bountyWatchChan := make(chan bounty.BountyEvent)
+	assertWatchChan := make(chan bounty.AssertionEvent)
 
 	err := receiver.WatchForBounties(bountyWatchChan)
 	c.Assert(err, IsNil)
@@ -152,11 +152,11 @@ func (s *BountyRegistrySuite) TestBountyRegistryAssert(c *C) {
 			assertTimeout := time.After(time.Second * 20)
 			for {
 				select {
-				case newAssertStruct := <-assertWatchChan:
-					if newAssertStruct.BountyGuid.Cmp(newBountyStruct.Guid) != 0 {
+				case assertEvent := <-assertWatchChan:
+					if assertEvent.BountyGuid.Cmp(newBountyStruct.Guid) != 0 {
 						break
 					}
-					c.Log("Suceeded getting assertion back on contract side", newAssertStruct.BountyGuid.String())
+					c.Log("Suceeded getting assertion back on contract side", assertEvent.BountyGuid.String())
 					return
 				case <-assertTimeout:
 					c.Fatal("Failed to get assertion event in allotted time")

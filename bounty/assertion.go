@@ -7,25 +7,35 @@ import (
 
 // Keep these in sync with the BountyRegistry contract
 type Assertion struct {
-	Author    common.Address
-	Malicious bool
-	BlockTime *big.Int
-	AssertBid *big.Int
-	Metadata  string
-
-	BountyGuid *big.Int
+	Author      common.Address
+	Verdict     uint8
+	Bid         *big.Int
+	Metadata    string
+	BlockNumber *big.Int
 }
 
-type NewAssertionEvent struct {
+type NewAssertionEventLog struct {
 	Author     common.Address
+	Verdict    uint8
 	BountyGuid *big.Int
 	Index      *big.Int
 }
 
+// Type generated from WatchForAssertions
+type AssertionEvent struct {
+	Assertion  *Assertion
+	BountyGuid *big.Int
+}
+
 func NewAssertion(mal bool, bid int, metadata string) *Assertion {
+	verdict := Malicious
+	if !mal {
+		verdict = Benign
+	}
+
 	return &Assertion{
-		Malicious: mal,
-		AssertBid: big.NewInt(int64(bid)),
-		Metadata:  metadata,
+		Verdict:  verdict,
+		Bid:      big.NewInt(int64(bid)),
+		Metadata: metadata,
 	}
 }

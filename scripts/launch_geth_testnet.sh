@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIR=/tmp/geth_private_testnet
+DIR=../priv_testnet
 
 # cd to script directory
 mkdir -p $DIR

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -36,7 +37,23 @@ func main() {
 		log.Fatalln("Invalid bounty registry session")
 	}
 
-	bountyRegistry = bounty.NewBountyRegistry(bountyRegistrySession, nw.Client(), os.Getenv("IPFS_URI"))
+	bountyRegistry = bounty.NewBountyRegistry(bountyRegistrySession, nw.Client(), os.Getenv("IPFS_HOST"))
+
+	activeBounties := bountyRegistry.GetActiveBounties()
+	for _, b := range activeBounties {
+		j, err := json.Marshal(b)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Println(string(j))
+
+		var nb bounty.Bounty
+		err = json.Unmarshal(j, &nb)
+
+		log.Println(nb)
+	}
+
 	//keystore_path := nw.KeystorePath()
 
 	r := mux.NewRouter().StrictSlash(true)
@@ -45,6 +62,6 @@ func main() {
 	//	r.HandleFunc("/assertions", AssertionIndexHandler)
 	//	r.HandleFunc("/assertions/{id}", AssertionHandler)
 
-	log.Println("Listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Println("Listening on :31337")
+	log.Fatal(http.ListenAndServe(":31337", r))
 }

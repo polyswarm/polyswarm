@@ -17,9 +17,12 @@ ADD . /go/src/github.com/polyswarm/polyswarm
 ADD /scripts/keystore /keystore
 
 WORKDIR /go/src/github.com/polyswarm/polyswarm
-RUN go get .
+RUN set -x && \
+    perigord build && \
+    go get . && \
+    go install
 
 EXPOSE 5001
 EXPOSE 8080
 
-CMD ["go", "run", "main.go"]
+ENTRYPOINT $GOPATH/bin/polyswarm

@@ -62,22 +62,17 @@ func (br *BountyRegistry) Upload(path string) ([32]byte, string, error) {
 		return hash, "", err
 	}
 
-	return hash, "/ipfs/" + ipfs_hash, nil
+	return hash, "ipfs:" + ipfs_hash, nil
 }
 
-func (br *BountyRegistry) PostBounty(ctx context.Context, path string, amount, blockDuration int) (*big.Int, error) {
+func (br *BountyRegistry) PostBounty(ctx context.Context, hash [32]byte, uri string, amount, blockDuration int) (*big.Int, error) {
 	guidInt := new(big.Int)
-	guidInt.SetBytes(uuid.NewV4().Bytes())
+	guidInt.SetBytes(uuid.Must(uuid.NewV4()).Bytes())
 
 	amountInt := big.NewInt(int64(amount))
 	blockDurationInt := big.NewInt(int64(amount))
 
-	uri, hash, err := br.Upload(path)
-	if err != nil {
-		return nil, err
-	}
-
-	tx, err := br.session.PostBounty(guidInt, amountInt, uri, hash, blockDurationInt)
+	tx, err := br.session.PostBounty(guidInt, amountInt, hash, uri, blockDurationInt)
 	if err != nil {
 		return nil, err
 	}

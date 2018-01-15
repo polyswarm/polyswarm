@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 
 	"github.com/polyswarm/perigord/contract"
 	"github.com/polyswarm/perigord/migration"
@@ -19,13 +20,43 @@ import (
 )
 
 var bountyRegistry *bounty.BountyRegistry
+var upgrader = websocket.Upgrader{}
+
+func eventHandler(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("error upgrading websocket connection:", err)
+		return
+	}
+	defer c.Close()
+
+	eventChan := make(chan *bounty.Event)
+	if err := bountyRegistry.WatchForEvents(eventChan); err != nil {
+		log.Println("error listening for incoming events:", err)
+		return
+	}
+
+	for {
+		event := <-eventChan
+		j, err := json.Marshal(event)
+		if err != nil {
+			log.Println("error marshalling evevnt:", err)
+			continue
+		}
+
+		if err := c.WriteMessage(websocket.TextMessage, j); err != nil {
+			log.Println("error writing response:", err)
+			continue
+		}
+	}
+}
 
 func main() {
 	network.InitNetworks()
 
 	nw, err := network.Dial("dev")
 	if err != nil {
-		log.Fatalln("could not connect to dev network: ", err)
+		log.Fatalln("could not connect to dev network:", err)
 	}
 
 	if err := migration.RunMigrations(context.Background(), nw, false); err != nil {
@@ -39,28 +70,8 @@ func main() {
 
 	bountyRegistry = bounty.NewBountyRegistry(bountyRegistrySession, nw.Client(), os.Getenv("IPFS_HOST"))
 
-	activeBounties := bountyRegistry.GetActiveBounties()
-	for _, b := range activeBounties {
-		j, err := json.Marshal(b)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Println(string(j))
-
-		var nb bounty.Bounty
-		err = json.Unmarshal(j, &nb)
-
-		log.Println(nb)
-	}
-
-	//keystore_path := nw.KeystorePath()
-
 	r := mux.NewRouter().StrictSlash(true)
-	//	r.HandleFunc("/bounties", BountyIndexHandler)
-	//	r.HandleFunc("/bounties/{id}", BountyHandler)
-	//	r.HandleFunc("/assertions", AssertionIndexHandler)
-	//	r.HandleFunc("/assertions/{id}", AssertionHandler)
+	r.HandleFunc("/events", eventHandler)
 
 	log.Println("Listening on :31337")
 	log.Fatal(http.ListenAndServe(":31337", r))

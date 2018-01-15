@@ -8,23 +8,20 @@ import (
 
 // Keep these in sync with the BountyRegistry contract
 type Bounty struct {
-	Author          common.Address
-	Guid            *big.Int
-	Amount          *big.Int
-	ArtifactHash    [32]byte
-	ArtifactURI     string
-	ExpirationBlock *big.Int
-	Verdict         uint8
+	Guid            *big.Int       `json:"guid"`
+	Author          common.Address `json:"author"`
+	Amount          *big.Int       `json:"amount"`
+	ArtifactHash    [32]byte       `json:"hash"`
+	ArtifactURI     string         `json:"uri"`
+	ExpirationBlock *big.Int       `json:"expiration"`
+	Verdict         uint8          `json:"verdict"`
 }
 
 type NewBountyEventLog struct {
-	Author          common.Address
 	Guid            *big.Int
+	Author          common.Address
 	Amount          *big.Int
 	ArtifactHash    [32]byte
 	ArtifactURI     string
 	ExpirationBlock *big.Int
 }
-
-// Type generated from WatchForBounties
-type BountyEvent *Bounty

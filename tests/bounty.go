@@ -2,11 +2,8 @@ package tests
 
 import (
 	"context"
-	"encoding/json"
-	"math/big"
-	"os"
-	"path/filepath"
-	"time"
+	//	"os"
+	//	"path/filepath"
 
 	. "gopkg.in/check.v1"
 
@@ -41,116 +38,69 @@ func (s *BountyRegistrySuite) TearDownTest(c *C) {
 
 // USER TESTS GO HERE
 
-func postFakeVirusBounty(poster *bounty.BountyRegistry) (*big.Int, error) {
-	baseDir, _ := os.Getwd()
-	p := filepath.Join(baseDir, "tests", "test_data", "fake_virus")
-	hash, uri, err := poster.Upload(p)
-	if err != nil {
-		return nil, err
-	}
+//func postFakeVirusBounty(poster *bounty.BountyRegistry) (*big.Int, error) {
+//	//baseDir, _ := os.Getwd()
+//	//p := filepath.Join(baseDir, "tests", "test_data", "fake_virus")
+//	//hash, uri, err := poster.Upload(p)
+//	hash := [32]byte{}
+//	uri := "foo"
+//	//if err != nil {
+//	//	return nil, err
+//	//}
+//
+//	return poster.PostBounty(context.Background(), hash, uri, 20, 300)
+//}
 
-	return poster.PostBounty(context.Background(), hash, uri, 20, 300)
-}
-
-func (s *BountyRegistrySuite) TestBountyRegistry(c *C) {
+func (s *BountyRegistrySuite) TestPostBounty(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
 
-	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
-	poster := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
+	bountyRegistry := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
 
-	bountyWatchChan := make(chan bounty.BountyEvent)
-	err := receiver.WatchForBounties(bountyWatchChan)
+	eventChan := make(chan *bounty.Event)
+	err := bountyRegistry.WatchForEvents(eventChan)
 	c.Assert(err, IsNil)
 
-	// sychronous
-	guid, err := postFakeVirusBounty(poster)
+	// Post fake bounty
+	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
 	c.Assert(err, IsNil)
 
-	activeBounties := poster.GetActiveBounties()
-
-	foundBounty := false
-	for _, b := range activeBounties {
-		if b.Guid.Cmp(guid) == 0 {
-			foundBounty = true
-			c.Log(json.Marshal(b))
-		}
-	}
-	c.Assert(foundBounty, Equals, true)
-
-	stopTimer := time.After(time.Second * 30)
-	for {
-		select {
-		case bounty, chanOk := <-bountyWatchChan:
-			c.Assert(chanOk, Equals, true)
-			if bounty.Guid.Cmp(guid) != 0 {
-				break
-			}
-
-			c.Log("got matching bounty", bounty.ArtifactURI)
-			return
-		case <-stopTimer:
-			c.Fatal("Failed to get bounty event in alotted time")
-			return
-		}
-	}
-
-	c.Fatal("Failed to find posted bounty guid")
+	event := <-eventChan
+	b, ok := event.Body.(bounty.NewBountyEventLog)
+	c.Assert(b, NotNil)
+	c.Assert(ok, Equals, true)
+	c.Assert(b.Guid.Cmp(guid), Equals, 0)
 }
 
-func (s *BountyRegistrySuite) TestBountyRegistryAssert(c *C) {
+func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
 	c.Assert(registry_session, NotNil)
 	c.Assert(ok, Equals, true)
 
-	receiver := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
-	poster := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
+	bountyRegistry := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
 
-	bountyWatchChan := make(chan bounty.BountyEvent)
-	assertWatchChan := make(chan bounty.AssertionEvent)
-
-	err := receiver.WatchForBounties(bountyWatchChan)
+	eventChan := make(chan *bounty.Event)
+	err := bountyRegistry.WatchForEvents(eventChan)
 	c.Assert(err, IsNil)
 
-	err = poster.WatchForAssertions(assertWatchChan)
+	// Post fake bounty
+	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
 	c.Assert(err, IsNil)
 
-	time.Sleep(time.Second * 10)
-	guid, err := postFakeVirusBounty(poster)
+	event := <-eventChan
+	b, ok := event.Body.(bounty.NewBountyEventLog)
+	c.Assert(b, NotNil)
+	c.Assert(ok, Equals, true)
+	c.Assert(b.Guid.Cmp(guid), Equals, 0)
+
+	err = bountyRegistry.PostAssertion(context.Background(), guid, true, 100, "")
 	c.Assert(err, IsNil)
 
-	stopChan := time.After(time.Second * 30)
-	for {
-		select {
-		case bounty := <-bountyWatchChan:
-			if bounty.Guid.Cmp(guid) != 0 {
-				break
-			}
-
-			err := receiver.PostAssertion(context.Background(), guid, true, 100, "")
-			c.Assert(err, IsNil)
-
-			assertTimeout := time.After(time.Second * 20)
-			for {
-				select {
-				case assertion := <-assertWatchChan:
-					if assertion.BountyGuid.Cmp(bounty.Guid) != 0 {
-						break
-					}
-					c.Log("Suceeded getting assertion back on contract side", assertion.BountyGuid.String())
-					return
-				case <-assertTimeout:
-					c.Fatal("Failed to get assertion event in allotted time")
-					return
-				}
-			}
-
-		case <-stopChan:
-			c.Fatal("Failed to get bounty event in allotted time")
-			return
-		}
-	}
-
-	c.Fatal("Failed to find posted bounty guid")
+	event = <-eventChan
+	a, ok := event.Body.(bounty.NewAssertionEventLog)
+	c.Assert(b, NotNil)
+	c.Assert(ok, Equals, true)
+	c.Assert(a.BountyGuid.Cmp(guid), Equals, 0)
+	c.Assert(a.Verdict, Equals, bounty.Malicious)
 }

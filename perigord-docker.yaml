@@ -1,0 +1,7 @@
+project: github.com/polyswarm/polyswarm
+license: Apache 2.0
+
+networks:
+    dev:
+        url: /ethereum/geth.ipc
+        keystore: /ethereum/keystore

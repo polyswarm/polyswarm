@@ -10,7 +10,7 @@ const (
 	Benign
 )
 
-type NewVerdictEvent struct {
+type NewVerdictEventLog struct {
 	BountyGuid *big.Int
 	Verdict    uint8
 }

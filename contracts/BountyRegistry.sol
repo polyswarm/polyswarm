@@ -15,8 +15,8 @@ contract BountyRegistry is Pausable {
     }
 
     struct Bounty {
-        address author;
         uint128 guid;
+        address author;
         uint256 amount;
         bytes32 artifactHash;
         string artifactURI;
@@ -29,17 +29,11 @@ contract BountyRegistry is Pausable {
         Verdict verdict;
         uint256 bid;
         string metadata;
-        uint256 blockNumber;
     }
 
-    event NewVerdict(
-        uint128 bountyGuid,
-        Verdict verdict
-    );
-
     event NewBounty(
-        address author,
         uint128 guid,
+        address author,
         uint256 amount,
         bytes32 artifactHash,
         string artifactURI,
@@ -47,10 +41,17 @@ contract BountyRegistry is Pausable {
     );
 
     event NewAssertion(
+        uint128 bountyGuid,
         address author,
         Verdict verdict,
+        uint256 index,
+        uint256 bid,
+        string metdata
+    );
+
+    event NewVerdict(
         uint128 bountyGuid,
-        uint256 index
+        Verdict verdict
     );
 
     address internal owner;
@@ -92,8 +93,8 @@ contract BountyRegistry is Pausable {
         require(token.transferFrom(msg.sender, address(this), amount.add(BOUNTY_FEE)));
 
         Bounty memory b = Bounty(
-            msg.sender,
             guid,
+            msg.sender,
             amount,
             artifactHash,
             artifactURI,
@@ -104,8 +105,8 @@ contract BountyRegistry is Pausable {
         bountyGuids.push(guid);
 
         NewBounty(
-            b.author,
             b.guid,
+            b.author,
             b.amount,
             b.artifactHash,
             b.artifactURI,
@@ -137,13 +138,19 @@ contract BountyRegistry is Pausable {
             msg.sender,
             verdict,
             bid,
-            metadata,
-            block.number
+            metadata
         );
 
         uint256 index = assertionsByGuid[bountyGuid].push(a) - 1;
 
-        NewAssertion(msg.sender, verdict, bountyGuid, index);
+        NewAssertion(
+            bountyGuid,
+            a.author,
+            a.verdict,
+            index,
+            a.bid,
+            a.metadata
+        );
     }
 
     // TODO: The final verdict will be determined by arbiters, for now the only

@@ -3,5 +3,5 @@ license: Apache 2.0
 
 networks:
     dev:
-        url: /ethereum/geth.ipc
-        keystore: /ethereum/keystore
+        url: /home/user/go/src/github.com/polyswarm/polyswarm/priv_testnet/geth.ipc
+        keystore: /home/user/go/src/github.com/polyswarm/polyswarm/priv_testnet/keystore

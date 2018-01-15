@@ -45,10 +45,10 @@ func (br *BountyRegistry) Upload(path string) ([32]byte, string, error) {
 	hash := [32]byte{}
 
 	f, err := os.Open(path)
-	defer f.Close()
 	if err != nil {
 		return hash, "", err
 	}
+	defer f.Close()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {
@@ -102,67 +102,25 @@ func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int
 	return err
 }
 
-func (br *BountyRegistry) WatchForBounties(bChan chan BountyEvent) error {
-	q := ethereum.FilterQuery{
-		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
-		Topics:    [][]common.Hash{{perigord.EventSignatureToTopicHash("NewBounty(address,uint128,uint256,bytes32,string,uint256)")}},
-	}
-
-	logChan := make(chan types.Log)
-	sub, err := br.client.SubscribeFilterLogs(context.Background(), q, logChan)
-	if err != nil {
-		return err
-	}
-
-	dec := json.NewDecoder(strings.NewReader(bindings.BountyRegistryABI))
-	var abi abi.ABI
-	if err := dec.Decode(&abi); err != nil {
-		return err
-	}
-
-	go func() {
-		log.Println("Started event monitor")
-
-		for {
-			select {
-			case logMsg := <-logChan:
-				var nbe NewBountyEventLog
-				if err := abi.Unpack(&nbe, "NewBounty", logMsg.Data); err != nil {
-					log.Println("Ignoring event non-bounty post: ", err)
-				} else {
-					log.Println("New bounty amount addr", nbe.Amount.String(), nbe.Author.String())
-
-					bountyStruct, err := br.session.BountiesByGuid(nbe.Guid)
-					if err != nil {
-						log.Fatalln("Failed to get bounty based on event: ", err)
-					}
-
-					nb := Bounty(bountyStruct)
-					bChan <- &nb
-
-					log.Println("Bounty URI", nb.ArtifactURI, nb.ArtifactHash)
-				}
-				break
-			case err := <-sub.Err():
-				log.Fatalln(err)
-				return
-			}
-		}
-	}()
-
-	return nil
+type Event struct {
+	Type string
+	Body interface{}
 }
 
-func (br *BountyRegistry) WatchForAssertions(aChan chan AssertionEvent) error {
-	q := ethereum.FilterQuery{
-		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
-		Topics:    [][]common.Hash{{perigord.EventSignatureToTopicHash("NewAssertion(address,uint8,uint128,uint256)")}},
+func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
+	topics := map[string]common.Hash{
+		"Bounty":    perigord.EventSignatureToTopicHash("NewBounty(uint128,address,uint256,bytes32,string,uint256)"),
+		"Assertion": perigord.EventSignatureToTopicHash("NewAssertion(uint128,address,uint8,uint256,uint256,string)"),
+		"Verdict":   perigord.EventSignatureToTopicHash("NewVerdict(uint128,uint8)"),
 	}
 
-	logChan := make(chan types.Log)
-	sub, err := br.client.SubscribeFilterLogs(context.Background(), q, logChan)
-	if err != nil {
-		return err
+	q := ethereum.FilterQuery{
+		Addresses: []common.Address{contract.AddressOf("BountyRegistry")},
+		Topics: [][]common.Hash{{
+			topics["Bounty"],
+			topics["Assertion"],
+			topics["Verdict"],
+		}},
 	}
 
 	dec := json.NewDecoder(strings.NewReader(bindings.BountyRegistryABI))
@@ -171,36 +129,66 @@ func (br *BountyRegistry) WatchForAssertions(aChan chan AssertionEvent) error {
 		return err
 	}
 
-	go func() {
-		log.Println("Started assertion event monitor")
+	logChan := make(chan types.Log)
+	sub, err := br.client.SubscribeFilterLogs(context.Background(), q, logChan)
+	if err != nil {
+		return err
+	}
 
+	go func() {
+		log.Println("Starting event monitor")
 		for {
 			select {
 			case logMsg := <-logChan:
-				var nae NewAssertionEventLog
-				if err := abi.Unpack(&nae, "NewAssertion", logMsg.Data); err != nil {
-					log.Println("Ignoring event: ", err)
-				} else {
-					log.Println("New assertion", nae.Author.String(), nae.BountyGuid.String())
+				if len(logMsg.Topics) != 1 {
+					log.Println("incorrect number of topics")
+					break
+				}
 
-					assertStruct, err := br.session.AssertionsByGuid(nae.BountyGuid, nae.Index)
-					if err != nil {
-						log.Fatalln("Failed to get assertion based on event: ", err)
+				if logMsg.Topics[0] == topics["Bounty"] {
+					var nbe NewBountyEventLog
+					if err := abi.Unpack(&nbe, "NewBounty", logMsg.Data); err != nil {
+						log.Println("error unpacking log:", err)
 						break
 					}
 
-					na := Assertion(assertStruct)
-					aChan <- AssertionEvent{
-						Assertion:  &na,
-						BountyGuid: nae.BountyGuid,
+					event := &Event{
+						Type: "Bounty",
+						Body: nbe,
 					}
 
-					log.Println("Assertion", na.Author.String(), na.Verdict, na.BlockNumber.String())
+					eventChan <- event
+				} else if logMsg.Topics[0] == topics["Assertion"] {
+					var nae NewAssertionEventLog
+					if err := abi.Unpack(&nae, "NewAssertion", logMsg.Data); err != nil {
+						log.Println("error unpacking log:", err)
+						break
+					}
+
+					event := &Event{
+						Type: "Assertion",
+						Body: nae,
+					}
+
+					eventChan <- event
+				} else if logMsg.Topics[0] == topics["Verdict"] {
+					var nve NewVerdictEventLog
+					if err := abi.Unpack(&nve, "NewVerdict", logMsg.Data); err != nil {
+						log.Println("error unpacking log:", err)
+						break
+					}
+
+					event := &Event{
+						Type: "Verdict",
+						Body: nve,
+					}
+
+					eventChan <- event
 				}
 				break
 			case err := <-sub.Err():
-				log.Fatalln(err)
-				return
+				log.Println(err)
+				break
 			}
 		}
 	}()

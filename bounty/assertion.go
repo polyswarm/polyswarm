@@ -7,22 +7,17 @@ import (
 
 // Keep these in sync with the BountyRegistry contract
 type Assertion struct {
-	Author      common.Address
-	Verdict     uint8
-	Bid         *big.Int
-	Metadata    string
-	BlockNumber *big.Int
+	Author   common.Address `json:"author"`
+	Verdict  uint8          `json:"verdict"`
+	Bid      *big.Int       `json:"bid"`
+	Metadata string         `json:"metadata"`
 }
 
 type NewAssertionEventLog struct {
+	BountyGuid *big.Int
 	Author     common.Address
 	Verdict    uint8
-	BountyGuid *big.Int
 	Index      *big.Int
-}
-
-// Type generated from WatchForAssertions
-type AssertionEvent struct {
-	Assertion  *Assertion
-	BountyGuid *big.Int
+	Bid        *big.Int
+	Metadata   string
 }

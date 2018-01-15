@@ -18,6 +18,7 @@ ADD /scripts/keystore /keystore
 
 WORKDIR /go/src/github.com/polyswarm/polyswarm
 RUN set -x && \
+    mv perigord-docker.yaml perigord.yaml && \
     perigord build && \
     go get . && \
     go install

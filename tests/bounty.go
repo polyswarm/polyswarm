@@ -39,39 +39,41 @@ func (s *BountyRegistrySuite) TearDownTest(c *C) {
 // USER TESTS GO HERE
 
 //func postFakeVirusBounty(poster *bounty.BountyRegistry) (*big.Int, error) {
-//	//baseDir, _ := os.Getwd()
-//	//p := filepath.Join(baseDir, "tests", "test_data", "fake_virus")
-//	//hash, uri, err := poster.Upload(p)
-//	hash := [32]byte{}
-//	uri := "foo"
-//	//if err != nil {
-//	//	return nil, err
-//	//}
+//	baseDir, _ := os.Getwd()
+//	f, err := os.Open(filepath.Join(baseDir, "tests", "test_data", "fake_virus"))
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	hash, uri, err := poster.UploadArtifact(f)
+//	if err != nil {
+//		return nil, err
+//	}
 //
 //	return poster.PostBounty(context.Background(), hash, uri, 20, 300)
 //}
 
-func (s *BountyRegistrySuite) TestPostBounty(c *C) {
-	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
-	c.Assert(registry_session, NotNil)
-	c.Assert(ok, Equals, true)
-
-	bountyRegistry := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
-
-	eventChan := make(chan *bounty.Event)
-	err := bountyRegistry.WatchForEvents(eventChan)
-	c.Assert(err, IsNil)
-
-	// Post fake bounty
-	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
-	c.Assert(err, IsNil)
-
-	event := <-eventChan
-	b, ok := event.Body.(bounty.NewBountyEventLog)
-	c.Assert(b, NotNil)
-	c.Assert(ok, Equals, true)
-	c.Assert(b.Guid.Cmp(guid), Equals, 0)
-}
+//func (s *BountyRegistrySuite) TestPostBounty(c *C) {
+//	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
+//	c.Assert(registry_session, NotNil)
+//	c.Assert(ok, Equals, true)
+//
+//	bountyRegistry := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
+//
+//	eventChan := make(chan *bounty.Event)
+//	err := bountyRegistry.WatchForEvents(eventChan)
+//	c.Assert(err, IsNil)
+//
+//	// Post fake bounty
+//	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
+//	c.Assert(err, IsNil)
+//
+//	event := <-eventChan
+//	b, ok := event.Body.(bounty.NewBountyEventLog)
+//	c.Assert(b, NotNil)
+//	c.Assert(ok, Equals, true)
+//	c.Assert(b.Guid.Cmp(guid), Equals, 0)
+//}
 
 func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
@@ -102,5 +104,5 @@ func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	c.Assert(b, NotNil)
 	c.Assert(ok, Equals, true)
 	c.Assert(a.BountyGuid.Cmp(guid), Equals, 0)
-	c.Assert(a.Verdict, Equals, bounty.Malicious)
+	c.Assert(a.Verdict, Equals, uint8(bounty.Malicious))
 }

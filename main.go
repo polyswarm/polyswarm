@@ -3,9 +3,14 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
+	"strconv"
+
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -17,6 +22,10 @@ import (
 	"github.com/polyswarm/polyswarm/bindings"
 	"github.com/polyswarm/polyswarm/bounty"
 	_ "github.com/polyswarm/polyswarm/migrations"
+
+	"github.com/satori/go.uuid"
+
+	"github.com/tv42/base58"
 )
 
 var bountyRegistry *bounty.BountyRegistry
@@ -51,6 +60,230 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getArtifactsHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	ipfshash := vars["ipfshash"]
+
+	// Verify that this is at least valid base58
+	if _, err := base58.DecodeToBig([]byte(ipfshash)); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	reader, err := bountyRegistry.DownloadArtifact(ipfshash)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"%v\"")
+	io.Copy(w, reader)
+}
+
+func postArtifactsHandler(w http.ResponseWriter, r *http.Request) {
+	hash, uri, err := bountyRegistry.UploadArtifact(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"hash": hash,
+		"uri":  uri,
+	}
+	j, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
+func getBountiesHandler(w http.ResponseWriter, r *http.Request) {
+	j, err := json.Marshal(bountyRegistry.GetBounties())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
+func postBountiesHandler(w http.ResponseWriter, r *http.Request) {
+	var b struct {
+		Amount       int         `json:"amount"`
+		ArtifactHash common.Hash `json:"hash"`
+		ArtifactURI  string      `json:"uri"`
+		Duration     int         `json:"duration"`
+	}
+
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&b); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	guid, err := bountyRegistry.PostBounty(context.Background(), b.ArtifactHash, b.ArtifactURI, b.Amount, b.Duration)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"guid": guid,
+	}
+	j, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
+func getActiveBountiesHandler(w http.ResponseWriter, r *http.Request) {
+	j, err := json.Marshal(bountyRegistry.GetActiveBounties())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
+func getBountyHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	guid, err := uuid.FromString(vars["guid"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	guidInt := new(big.Int)
+	guidInt.SetBytes(guid.Bytes())
+	b := bountyRegistry.GetBountyByGuid(guidInt)
+	if b == nil {
+		http.Error(w, "invalid guid", http.StatusBadRequest)
+		return
+	}
+
+	j, err := json.Marshal(b)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
+func getAssertionsHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	guid, err := uuid.FromString(vars["guid"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	guidInt := new(big.Int)
+	guidInt.SetBytes(guid.Bytes())
+	j, err := json.Marshal(bountyRegistry.GetAssertionsByGuid(guidInt))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
+func postAssertionsHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	guid, err := uuid.FromString(vars["guid"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	guidInt := new(big.Int)
+	guidInt.SetBytes(guid.Bytes())
+
+	var a struct {
+		Verdict  bounty.Verdict `json:"verdict"`
+		Bid      int            `json:"bid"`
+		Metadata string         `json:"metadata"`
+	}
+
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&a); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var malicious bool
+	if a.Verdict == bounty.Malicious {
+		malicious = true
+	} else if a.Verdict == bounty.Benign {
+		malicious = false
+	} else {
+		http.Error(w, "invalid verdict", http.StatusBadRequest)
+		return
+	}
+
+	err = bountyRegistry.PostAssertion(context.Background(), guidInt, malicious, a.Bid, a.Metadata)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{}
+	j, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
+func getAssertionHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	guid, err := uuid.FromString(vars["guid"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	guidInt := new(big.Int)
+	guidInt.SetBytes(guid.Bytes())
+	assertions := bountyRegistry.GetAssertionsByGuid(guidInt)
+
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if id < 0 || id >= len(assertions) {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	j, err := json.Marshal(assertions[id])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
 func main() {
 	network.InitNetworks()
 
@@ -72,6 +305,17 @@ func main() {
 
 	r := mux.NewRouter().StrictSlash(true)
 	r.HandleFunc("/events", eventHandler)
+
+	r.HandleFunc("/artifacts/{ipfshash}", getArtifactsHandler).Methods("GET")
+	r.HandleFunc("/artifacts", postArtifactsHandler).Methods("POST")
+
+	r.HandleFunc("/bounties", getBountiesHandler).Methods("GET")
+	r.HandleFunc("/bounties", postBountiesHandler).Methods("POST")
+	r.HandleFunc("/bounties/active", getActiveBountiesHandler).Methods("GET")
+	r.HandleFunc("/bounties/{guid}", getBountyHandler).Methods("GET")
+	r.HandleFunc("/bounties/{guid}/assertions", getAssertionsHandler).Methods("GET")
+	r.HandleFunc("/bounties/{guid}/assertions", postAssertionsHandler).Methods("POST")
+	r.HandleFunc("/bounties/{guid}/assertions/{id}", getAssertionHandler).Methods("GET")
 
 	log.Println("Listening on :31337")
 	log.Fatal(http.ListenAndServe(":31337", r))

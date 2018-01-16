@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"math/big"
-	"os"
 	"strings"
 	"time"
 
@@ -41,36 +40,65 @@ func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclien
 	}
 }
 
-func (br *BountyRegistry) Upload(path string) ([32]byte, string, error) {
-	hash := [32]byte{}
+func (br *BountyRegistry) UploadArtifact(r io.Reader) (common.Hash, string, error) {
+	hashR, hashW := io.Pipe()
+	ipfsR, ipfsW := io.Pipe()
 
-	f, err := os.Open(path)
-	if err != nil {
-		return hash, "", err
+	hashChan := make(chan common.Hash, 1)
+	uriChan := make(chan string, 1)
+	doneChan := make(chan bool, 2)
+	errorChan := make(chan error, 2)
+
+	go func() {
+		hash := common.Hash{}
+		h := sha256.New()
+		if _, err := io.Copy(h, hashR); err != nil {
+			errorChan <- err
+		}
+		copy(hash[:], h.Sum(nil))
+		hashChan <- hash
+		doneChan <- true
+	}()
+
+	go func() {
+		ipfs_hash, err := br.ipfssh.Add(ipfsR)
+		if err != nil {
+			errorChan <- err
+		}
+		uriChan <- ipfs_hash
+		doneChan <- true
+	}()
+
+	go func() {
+		defer hashW.Close()
+		defer ipfsW.Close()
+
+		mw := io.MultiWriter(hashW, ipfsW)
+		io.Copy(mw, r)
+	}()
+
+	for c := 0; c < 2; c++ {
+		select {
+		case _ = <-doneChan:
+			break
+		case err := <-errorChan:
+			return common.Hash{}, "", err
+		}
 	}
-	defer f.Close()
 
-	h := sha256.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return hash, "", err
-	}
-	copy(hash[:], h.Sum(nil))
-
-	f.Seek(0, io.SeekStart)
-	ipfs_hash, err := br.ipfssh.Add(f)
-	if err != nil {
-		return hash, "", err
-	}
-
-	return hash, "ipfs:" + ipfs_hash, nil
+	return <-hashChan, <-uriChan, nil
 }
 
-func (br *BountyRegistry) PostBounty(ctx context.Context, hash [32]byte, uri string, amount, blockDuration int) (*big.Int, error) {
+func (br *BountyRegistry) DownloadArtifact(ipfshash string) (io.ReadCloser, error) {
+	return br.ipfssh.Cat(ipfshash)
+}
+
+func (br *BountyRegistry) PostBounty(ctx context.Context, hash common.Hash, uri string, amount, blockDuration int) (*big.Int, error) {
 	guidInt := new(big.Int)
 	guidInt.SetBytes(uuid.Must(uuid.NewV4()).Bytes())
 
 	amountInt := big.NewInt(int64(amount))
-	blockDurationInt := big.NewInt(int64(amount))
+	blockDurationInt := big.NewInt(int64(blockDuration))
 
 	tx, err := br.session.PostBounty(guidInt, amountInt, hash, uri, blockDurationInt)
 	if err != nil {
@@ -91,7 +119,7 @@ func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int
 
 	bidInt := big.NewInt(int64(bid))
 
-	tx, err := br.session.PostAssertion(bountyGuid, verdict, bidInt, metadata)
+	tx, err := br.session.PostAssertion(bountyGuid, uint8(verdict), bidInt, metadata)
 	if err != nil {
 		return err
 	}
@@ -196,7 +224,7 @@ func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 	return nil
 }
 
-func (br *BountyRegistry) GetActiveBounties() []*Bounty {
+func (br *BountyRegistry) GetBounties() []*Bounty {
 	ret := make([]*Bounty, 0)
 	for i := 0; ; i++ {
 		bountyGuid, err := br.session.BountyGuids(big.NewInt(int64(i)))
@@ -204,24 +232,55 @@ func (br *BountyRegistry) GetActiveBounties() []*Bounty {
 			break
 		}
 
-		bountyStruct, err := br.session.BountiesByGuid(bountyGuid)
+		rawBounty, err := br.session.BountiesByGuid(bountyGuid)
 		if err != nil {
 			break
 		}
 
-		nb := Bounty(bountyStruct)
-		ret = append(ret, &nb)
+		ret = append(ret, NewBountyFromRaw(RawBounty(rawBounty)))
+	}
+
+	return ret
+}
+
+func (br *BountyRegistry) GetActiveBounties() []*Bounty {
+	ret := make([]*Bounty, 0)
+
+	block, err := br.client.BlockByNumber(context.Background(), nil)
+	if err != nil {
+		return ret
+	}
+	latest := block.Number()
+
+	bounties := br.GetBounties()
+	for _, b := range bounties {
+		if b.ExpirationBlock.Cmp(latest) >= 0 {
+			ret = append(ret, b)
+		}
 	}
 
 	return ret
 }
 
 func (br *BountyRegistry) GetBountyByGuid(guid *big.Int) *Bounty {
-	bountyStruct, err := br.session.BountiesByGuid(guid)
+	rawBounty, err := br.session.BountiesByGuid(guid)
 	if err != nil {
 		return nil
 	}
 
-	nb := Bounty(bountyStruct)
-	return &nb
+	return NewBountyFromRaw(RawBounty(rawBounty))
+}
+
+func (br *BountyRegistry) GetAssertionsByGuid(guid *big.Int) []*Assertion {
+	ret := make([]*Assertion, 0)
+	for i := 0; ; i++ {
+		rawAssertion, err := br.session.AssertionsByGuid(guid, big.NewInt(int64(i)))
+		if err != nil {
+			break
+		}
+
+		ret = append(ret, NewAssertionFromRaw(RawAssertion(rawAssertion)))
+	}
+
+	return ret
 }

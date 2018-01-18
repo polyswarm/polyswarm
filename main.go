@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -285,6 +286,8 @@ func getAssertionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	time.Sleep(2 * time.Second)
+
 	network.InitNetworks()
 
 	nw, err := network.Dial("dev")

@@ -148,7 +148,6 @@ func (br *BountyRegistry) PostBounty(ctx context.Context, hash common.Hash, uri 
 func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int, verdicts []bool, bid int, metadata string) error {
 	bidInt := big.NewInt(int64(bid))
 	verdictsInt := boolArrayToBigInt(verdicts)
-	log.Println(verdictsInt)
 
 	tx, err := br.session.PostAssertion(bountyGuid, verdictsInt, bidInt, metadata)
 	if err != nil {

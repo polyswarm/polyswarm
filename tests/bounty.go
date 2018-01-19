@@ -107,3 +107,35 @@ func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	c.Assert(a.BountyGuid.Cmp(guid), Equals, 0)
 	c.Assert(a.Verdicts.Cmp(big.NewInt(1)), Equals, 0)
 }
+
+func (s *BountyRegistrySuite) TestPostMultiAssertion(c *C) {
+	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
+	c.Assert(registry_session, NotNil)
+	c.Assert(ok, Equals, true)
+
+	bountyRegistry := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
+
+	eventChan := make(chan *bounty.Event)
+	err := bountyRegistry.WatchForEvents(eventChan)
+	c.Assert(err, IsNil)
+
+	// Post fake bounty
+	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
+	c.Assert(err, IsNil)
+
+	event := <-eventChan
+	b, ok := event.Body.(bounty.NewBountyEventLog)
+	c.Assert(b, NotNil)
+	c.Assert(ok, Equals, true)
+	c.Assert(b.Guid.Cmp(guid), Equals, 0)
+
+	err = bountyRegistry.PostAssertion(context.Background(), guid, []bool{true, false, true}, 100, "")
+	c.Assert(err, IsNil)
+
+	event = <-eventChan
+	a, ok := event.Body.(bounty.NewAssertionEventLog)
+	c.Assert(b, NotNil)
+	c.Assert(ok, Equals, true)
+	c.Assert(a.BountyGuid.Cmp(guid), Equals, 0)
+	c.Assert(a.Verdicts.Cmp(big.NewInt(5)), Equals, 0)
+}

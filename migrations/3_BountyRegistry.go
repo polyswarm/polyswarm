@@ -46,6 +46,7 @@ func ApproveRegistry(address common.Address, network *network.Network) error {
 	}
 
 	nectarTokenSession.TransactOpts.GasLimit = 1000000
+	//tx, err := nectarTokenSession.Approve(address, big.NewInt(1000000000000000000), []byte{})
 	tx, err := nectarTokenSession.Approve(address, big.NewInt(1000000000000000000))
 	if err != nil {
 		return err

@@ -25,6 +25,40 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+func boolArrayToBigInt(b []bool) *big.Int {
+	bytes := make([]byte, len(b)/8+1)
+	var cur byte
+
+	for i, v := range b {
+		cur = cur << 1
+		if v {
+			cur = cur | 1
+		}
+
+		if i%8 == 7 {
+			bytes = append(bytes, cur)
+			cur = 0
+		}
+	}
+
+	if len(b)%8 != 0 {
+		bytes = append(bytes, cur)
+	}
+
+	ret := new(big.Int)
+	ret.SetBytes(bytes)
+	return ret
+}
+
+func bigIntToBoolArray(v *big.Int) []bool {
+	len := v.BitLen()
+	ret := make([]bool, len)
+	for i := 0; i < len; i++ {
+		ret = append(ret, v.Bit(i) == 1)
+	}
+	return ret
+}
+
 type BountyRegistry struct {
 	session *bindings.BountyRegistrySession
 	client  *ethclient.Client
@@ -111,15 +145,12 @@ func (br *BountyRegistry) PostBounty(ctx context.Context, hash common.Hash, uri 
 	return guidInt, err
 }
 
-func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int, malicious bool, bid int, metadata string) error {
-	verdict := Malicious
-	if !malicious {
-		verdict = Benign
-	}
-
+func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int, verdicts []bool, bid int, metadata string) error {
 	bidInt := big.NewInt(int64(bid))
+	verdictsInt := boolArrayToBigInt(verdicts)
+	log.Println(verdictsInt)
 
-	tx, err := br.session.PostAssertion(bountyGuid, uint8(verdict), bidInt, metadata)
+	tx, err := br.session.PostAssertion(bountyGuid, verdictsInt, bidInt, metadata)
 	if err != nil {
 		return err
 	}
@@ -138,8 +169,8 @@ type Event struct {
 func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 	topics := map[string]common.Hash{
 		"Bounty":    perigord.EventSignatureToTopicHash("NewBounty(uint128,address,uint256,bytes32,string,uint256)"),
-		"Assertion": perigord.EventSignatureToTopicHash("NewAssertion(uint128,address,uint8,uint256,uint256,string)"),
-		"Verdict":   perigord.EventSignatureToTopicHash("NewVerdict(uint128,uint8)"),
+		"Assertion": perigord.EventSignatureToTopicHash("NewAssertion(uint128,address,uint256,uint256,uint256,string)"),
+		"Verdict":   perigord.EventSignatureToTopicHash("NewVerdict(uint128,uint256)"),
 	}
 
 	q := ethereum.FilterQuery{
@@ -279,7 +310,8 @@ func (br *BountyRegistry) GetAssertionsByGuid(guid *big.Int) []*Assertion {
 			break
 		}
 
-		ret = append(ret, NewAssertionFromRaw(RawAssertion(rawAssertion)))
+		assertion := Assertion(rawAssertion)
+		ret = append(ret, &assertion)
 	}
 
 	return ret

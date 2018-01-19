@@ -16,7 +16,8 @@ type Bounty struct {
 	ArtifactHash    common.Hash    `json:"hash"`
 	ArtifactURI     string         `json:"uri"`
 	ExpirationBlock *big.Int       `json:"expiration"`
-	Verdict         Verdict        `json:"verdict"`
+	Resolved        bool           `json:"resolved"`
+	Verdicts        []bool         `json:"verdicts"`
 }
 
 type RawBounty struct {
@@ -26,7 +27,8 @@ type RawBounty struct {
 	ArtifactHash    [32]byte
 	ArtifactURI     string
 	ExpirationBlock *big.Int
-	Verdict         uint8
+	Resolved        bool
+	Verdicts        *big.Int
 }
 
 type NewBountyEventLog struct {
@@ -46,6 +48,7 @@ func NewBountyFromRaw(rb RawBounty) *Bounty {
 		ArtifactHash:    rb.ArtifactHash,
 		ArtifactURI:     rb.ArtifactURI,
 		ExpirationBlock: rb.ExpirationBlock,
-		Verdict:         Verdict(rb.Verdict),
+		Resolved:        rb.Resolved,
+		Verdicts:        bigIntToBoolArray(rb.Verdicts),
 	}
 }

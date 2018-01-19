@@ -8,12 +8,6 @@ import "NectarToken.sol";
 contract BountyRegistry is Pausable {
     using SafeMath for uint256;
 
-    enum Verdict {
-        Unknown,
-        Malicious,
-        Benign
-    }
-
     struct Bounty {
         uint128 guid;
         address author;
@@ -21,12 +15,13 @@ contract BountyRegistry is Pausable {
         bytes32 artifactHash;
         string artifactURI;
         uint256 expirationBlock;
-        Verdict verdict;
+        bool resolved;
+        uint256 verdicts;
     }
 
     struct Assertion {
         address author;
-        Verdict verdict;
+        uint256 verdicts;
         uint256 bid;
         string metadata;
     }
@@ -43,7 +38,7 @@ contract BountyRegistry is Pausable {
     event NewAssertion(
         uint128 bountyGuid,
         address author,
-        Verdict verdict,
+        uint256 verdicts,
         uint256 index,
         uint256 bid,
         string metdata
@@ -51,7 +46,7 @@ contract BountyRegistry is Pausable {
 
     event NewVerdict(
         uint128 bountyGuid,
-        Verdict verdict
+        uint256 verdicts
     );
 
     address internal owner;
@@ -99,7 +94,8 @@ contract BountyRegistry is Pausable {
             artifactHash,
             artifactURI,
             durationBlocks.add(block.number),
-            Verdict.Unknown
+            false,
+            0
         );
         bountiesByGuid[guid] = b;
         bountyGuids.push(guid);
@@ -116,7 +112,7 @@ contract BountyRegistry is Pausable {
 
     function postAssertion(
         uint128 bountyGuid,
-        Verdict verdict,
+        uint256 verdicts,
         uint256 bid,
         string metadata
     )
@@ -126,8 +122,6 @@ contract BountyRegistry is Pausable {
         require(bountiesByGuid[bountyGuid].author != address(0));
         // Check if this bounty is active
         require(bountiesByGuid[bountyGuid].expirationBlock > block.number);
-        // Require our judgement to be one of Malicious or Benign
-        require(verdict != Verdict.Unknown);
         // Check that our bid amount is sufficient
         require(bid >= ASSERTION_BID_MINIMUM);
 
@@ -136,7 +130,7 @@ contract BountyRegistry is Pausable {
 
         Assertion memory a = Assertion(
             msg.sender,
-            verdict,
+            verdicts,
             bid,
             metadata
         );
@@ -146,7 +140,7 @@ contract BountyRegistry is Pausable {
         NewAssertion(
             bountyGuid,
             a.author,
-            a.verdict,
+            a.verdicts,
             index,
             a.bid,
             a.metadata
@@ -157,7 +151,7 @@ contract BountyRegistry is Pausable {
     // vote that counts is the contract owner
     function settleBounty(
         uint128 guid,
-        Verdict verdict
+        uint256 verdicts
     )
         external
     {
@@ -166,11 +160,12 @@ contract BountyRegistry is Pausable {
         // Check if the deadline has expired
         require(bountiesByGuid[guid].expirationBlock <= block.number);
 
-        bountiesByGuid[guid].verdict = verdict;
+        bountiesByGuid[guid].verdicts = verdicts;
+        bountiesByGuid[guid].resolved = true;
 
         // TODO: Iterate all assertions and pay out accordingly from contract escrow
 
-        NewVerdict(guid, verdict);
+        NewVerdict(guid, verdicts);
     }
 
     function getNumberOfBounties() external view returns (uint) {

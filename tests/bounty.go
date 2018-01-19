@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"math/big"
 	//	"os"
 	//	"path/filepath"
 
@@ -53,27 +54,27 @@ func (s *BountyRegistrySuite) TearDownTest(c *C) {
 //	return poster.PostBounty(context.Background(), hash, uri, 20, 300)
 //}
 
-//func (s *BountyRegistrySuite) TestPostBounty(c *C) {
-//	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
-//	c.Assert(registry_session, NotNil)
-//	c.Assert(ok, Equals, true)
-//
-//	bountyRegistry := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
-//
-//	eventChan := make(chan *bounty.Event)
-//	err := bountyRegistry.WatchForEvents(eventChan)
-//	c.Assert(err, IsNil)
-//
-//	// Post fake bounty
-//	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
-//	c.Assert(err, IsNil)
-//
-//	event := <-eventChan
-//	b, ok := event.Body.(bounty.NewBountyEventLog)
-//	c.Assert(b, NotNil)
-//	c.Assert(ok, Equals, true)
-//	c.Assert(b.Guid.Cmp(guid), Equals, 0)
-//}
+func (s *BountyRegistrySuite) TestPostBounty(c *C) {
+	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
+	c.Assert(registry_session, NotNil)
+	c.Assert(ok, Equals, true)
+
+	bountyRegistry := bounty.NewBountyRegistry(registry_session, s.network.Client(), IPFS_HOST)
+
+	eventChan := make(chan *bounty.Event)
+	err := bountyRegistry.WatchForEvents(eventChan)
+	c.Assert(err, IsNil)
+
+	// Post fake bounty
+	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
+	c.Assert(err, IsNil)
+
+	event := <-eventChan
+	b, ok := event.Body.(bounty.NewBountyEventLog)
+	c.Assert(b, NotNil)
+	c.Assert(ok, Equals, true)
+	c.Assert(b.Guid.Cmp(guid), Equals, 0)
+}
 
 func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
@@ -96,7 +97,7 @@ func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	c.Assert(ok, Equals, true)
 	c.Assert(b.Guid.Cmp(guid), Equals, 0)
 
-	err = bountyRegistry.PostAssertion(context.Background(), guid, true, 100, "")
+	err = bountyRegistry.PostAssertion(context.Background(), guid, []bool{true}, 100, "")
 	c.Assert(err, IsNil)
 
 	event = <-eventChan
@@ -104,5 +105,5 @@ func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	c.Assert(b, NotNil)
 	c.Assert(ok, Equals, true)
 	c.Assert(a.BountyGuid.Cmp(guid), Equals, 0)
-	c.Assert(a.Verdict, Equals, uint8(bounty.Malicious))
+	c.Assert(a.Verdicts.Cmp(big.NewInt(1)), Equals, 0)
 }

@@ -214,9 +214,9 @@ func postAssertionsHandler(w http.ResponseWriter, r *http.Request) {
 	guidInt.SetBytes(guid.Bytes())
 
 	var a struct {
-		Verdict  bounty.Verdict `json:"verdict"`
-		Bid      int            `json:"bid"`
-		Metadata string         `json:"metadata"`
+		Verdicts []bool `json:"verdicts"`
+		Bid      int    `json:"bid"`
+		Metadata string `json:"metadata"`
 	}
 
 	dec := json.NewDecoder(r.Body)
@@ -226,17 +226,7 @@ func postAssertionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	var malicious bool
-	if a.Verdict == bounty.Malicious {
-		malicious = true
-	} else if a.Verdict == bounty.Benign {
-		malicious = false
-	} else {
-		http.Error(w, "invalid verdict", http.StatusBadRequest)
-		return
-	}
-
-	err = bountyRegistry.PostAssertion(context.Background(), guidInt, malicious, a.Bid, a.Metadata)
+	err = bountyRegistry.PostAssertion(context.Background(), guidInt, a.Verdicts, a.Bid, a.Metadata)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

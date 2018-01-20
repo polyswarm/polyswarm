@@ -25,7 +25,9 @@ func BuyNectar(address common.Address, network *network.Network) error {
 	}
 
 	nectarTokenSession.TransactOpts.GasLimit = 1000000
-	tx, err := nectarTokenSession.Mint(address, big.NewInt(1000000000000000000))
+	initialSupply := big.NewInt(2000000000)
+	initialSupply.Mul(initialSupply, big.NewInt(1000000000000000000))
+	tx, err := nectarTokenSession.Mint(address, initialSupply)
 	if err != nil {
 		return err
 	}
@@ -46,8 +48,9 @@ func ApproveRegistry(address common.Address, network *network.Network) error {
 	}
 
 	nectarTokenSession.TransactOpts.GasLimit = 1000000
-	//tx, err := nectarTokenSession.Approve(address, big.NewInt(1000000000000000000), []byte{})
-	tx, err := nectarTokenSession.Approve(address, big.NewInt(1000000000000000000))
+	initialSupply := big.NewInt(2000000000)
+	initialSupply.Mul(initialSupply, big.NewInt(1000000000000000000))
+	tx, err := nectarTokenSession.Approve(address, initialSupply)
 	if err != nil {
 		return err
 	}
@@ -65,7 +68,7 @@ type BountyRegistryDeployer struct{}
 
 func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *network.Network) (common.Address, *types.Transaction, interface{}, error) {
 	account := network.Accounts()[0]
-	network.Unlock(account, "blah")
+	network.UnlockWithPrompt(account)
 
 	auth := network.NewTransactor(account)
 
@@ -87,7 +90,7 @@ func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *network.Ne
 
 func (d *BountyRegistryDeployer) Bind(ctx context.Context, network *network.Network, address common.Address) (interface{}, error) {
 	account := network.Accounts()[0]
-	network.Unlock(account, "blah")
+	network.UnlockWithPrompt(account)
 
 	auth := network.NewTransactor(account)
 	contract, err := bindings.NewBountyRegistry(address, network.Client())

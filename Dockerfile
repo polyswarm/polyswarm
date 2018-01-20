@@ -1,6 +1,6 @@
 # Bind-mount geth socket to /var/run/geth.ipc
 FROM perigord
-LABEL maintainer="Maxwell Koo <mjkoo90@gmail.com>"
+LABEL maintainer="Maxwell Koo <maxk@polyswarm.io>"
 
 RUN set -x && \
     apt-get update && \
@@ -23,7 +23,6 @@ RUN set -x && \
     go get . && \
     go install
 
-EXPOSE 5001
-EXPOSE 8080
+EXPOSE 31337
 
 ENTRYPOINT $GOPATH/bin/polyswarm

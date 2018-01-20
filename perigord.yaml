@@ -5,3 +5,6 @@ networks:
     dev:
         url: /home/user/go/src/github.com/polyswarm/polyswarm/priv_testnet/geth.ipc
         keystore: /home/user/go/src/github.com/polyswarm/polyswarm/priv_testnet/keystore
+    rinkeby:
+        url: /home/user/.ethereum/rinkeby/geth.ipc
+        keystore: /home/user/.ethereum/rinkeby/keystore

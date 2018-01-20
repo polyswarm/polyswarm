@@ -4,8 +4,8 @@ import "zeppelin-solidity/contracts/token/MintableToken.sol";
 
 
 contract NectarToken is MintableToken {
-    string public name = "Nectar";
-    string public symbol = "NCT";
+    string public name = "TestNet Nectar";
+    string public symbol = "TNCT";
     uint8 public decimals = 18;
 
     /* Approves and then calls the receiving contract */

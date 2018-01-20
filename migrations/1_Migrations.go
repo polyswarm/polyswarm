@@ -17,7 +17,7 @@ type MigrationsDeployer struct{}
 
 func (d *MigrationsDeployer) Deploy(ctx context.Context, network *network.Network) (common.Address, *types.Transaction, interface{}, error) {
 	account := network.Accounts()[0]
-	network.Unlock(account, "blah")
+	network.UnlockWithPrompt(account)
 
 	auth := network.NewTransactor(account)
 	address, transaction, contract, err := bindings.DeployMigrations(auth, network.Client())
@@ -38,7 +38,7 @@ func (d *MigrationsDeployer) Deploy(ctx context.Context, network *network.Networ
 
 func (d *MigrationsDeployer) Bind(ctx context.Context, network *network.Network, address common.Address) (interface{}, error) {
 	account := network.Accounts()[0]
-	network.Unlock(account, "blah")
+	network.UnlockWithPrompt(account)
 
 	auth := network.NewTransactor(account)
 	contract, err := bindings.NewMigrations(address, network.Client())

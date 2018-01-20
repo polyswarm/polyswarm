@@ -18,7 +18,7 @@ type NectarTokenDeployer struct{}
 
 func (d *NectarTokenDeployer) Deploy(ctx context.Context, network *network.Network) (common.Address, *types.Transaction, interface{}, error) {
 	account := network.Accounts()[0]
-	network.Unlock(account, "blah")
+	network.UnlockWithPrompt(account)
 
 	auth := network.NewTransactor(account)
 	address, transaction, contract, err := bindings.DeployNectarToken(auth, network.Client())
@@ -39,7 +39,7 @@ func (d *NectarTokenDeployer) Deploy(ctx context.Context, network *network.Netwo
 
 func (d *NectarTokenDeployer) Bind(ctx context.Context, network *network.Network, address common.Address) (interface{}, error) {
 	account := network.Accounts()[0]
-	network.Unlock(account, "blah")
+	network.UnlockWithPrompt(account)
 
 	auth := network.NewTransactor(account)
 	contract, err := bindings.NewNectarToken(address, network.Client())

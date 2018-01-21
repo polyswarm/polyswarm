@@ -1,5 +1,4 @@
 build/
 priv_testnet/
 dev.json
-rinkeby.json
 *.swp

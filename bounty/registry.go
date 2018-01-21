@@ -25,40 +25,6 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func boolArrayToBigInt(b []bool) *big.Int {
-	bytes := make([]byte, len(b)/8+1)
-	var cur byte
-
-	for i, v := range b {
-		cur = cur << 1
-		if v {
-			cur = cur | 1
-		}
-
-		if i%8 == 7 {
-			bytes = append(bytes, cur)
-			cur = 0
-		}
-	}
-
-	if len(b)%8 != 0 {
-		bytes = append(bytes, cur)
-	}
-
-	ret := new(big.Int)
-	ret.SetBytes(bytes)
-	return ret
-}
-
-func bigIntToBoolArray(v *big.Int) []bool {
-	len := v.BitLen()
-	ret := make([]bool, len)
-	for i := 0; i < len; i++ {
-		ret = append(ret, v.Bit(i) == 1)
-	}
-	return ret
-}
-
 type BountyRegistry struct {
 	session *bindings.BountyRegistrySession
 	client  *ethclient.Client
@@ -212,7 +178,7 @@ func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 
 					event := &Event{
 						Type: "Bounty",
-						Body: nbe,
+						Body: NewBountyEventFromLog(nbe),
 					}
 
 					eventChan <- event
@@ -225,7 +191,7 @@ func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 
 					event := &Event{
 						Type: "Assertion",
-						Body: nae,
+						Body: NewAssertionEventFromLog(nae),
 					}
 
 					eventChan <- event
@@ -238,7 +204,7 @@ func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 
 					event := &Event{
 						Type: "Verdict",
-						Body: nve,
+						Body: NewVerdictEventFromLog(nve),
 					}
 
 					eventChan <- event

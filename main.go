@@ -134,7 +134,7 @@ func postBountiesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"guid": guid,
+		"guid": uuid.FromBytesOrNil(guid.Bytes()),
 	}
 	j, err := json.Marshal(response)
 	if err != nil {

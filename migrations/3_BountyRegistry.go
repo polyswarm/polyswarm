@@ -68,7 +68,7 @@ type BountyRegistryDeployer struct{}
 
 func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *network.Network) (common.Address, *types.Transaction, interface{}, error) {
 	account := network.Accounts()[0]
-	network.UnlockWithPrompt(account)
+	network.Unlock(account, "password")
 
 	auth := network.NewTransactor(account)
 
@@ -90,7 +90,7 @@ func (d *BountyRegistryDeployer) Deploy(ctx context.Context, network *network.Ne
 
 func (d *BountyRegistryDeployer) Bind(ctx context.Context, network *network.Network, address common.Address) (interface{}, error) {
 	account := network.Accounts()[0]
-	network.UnlockWithPrompt(account)
+	network.Unlock(account, "password")
 
 	auth := network.NewTransactor(account)
 	contract, err := bindings.NewBountyRegistry(address, network.Client())

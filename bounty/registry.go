@@ -93,6 +93,29 @@ func (br *BountyRegistry) DownloadArtifact(ipfshash string) (io.ReadCloser, erro
 	return br.ipfssh.Cat(ipfshash)
 }
 
+type ArtifactStats struct {
+	Hash           string `json:"hash"`
+	BlockSize      int    `json:"block_size"`
+	CumulativeSize int    `json:"cumulative_size"`
+	DataSize       int    `json:"data_size"`
+	NumLinks       int    `json:"num_links"`
+}
+
+func (br *BountyRegistry) StatArtifact(ipfshash string) (*ArtifactStats, error) {
+	stat, err := br.ipfssh.ObjectStat(ipfshash)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ArtifactStats{
+		Hash:           stat.Hash,
+		BlockSize:      stat.BlockSize,
+		CumulativeSize: stat.CumulativeSize,
+		DataSize:       stat.DataSize,
+		NumLinks:       stat.NumLinks,
+	}, nil
+}
+
 func (br *BountyRegistry) PostBounty(ctx context.Context, hash common.Hash, uri string, amount, blockDuration int) (*big.Int, error) {
 	guidInt := new(big.Int)
 	guidInt.SetBytes(uuid.Must(uuid.NewV4()).Bytes())
@@ -164,7 +187,6 @@ func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 		for {
 			select {
 			case logMsg := <-logChan:
-				log.Println(logMsg)
 				if len(logMsg.Topics) != 1 {
 					log.Println("incorrect number of topics")
 					break

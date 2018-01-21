@@ -83,6 +83,31 @@ func getArtifactsHandler(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, reader)
 }
 
+func getArtifactsStatHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	ipfshash := vars["ipfshash"]
+
+	// Verify that this is at least valid base58
+	if _, err := base58.DecodeToBig([]byte(ipfshash)); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	stats, err := bountyRegistry.StatArtifact(ipfshash)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	j, err := json.Marshal(stats)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
+}
+
 func postArtifactsHandler(w http.ResponseWriter, r *http.Request) {
 	hash, uri, err := bountyRegistry.UploadArtifact(r.Body)
 	if err != nil {
@@ -276,6 +301,13 @@ func getAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(j)
 }
 
+func Log(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s %s", r.RemoteAddr, r.Method, r.URL)
+		handler.ServeHTTP(w, r)
+	})
+}
+
 var networkFlag = flag.String("network", "dev", "which network to deploy to")
 
 func main() {
@@ -305,6 +337,7 @@ func main() {
 	r.HandleFunc("/events", eventHandler)
 
 	r.HandleFunc("/artifacts/{ipfshash}", getArtifactsHandler).Methods("GET")
+	r.HandleFunc("/artifacts/{ipfshash}/stat", getArtifactsStatHandler).Methods("GET")
 	r.HandleFunc("/artifacts", postArtifactsHandler).Methods("POST")
 
 	r.HandleFunc("/bounties", getBountiesHandler).Methods("GET")
@@ -316,5 +349,5 @@ func main() {
 	r.HandleFunc("/bounties/{guid}/assertions/{id}", getAssertionHandler).Methods("GET")
 
 	log.Println("Listening on :31337")
-	log.Fatal(http.ListenAndServe(":31337", r))
+	log.Fatal(http.ListenAndServe(":31337", Log(r)))
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"flag"
 	"io"
 	"log"
 	"math/big"
@@ -275,12 +276,16 @@ func getAssertionHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(j)
 }
 
+var networkFlag = flag.String("network", "dev", "which network to deploy to")
+
 func main() {
 	time.Sleep(2 * time.Second)
 
+	flag.Parse()
+
 	network.InitNetworks()
 
-	nw, err := network.Dial("dev")
+	nw, err := network.Dial(*networkFlag)
 	if err != nil {
 		log.Fatalln("could not connect to dev network:", err)
 	}

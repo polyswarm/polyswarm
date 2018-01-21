@@ -164,6 +164,7 @@ func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 		for {
 			select {
 			case logMsg := <-logChan:
+				log.Println(logMsg)
 				if len(logMsg.Topics) != 1 {
 					log.Println("incorrect number of topics")
 					break
@@ -187,6 +188,12 @@ func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 					if err := abi.Unpack(&nae, "NewAssertion", logMsg.Data); err != nil {
 						log.Println("error unpacking log:", err)
 						break
+					}
+
+					// FIXME: Work around bug in decoding string data from event log
+					assertion, err := br.session.AssertionsByGuid(nae.BountyGuid, nae.Index)
+					if err == nil {
+						nae.Metadata = assertion.Metadata
 					}
 
 					event := &Event{

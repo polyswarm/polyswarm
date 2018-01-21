@@ -51,7 +51,9 @@ func boolArrayToBigInt(b []bool) *big.Int {
 func bigIntToBoolArray(v *big.Int) []bool {
 	len := v.BitLen()
 	ret := make([]bool, len)
-	for i := 0; i < len; i++ {
+
+	// Start at one because of leading 0
+	for i := 1; i < len; i++ {
 		ret = append(ret, v.Bit(i) == 1)
 	}
 	return ret

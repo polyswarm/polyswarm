@@ -6,5 +6,5 @@ networks:
         url: /ethereum/geth.ipc
         keystore: /ethereum/keystore
     rinkeby:
-        url: /ethereum/geth.ipc
-        keystore: /ethereum/keystore
+        url: /root/.ethereum/rinkeby/geth.ipc
+        keystore: /go/src/github.com/polyswarm/polyswarm/keystore

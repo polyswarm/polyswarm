@@ -311,7 +311,7 @@ func Log(handler http.Handler) http.Handler {
 var networkFlag = flag.String("network", "dev", "which network to deploy to")
 
 func main() {
-	time.Sleep(2 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	flag.Parse()
 
@@ -319,11 +319,15 @@ func main() {
 
 	nw, err := network.Dial(*networkFlag)
 	if err != nil {
-		log.Fatalln("could not connect to dev network:", err)
+		log.Fatalln("could not connect to", *networkFlag, "network:", err)
 	}
 
-	if err := migration.RunMigrations(context.Background(), nw, false); err != nil {
-		log.Fatalln("error running migrations: ", err)
+	for {
+		if err := migration.RunMigrations(context.Background(), nw, false); err == nil {
+			break
+		}
+		log.Println("Waiting on chain to sync...")
+		time.Sleep(time.Second)
 	}
 
 	bountyRegistrySession, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)

@@ -1,4 +1,5 @@
 build/
 priv_testnet/
+keystore/
 dev.json
 *.swp

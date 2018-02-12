@@ -33,10 +33,14 @@ type BountyRegistry struct {
 
 func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclient.Client, ipfs string) *BountyRegistry {
 	session.TransactOpts.GasLimit = 1000000
+
+	ipfssh := shell.NewShell(ipfs)
+	ipfssh.SetTimeout(15 * time.Second)
+
 	return &BountyRegistry{
 		session: session,
 		client:  client,
-		ipfssh:  shell.NewShell(ipfs),
+		ipfssh:  ipfssh,
 	}
 }
 
@@ -123,30 +127,30 @@ func (br *BountyRegistry) PostBounty(ctx context.Context, hash common.Hash, uri 
 	amountInt := big.NewInt(int64(amount))
 	blockDurationInt := big.NewInt(int64(blockDuration))
 
-	tx, err := br.session.PostBounty(guidInt, amountInt, hash, uri, blockDurationInt)
+	_, err := br.session.PostBounty(guidInt, amountInt, hash, uri, blockDurationInt)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
-	defer cancel()
-	_, err = perigord.WaitMined(ctx, br.client, tx)
-	return guidInt, err
+	//	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	//	defer cancel()
+	//	_, err = perigord.WaitMined(ctx, br.client, tx)
+	return guidInt, nil
 }
 
 func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int, verdicts []bool, bid int, metadata string) error {
 	bidInt := big.NewInt(int64(bid))
 	verdictsInt := boolArrayToBigInt(verdicts)
 
-	tx, err := br.session.PostAssertion(bountyGuid, verdictsInt, bidInt, metadata)
+	_, err := br.session.PostAssertion(bountyGuid, verdictsInt, bidInt, metadata)
 	if err != nil {
 		return err
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
-	defer cancel()
-	_, err = perigord.WaitMined(ctx, br.client, tx)
-	return err
+	//	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	//	defer cancel()
+	//	_, err = perigord.WaitMined(ctx, br.client, tx)
+	return nil
 }
 
 type Event struct {

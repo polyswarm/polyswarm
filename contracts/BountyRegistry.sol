@@ -74,6 +74,7 @@ contract BountyRegistry is Pausable {
         uint256 durationBlocks
     )
         external
+        whenNotPaused
     {
         // Check if a bounty with this GUID has already been initialized
         require(bountiesByGuid[guid].author == address(0));
@@ -117,6 +118,7 @@ contract BountyRegistry is Pausable {
         string metadata
     )
         external
+        whenNotPaused
     {
         // Check if this bounty has been initialized
         require(bountiesByGuid[bountyGuid].author != address(0));
@@ -154,6 +156,7 @@ contract BountyRegistry is Pausable {
         uint256 verdicts
     )
         external
+        whenNotPaused
     {
         // Check if this bounty has been initialized
         require(bountiesByGuid[guid].author != address(0));

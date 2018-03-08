@@ -6,10 +6,12 @@ package bindings
 import (
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // ClaimableABI is the input ABI used to generate the binding from.
@@ -28,13 +30,14 @@ func DeployClaimable(auth *bind.TransactOpts, backend bind.ContractBackend) (com
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &Claimable{ClaimableCaller: ClaimableCaller{contract: contract}, ClaimableTransactor: ClaimableTransactor{contract: contract}}, nil
+	return address, tx, &Claimable{ClaimableCaller: ClaimableCaller{contract: contract}, ClaimableTransactor: ClaimableTransactor{contract: contract}, ClaimableFilterer: ClaimableFilterer{contract: contract}}, nil
 }
 
 // Claimable is an auto generated Go binding around an Ethereum contract.
 type Claimable struct {
 	ClaimableCaller     // Read-only binding to the contract
 	ClaimableTransactor // Write-only binding to the contract
+	ClaimableFilterer   // Log filterer for contract events
 }
 
 // ClaimableCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -44,6 +47,11 @@ type ClaimableCaller struct {
 
 // ClaimableTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ClaimableTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// ClaimableFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type ClaimableFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -86,16 +94,16 @@ type ClaimableTransactorRaw struct {
 
 // NewClaimable creates a new instance of Claimable, bound to a specific deployed contract.
 func NewClaimable(address common.Address, backend bind.ContractBackend) (*Claimable, error) {
-	contract, err := bindClaimable(address, backend, backend)
+	contract, err := bindClaimable(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &Claimable{ClaimableCaller: ClaimableCaller{contract: contract}, ClaimableTransactor: ClaimableTransactor{contract: contract}}, nil
+	return &Claimable{ClaimableCaller: ClaimableCaller{contract: contract}, ClaimableTransactor: ClaimableTransactor{contract: contract}, ClaimableFilterer: ClaimableFilterer{contract: contract}}, nil
 }
 
 // NewClaimableCaller creates a new read-only instance of Claimable, bound to a specific deployed contract.
 func NewClaimableCaller(address common.Address, caller bind.ContractCaller) (*ClaimableCaller, error) {
-	contract, err := bindClaimable(address, caller, nil)
+	contract, err := bindClaimable(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +112,29 @@ func NewClaimableCaller(address common.Address, caller bind.ContractCaller) (*Cl
 
 // NewClaimableTransactor creates a new write-only instance of Claimable, bound to a specific deployed contract.
 func NewClaimableTransactor(address common.Address, transactor bind.ContractTransactor) (*ClaimableTransactor, error) {
-	contract, err := bindClaimable(address, nil, transactor)
+	contract, err := bindClaimable(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &ClaimableTransactor{contract: contract}, nil
 }
 
+// NewClaimableFilterer creates a new log filterer instance of Claimable, bound to a specific deployed contract.
+func NewClaimableFilterer(address common.Address, filterer bind.ContractFilterer) (*ClaimableFilterer, error) {
+	contract, err := bindClaimable(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &ClaimableFilterer{contract: contract}, nil
+}
+
 // bindClaimable binds a generic wrapper to an already deployed contract.
-func bindClaimable(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindClaimable(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ClaimableABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -250,4 +267,145 @@ func (_Claimable *ClaimableSession) TransferOwnership(newOwner common.Address) (
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_Claimable *ClaimableTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _Claimable.Contract.TransferOwnership(&_Claimable.TransactOpts, newOwner)
+}
+
+// ClaimableOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the Claimable contract.
+type ClaimableOwnershipTransferredIterator struct {
+	Event *ClaimableOwnershipTransferred // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *ClaimableOwnershipTransferredIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(ClaimableOwnershipTransferred)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(ClaimableOwnershipTransferred)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *ClaimableOwnershipTransferredIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *ClaimableOwnershipTransferredIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// ClaimableOwnershipTransferred represents a OwnershipTransferred event raised by the Claimable contract.
+type ClaimableOwnershipTransferred struct {
+	PreviousOwner common.Address
+	NewOwner      common.Address
+	Raw           types.Log // Blockchain specific contextual infos
+}
+
+// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_Claimable *ClaimableFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*ClaimableOwnershipTransferredIterator, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _Claimable.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &ClaimableOwnershipTransferredIterator{contract: _Claimable.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
+}
+
+// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_Claimable *ClaimableFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *ClaimableOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _Claimable.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(ClaimableOwnershipTransferred)
+				if err := _Claimable.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

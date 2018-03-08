@@ -7,10 +7,12 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // TokenVestingABI is the input ABI used to generate the binding from.
@@ -29,13 +31,14 @@ func DeployTokenVesting(auth *bind.TransactOpts, backend bind.ContractBackend, _
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &TokenVesting{TokenVestingCaller: TokenVestingCaller{contract: contract}, TokenVestingTransactor: TokenVestingTransactor{contract: contract}}, nil
+	return address, tx, &TokenVesting{TokenVestingCaller: TokenVestingCaller{contract: contract}, TokenVestingTransactor: TokenVestingTransactor{contract: contract}, TokenVestingFilterer: TokenVestingFilterer{contract: contract}}, nil
 }
 
 // TokenVesting is an auto generated Go binding around an Ethereum contract.
 type TokenVesting struct {
 	TokenVestingCaller     // Read-only binding to the contract
 	TokenVestingTransactor // Write-only binding to the contract
+	TokenVestingFilterer   // Log filterer for contract events
 }
 
 // TokenVestingCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +48,11 @@ type TokenVestingCaller struct {
 
 // TokenVestingTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type TokenVestingTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// TokenVestingFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type TokenVestingFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +95,16 @@ type TokenVestingTransactorRaw struct {
 
 // NewTokenVesting creates a new instance of TokenVesting, bound to a specific deployed contract.
 func NewTokenVesting(address common.Address, backend bind.ContractBackend) (*TokenVesting, error) {
-	contract, err := bindTokenVesting(address, backend, backend)
+	contract, err := bindTokenVesting(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &TokenVesting{TokenVestingCaller: TokenVestingCaller{contract: contract}, TokenVestingTransactor: TokenVestingTransactor{contract: contract}}, nil
+	return &TokenVesting{TokenVestingCaller: TokenVestingCaller{contract: contract}, TokenVestingTransactor: TokenVestingTransactor{contract: contract}, TokenVestingFilterer: TokenVestingFilterer{contract: contract}}, nil
 }
 
 // NewTokenVestingCaller creates a new read-only instance of TokenVesting, bound to a specific deployed contract.
 func NewTokenVestingCaller(address common.Address, caller bind.ContractCaller) (*TokenVestingCaller, error) {
-	contract, err := bindTokenVesting(address, caller, nil)
+	contract, err := bindTokenVesting(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +113,29 @@ func NewTokenVestingCaller(address common.Address, caller bind.ContractCaller) (
 
 // NewTokenVestingTransactor creates a new write-only instance of TokenVesting, bound to a specific deployed contract.
 func NewTokenVestingTransactor(address common.Address, transactor bind.ContractTransactor) (*TokenVestingTransactor, error) {
-	contract, err := bindTokenVesting(address, nil, transactor)
+	contract, err := bindTokenVesting(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &TokenVestingTransactor{contract: contract}, nil
 }
 
+// NewTokenVestingFilterer creates a new log filterer instance of TokenVesting, bound to a specific deployed contract.
+func NewTokenVestingFilterer(address common.Address, filterer bind.ContractFilterer) (*TokenVestingFilterer, error) {
+	contract, err := bindTokenVesting(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &TokenVestingFilterer{contract: contract}, nil
+}
+
 // bindTokenVesting binds a generic wrapper to an already deployed contract.
-func bindTokenVesting(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindTokenVesting(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(TokenVestingABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -480,4 +497,388 @@ func (_TokenVesting *TokenVestingSession) TransferOwnership(newOwner common.Addr
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_TokenVesting *TokenVestingTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _TokenVesting.Contract.TransferOwnership(&_TokenVesting.TransactOpts, newOwner)
+}
+
+// TokenVestingOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the TokenVesting contract.
+type TokenVestingOwnershipTransferredIterator struct {
+	Event *TokenVestingOwnershipTransferred // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *TokenVestingOwnershipTransferredIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(TokenVestingOwnershipTransferred)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(TokenVestingOwnershipTransferred)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *TokenVestingOwnershipTransferredIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *TokenVestingOwnershipTransferredIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// TokenVestingOwnershipTransferred represents a OwnershipTransferred event raised by the TokenVesting contract.
+type TokenVestingOwnershipTransferred struct {
+	PreviousOwner common.Address
+	NewOwner      common.Address
+	Raw           types.Log // Blockchain specific contextual infos
+}
+
+// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_TokenVesting *TokenVestingFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*TokenVestingOwnershipTransferredIterator, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _TokenVesting.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &TokenVestingOwnershipTransferredIterator{contract: _TokenVesting.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
+}
+
+// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_TokenVesting *TokenVestingFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *TokenVestingOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _TokenVesting.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(TokenVestingOwnershipTransferred)
+				if err := _TokenVesting.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// TokenVestingReleasedIterator is returned from FilterReleased and is used to iterate over the raw logs and unpacked data for Released events raised by the TokenVesting contract.
+type TokenVestingReleasedIterator struct {
+	Event *TokenVestingReleased // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *TokenVestingReleasedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(TokenVestingReleased)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(TokenVestingReleased)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *TokenVestingReleasedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *TokenVestingReleasedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// TokenVestingReleased represents a Released event raised by the TokenVesting contract.
+type TokenVestingReleased struct {
+	Amount *big.Int
+	Raw    types.Log // Blockchain specific contextual infos
+}
+
+// FilterReleased is a free log retrieval operation binding the contract event 0xfb81f9b30d73d830c3544b34d827c08142579ee75710b490bab0b3995468c565.
+//
+// Solidity: event Released(amount uint256)
+func (_TokenVesting *TokenVestingFilterer) FilterReleased(opts *bind.FilterOpts) (*TokenVestingReleasedIterator, error) {
+
+	logs, sub, err := _TokenVesting.contract.FilterLogs(opts, "Released")
+	if err != nil {
+		return nil, err
+	}
+	return &TokenVestingReleasedIterator{contract: _TokenVesting.contract, event: "Released", logs: logs, sub: sub}, nil
+}
+
+// WatchReleased is a free log subscription operation binding the contract event 0xfb81f9b30d73d830c3544b34d827c08142579ee75710b490bab0b3995468c565.
+//
+// Solidity: event Released(amount uint256)
+func (_TokenVesting *TokenVestingFilterer) WatchReleased(opts *bind.WatchOpts, sink chan<- *TokenVestingReleased) (event.Subscription, error) {
+
+	logs, sub, err := _TokenVesting.contract.WatchLogs(opts, "Released")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(TokenVestingReleased)
+				if err := _TokenVesting.contract.UnpackLog(event, "Released", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// TokenVestingRevokedIterator is returned from FilterRevoked and is used to iterate over the raw logs and unpacked data for Revoked events raised by the TokenVesting contract.
+type TokenVestingRevokedIterator struct {
+	Event *TokenVestingRevoked // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *TokenVestingRevokedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(TokenVestingRevoked)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(TokenVestingRevoked)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *TokenVestingRevokedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *TokenVestingRevokedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// TokenVestingRevoked represents a Revoked event raised by the TokenVesting contract.
+type TokenVestingRevoked struct {
+	Raw types.Log // Blockchain specific contextual infos
+}
+
+// FilterRevoked is a free log retrieval operation binding the contract event 0x44825a4b2df8acb19ce4e1afba9aa850c8b65cdb7942e2078f27d0b0960efee6.
+//
+// Solidity: event Revoked()
+func (_TokenVesting *TokenVestingFilterer) FilterRevoked(opts *bind.FilterOpts) (*TokenVestingRevokedIterator, error) {
+
+	logs, sub, err := _TokenVesting.contract.FilterLogs(opts, "Revoked")
+	if err != nil {
+		return nil, err
+	}
+	return &TokenVestingRevokedIterator{contract: _TokenVesting.contract, event: "Revoked", logs: logs, sub: sub}, nil
+}
+
+// WatchRevoked is a free log subscription operation binding the contract event 0x44825a4b2df8acb19ce4e1afba9aa850c8b65cdb7942e2078f27d0b0960efee6.
+//
+// Solidity: event Revoked()
+func (_TokenVesting *TokenVestingFilterer) WatchRevoked(opts *bind.WatchOpts, sink chan<- *TokenVestingRevoked) (event.Subscription, error) {
+
+	logs, sub, err := _TokenVesting.contract.WatchLogs(opts, "Revoked")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(TokenVestingRevoked)
+				if err := _TokenVesting.contract.UnpackLog(event, "Revoked", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

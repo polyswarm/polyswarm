@@ -28,13 +28,14 @@ func DeployECRecovery(auth *bind.TransactOpts, backend bind.ContractBackend) (co
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &ECRecovery{ECRecoveryCaller: ECRecoveryCaller{contract: contract}, ECRecoveryTransactor: ECRecoveryTransactor{contract: contract}}, nil
+	return address, tx, &ECRecovery{ECRecoveryCaller: ECRecoveryCaller{contract: contract}, ECRecoveryTransactor: ECRecoveryTransactor{contract: contract}, ECRecoveryFilterer: ECRecoveryFilterer{contract: contract}}, nil
 }
 
 // ECRecovery is an auto generated Go binding around an Ethereum contract.
 type ECRecovery struct {
 	ECRecoveryCaller     // Read-only binding to the contract
 	ECRecoveryTransactor // Write-only binding to the contract
+	ECRecoveryFilterer   // Log filterer for contract events
 }
 
 // ECRecoveryCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -44,6 +45,11 @@ type ECRecoveryCaller struct {
 
 // ECRecoveryTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ECRecoveryTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// ECRecoveryFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type ECRecoveryFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -86,16 +92,16 @@ type ECRecoveryTransactorRaw struct {
 
 // NewECRecovery creates a new instance of ECRecovery, bound to a specific deployed contract.
 func NewECRecovery(address common.Address, backend bind.ContractBackend) (*ECRecovery, error) {
-	contract, err := bindECRecovery(address, backend, backend)
+	contract, err := bindECRecovery(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ECRecovery{ECRecoveryCaller: ECRecoveryCaller{contract: contract}, ECRecoveryTransactor: ECRecoveryTransactor{contract: contract}}, nil
+	return &ECRecovery{ECRecoveryCaller: ECRecoveryCaller{contract: contract}, ECRecoveryTransactor: ECRecoveryTransactor{contract: contract}, ECRecoveryFilterer: ECRecoveryFilterer{contract: contract}}, nil
 }
 
 // NewECRecoveryCaller creates a new read-only instance of ECRecovery, bound to a specific deployed contract.
 func NewECRecoveryCaller(address common.Address, caller bind.ContractCaller) (*ECRecoveryCaller, error) {
-	contract, err := bindECRecovery(address, caller, nil)
+	contract, err := bindECRecovery(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +110,29 @@ func NewECRecoveryCaller(address common.Address, caller bind.ContractCaller) (*E
 
 // NewECRecoveryTransactor creates a new write-only instance of ECRecovery, bound to a specific deployed contract.
 func NewECRecoveryTransactor(address common.Address, transactor bind.ContractTransactor) (*ECRecoveryTransactor, error) {
-	contract, err := bindECRecovery(address, nil, transactor)
+	contract, err := bindECRecovery(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &ECRecoveryTransactor{contract: contract}, nil
 }
 
+// NewECRecoveryFilterer creates a new log filterer instance of ECRecovery, bound to a specific deployed contract.
+func NewECRecoveryFilterer(address common.Address, filterer bind.ContractFilterer) (*ECRecoveryFilterer, error) {
+	contract, err := bindECRecovery(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &ECRecoveryFilterer{contract: contract}, nil
+}
+
 // bindECRecovery binds a generic wrapper to an already deployed contract.
-func bindECRecovery(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindECRecovery(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ECRecoveryABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

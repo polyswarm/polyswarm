@@ -28,13 +28,14 @@ func DeployMathMock(auth *bind.TransactOpts, backend bind.ContractBackend) (comm
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &MathMock{MathMockCaller: MathMockCaller{contract: contract}, MathMockTransactor: MathMockTransactor{contract: contract}}, nil
+	return address, tx, &MathMock{MathMockCaller: MathMockCaller{contract: contract}, MathMockTransactor: MathMockTransactor{contract: contract}, MathMockFilterer: MathMockFilterer{contract: contract}}, nil
 }
 
 // MathMock is an auto generated Go binding around an Ethereum contract.
 type MathMock struct {
 	MathMockCaller     // Read-only binding to the contract
 	MathMockTransactor // Write-only binding to the contract
+	MathMockFilterer   // Log filterer for contract events
 }
 
 // MathMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -44,6 +45,11 @@ type MathMockCaller struct {
 
 // MathMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type MathMockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// MathMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type MathMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -86,16 +92,16 @@ type MathMockTransactorRaw struct {
 
 // NewMathMock creates a new instance of MathMock, bound to a specific deployed contract.
 func NewMathMock(address common.Address, backend bind.ContractBackend) (*MathMock, error) {
-	contract, err := bindMathMock(address, backend, backend)
+	contract, err := bindMathMock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &MathMock{MathMockCaller: MathMockCaller{contract: contract}, MathMockTransactor: MathMockTransactor{contract: contract}}, nil
+	return &MathMock{MathMockCaller: MathMockCaller{contract: contract}, MathMockTransactor: MathMockTransactor{contract: contract}, MathMockFilterer: MathMockFilterer{contract: contract}}, nil
 }
 
 // NewMathMockCaller creates a new read-only instance of MathMock, bound to a specific deployed contract.
 func NewMathMockCaller(address common.Address, caller bind.ContractCaller) (*MathMockCaller, error) {
-	contract, err := bindMathMock(address, caller, nil)
+	contract, err := bindMathMock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +110,29 @@ func NewMathMockCaller(address common.Address, caller bind.ContractCaller) (*Mat
 
 // NewMathMockTransactor creates a new write-only instance of MathMock, bound to a specific deployed contract.
 func NewMathMockTransactor(address common.Address, transactor bind.ContractTransactor) (*MathMockTransactor, error) {
-	contract, err := bindMathMock(address, nil, transactor)
+	contract, err := bindMathMock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &MathMockTransactor{contract: contract}, nil
 }
 
+// NewMathMockFilterer creates a new log filterer instance of MathMock, bound to a specific deployed contract.
+func NewMathMockFilterer(address common.Address, filterer bind.ContractFilterer) (*MathMockFilterer, error) {
+	contract, err := bindMathMock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &MathMockFilterer{contract: contract}, nil
+}
+
 // bindMathMock binds a generic wrapper to an already deployed contract.
-func bindMathMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindMathMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(MathMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

@@ -28,13 +28,14 @@ func DeployMerkleProof(auth *bind.TransactOpts, backend bind.ContractBackend) (c
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &MerkleProof{MerkleProofCaller: MerkleProofCaller{contract: contract}, MerkleProofTransactor: MerkleProofTransactor{contract: contract}}, nil
+	return address, tx, &MerkleProof{MerkleProofCaller: MerkleProofCaller{contract: contract}, MerkleProofTransactor: MerkleProofTransactor{contract: contract}, MerkleProofFilterer: MerkleProofFilterer{contract: contract}}, nil
 }
 
 // MerkleProof is an auto generated Go binding around an Ethereum contract.
 type MerkleProof struct {
 	MerkleProofCaller     // Read-only binding to the contract
 	MerkleProofTransactor // Write-only binding to the contract
+	MerkleProofFilterer   // Log filterer for contract events
 }
 
 // MerkleProofCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -44,6 +45,11 @@ type MerkleProofCaller struct {
 
 // MerkleProofTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type MerkleProofTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// MerkleProofFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type MerkleProofFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -86,16 +92,16 @@ type MerkleProofTransactorRaw struct {
 
 // NewMerkleProof creates a new instance of MerkleProof, bound to a specific deployed contract.
 func NewMerkleProof(address common.Address, backend bind.ContractBackend) (*MerkleProof, error) {
-	contract, err := bindMerkleProof(address, backend, backend)
+	contract, err := bindMerkleProof(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &MerkleProof{MerkleProofCaller: MerkleProofCaller{contract: contract}, MerkleProofTransactor: MerkleProofTransactor{contract: contract}}, nil
+	return &MerkleProof{MerkleProofCaller: MerkleProofCaller{contract: contract}, MerkleProofTransactor: MerkleProofTransactor{contract: contract}, MerkleProofFilterer: MerkleProofFilterer{contract: contract}}, nil
 }
 
 // NewMerkleProofCaller creates a new read-only instance of MerkleProof, bound to a specific deployed contract.
 func NewMerkleProofCaller(address common.Address, caller bind.ContractCaller) (*MerkleProofCaller, error) {
-	contract, err := bindMerkleProof(address, caller, nil)
+	contract, err := bindMerkleProof(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +110,29 @@ func NewMerkleProofCaller(address common.Address, caller bind.ContractCaller) (*
 
 // NewMerkleProofTransactor creates a new write-only instance of MerkleProof, bound to a specific deployed contract.
 func NewMerkleProofTransactor(address common.Address, transactor bind.ContractTransactor) (*MerkleProofTransactor, error) {
-	contract, err := bindMerkleProof(address, nil, transactor)
+	contract, err := bindMerkleProof(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &MerkleProofTransactor{contract: contract}, nil
 }
 
+// NewMerkleProofFilterer creates a new log filterer instance of MerkleProof, bound to a specific deployed contract.
+func NewMerkleProofFilterer(address common.Address, filterer bind.ContractFilterer) (*MerkleProofFilterer, error) {
+	contract, err := bindMerkleProof(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &MerkleProofFilterer{contract: contract}, nil
+}
+
 // bindMerkleProof binds a generic wrapper to an already deployed contract.
-func bindMerkleProof(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindMerkleProof(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(MerkleProofABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

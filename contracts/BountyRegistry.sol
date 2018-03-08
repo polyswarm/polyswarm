@@ -12,7 +12,6 @@ contract BountyRegistry is Pausable {
         uint128 guid;
         address author;
         uint256 amount;
-        bytes32 artifactHash;
         string artifactURI;
         uint256 expirationBlock;
         bool resolved;
@@ -30,7 +29,6 @@ contract BountyRegistry is Pausable {
         uint128 guid,
         address author,
         uint256 amount,
-        bytes32 artifactHash,
         string artifactURI,
         uint256 expirationBlock
     );
@@ -69,7 +67,6 @@ contract BountyRegistry is Pausable {
     function postBounty(
         uint128 guid,
         uint256 amount,
-        bytes32 artifactHash,
         string artifactURI,
         uint256 durationBlocks
     )
@@ -92,7 +89,6 @@ contract BountyRegistry is Pausable {
             guid,
             msg.sender,
             amount,
-            artifactHash,
             artifactURI,
             durationBlocks.add(block.number),
             false,
@@ -105,7 +101,6 @@ contract BountyRegistry is Pausable {
             b.guid,
             b.author,
             b.amount,
-            b.artifactHash,
             b.artifactURI,
             b.expirationBlock
         );

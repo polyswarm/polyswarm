@@ -7,10 +7,12 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // DetailedERC20MockABI is the input ABI used to generate the binding from.
@@ -29,13 +31,14 @@ func DeployDetailedERC20Mock(auth *bind.TransactOpts, backend bind.ContractBacke
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &DetailedERC20Mock{DetailedERC20MockCaller: DetailedERC20MockCaller{contract: contract}, DetailedERC20MockTransactor: DetailedERC20MockTransactor{contract: contract}}, nil
+	return address, tx, &DetailedERC20Mock{DetailedERC20MockCaller: DetailedERC20MockCaller{contract: contract}, DetailedERC20MockTransactor: DetailedERC20MockTransactor{contract: contract}, DetailedERC20MockFilterer: DetailedERC20MockFilterer{contract: contract}}, nil
 }
 
 // DetailedERC20Mock is an auto generated Go binding around an Ethereum contract.
 type DetailedERC20Mock struct {
 	DetailedERC20MockCaller     // Read-only binding to the contract
 	DetailedERC20MockTransactor // Write-only binding to the contract
+	DetailedERC20MockFilterer   // Log filterer for contract events
 }
 
 // DetailedERC20MockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +48,11 @@ type DetailedERC20MockCaller struct {
 
 // DetailedERC20MockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type DetailedERC20MockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// DetailedERC20MockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type DetailedERC20MockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +95,16 @@ type DetailedERC20MockTransactorRaw struct {
 
 // NewDetailedERC20Mock creates a new instance of DetailedERC20Mock, bound to a specific deployed contract.
 func NewDetailedERC20Mock(address common.Address, backend bind.ContractBackend) (*DetailedERC20Mock, error) {
-	contract, err := bindDetailedERC20Mock(address, backend, backend)
+	contract, err := bindDetailedERC20Mock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &DetailedERC20Mock{DetailedERC20MockCaller: DetailedERC20MockCaller{contract: contract}, DetailedERC20MockTransactor: DetailedERC20MockTransactor{contract: contract}}, nil
+	return &DetailedERC20Mock{DetailedERC20MockCaller: DetailedERC20MockCaller{contract: contract}, DetailedERC20MockTransactor: DetailedERC20MockTransactor{contract: contract}, DetailedERC20MockFilterer: DetailedERC20MockFilterer{contract: contract}}, nil
 }
 
 // NewDetailedERC20MockCaller creates a new read-only instance of DetailedERC20Mock, bound to a specific deployed contract.
 func NewDetailedERC20MockCaller(address common.Address, caller bind.ContractCaller) (*DetailedERC20MockCaller, error) {
-	contract, err := bindDetailedERC20Mock(address, caller, nil)
+	contract, err := bindDetailedERC20Mock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +113,29 @@ func NewDetailedERC20MockCaller(address common.Address, caller bind.ContractCall
 
 // NewDetailedERC20MockTransactor creates a new write-only instance of DetailedERC20Mock, bound to a specific deployed contract.
 func NewDetailedERC20MockTransactor(address common.Address, transactor bind.ContractTransactor) (*DetailedERC20MockTransactor, error) {
-	contract, err := bindDetailedERC20Mock(address, nil, transactor)
+	contract, err := bindDetailedERC20Mock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &DetailedERC20MockTransactor{contract: contract}, nil
 }
 
+// NewDetailedERC20MockFilterer creates a new log filterer instance of DetailedERC20Mock, bound to a specific deployed contract.
+func NewDetailedERC20MockFilterer(address common.Address, filterer bind.ContractFilterer) (*DetailedERC20MockFilterer, error) {
+	contract, err := bindDetailedERC20Mock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &DetailedERC20MockFilterer{contract: contract}, nil
+}
+
 // bindDetailedERC20Mock binds a generic wrapper to an already deployed contract.
-func bindDetailedERC20Mock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindDetailedERC20Mock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(DetailedERC20MockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -418,4 +435,288 @@ func (_DetailedERC20Mock *DetailedERC20MockSession) TransferFrom(_from common.Ad
 // Solidity: function transferFrom(_from address, _to address, _value uint256) returns(bool)
 func (_DetailedERC20Mock *DetailedERC20MockTransactorSession) TransferFrom(_from common.Address, _to common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _DetailedERC20Mock.Contract.TransferFrom(&_DetailedERC20Mock.TransactOpts, _from, _to, _value)
+}
+
+// DetailedERC20MockApprovalIterator is returned from FilterApproval and is used to iterate over the raw logs and unpacked data for Approval events raised by the DetailedERC20Mock contract.
+type DetailedERC20MockApprovalIterator struct {
+	Event *DetailedERC20MockApproval // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *DetailedERC20MockApprovalIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(DetailedERC20MockApproval)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(DetailedERC20MockApproval)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *DetailedERC20MockApprovalIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *DetailedERC20MockApprovalIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// DetailedERC20MockApproval represents a Approval event raised by the DetailedERC20Mock contract.
+type DetailedERC20MockApproval struct {
+	Owner   common.Address
+	Spender common.Address
+	Value   *big.Int
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
+//
+// Solidity: event Approval(owner indexed address, spender indexed address, value uint256)
+func (_DetailedERC20Mock *DetailedERC20MockFilterer) FilterApproval(opts *bind.FilterOpts, owner []common.Address, spender []common.Address) (*DetailedERC20MockApprovalIterator, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+	var spenderRule []interface{}
+	for _, spenderItem := range spender {
+		spenderRule = append(spenderRule, spenderItem)
+	}
+
+	logs, sub, err := _DetailedERC20Mock.contract.FilterLogs(opts, "Approval", ownerRule, spenderRule)
+	if err != nil {
+		return nil, err
+	}
+	return &DetailedERC20MockApprovalIterator{contract: _DetailedERC20Mock.contract, event: "Approval", logs: logs, sub: sub}, nil
+}
+
+// WatchApproval is a free log subscription operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
+//
+// Solidity: event Approval(owner indexed address, spender indexed address, value uint256)
+func (_DetailedERC20Mock *DetailedERC20MockFilterer) WatchApproval(opts *bind.WatchOpts, sink chan<- *DetailedERC20MockApproval, owner []common.Address, spender []common.Address) (event.Subscription, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+	var spenderRule []interface{}
+	for _, spenderItem := range spender {
+		spenderRule = append(spenderRule, spenderItem)
+	}
+
+	logs, sub, err := _DetailedERC20Mock.contract.WatchLogs(opts, "Approval", ownerRule, spenderRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(DetailedERC20MockApproval)
+				if err := _DetailedERC20Mock.contract.UnpackLog(event, "Approval", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// DetailedERC20MockTransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the DetailedERC20Mock contract.
+type DetailedERC20MockTransferIterator struct {
+	Event *DetailedERC20MockTransfer // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *DetailedERC20MockTransferIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(DetailedERC20MockTransfer)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(DetailedERC20MockTransfer)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *DetailedERC20MockTransferIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *DetailedERC20MockTransferIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// DetailedERC20MockTransfer represents a Transfer event raised by the DetailedERC20Mock contract.
+type DetailedERC20MockTransfer struct {
+	From  common.Address
+	To    common.Address
+	Value *big.Int
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+//
+// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
+func (_DetailedERC20Mock *DetailedERC20MockFilterer) FilterTransfer(opts *bind.FilterOpts, from []common.Address, to []common.Address) (*DetailedERC20MockTransferIterator, error) {
+
+	var fromRule []interface{}
+	for _, fromItem := range from {
+		fromRule = append(fromRule, fromItem)
+	}
+	var toRule []interface{}
+	for _, toItem := range to {
+		toRule = append(toRule, toItem)
+	}
+
+	logs, sub, err := _DetailedERC20Mock.contract.FilterLogs(opts, "Transfer", fromRule, toRule)
+	if err != nil {
+		return nil, err
+	}
+	return &DetailedERC20MockTransferIterator{contract: _DetailedERC20Mock.contract, event: "Transfer", logs: logs, sub: sub}, nil
+}
+
+// WatchTransfer is a free log subscription operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+//
+// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
+func (_DetailedERC20Mock *DetailedERC20MockFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *DetailedERC20MockTransfer, from []common.Address, to []common.Address) (event.Subscription, error) {
+
+	var fromRule []interface{}
+	for _, fromItem := range from {
+		fromRule = append(fromRule, fromItem)
+	}
+	var toRule []interface{}
+	for _, toItem := range to {
+		toRule = append(toRule, toItem)
+	}
+
+	logs, sub, err := _DetailedERC20Mock.contract.WatchLogs(opts, "Transfer", fromRule, toRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(DetailedERC20MockTransfer)
+				if err := _DetailedERC20Mock.contract.UnpackLog(event, "Transfer", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

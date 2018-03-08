@@ -6,10 +6,12 @@ package bindings
 import (
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // RBACMockABI is the input ABI used to generate the binding from.
@@ -28,13 +30,14 @@ func DeployRBACMock(auth *bind.TransactOpts, backend bind.ContractBackend, _advi
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &RBACMock{RBACMockCaller: RBACMockCaller{contract: contract}, RBACMockTransactor: RBACMockTransactor{contract: contract}}, nil
+	return address, tx, &RBACMock{RBACMockCaller: RBACMockCaller{contract: contract}, RBACMockTransactor: RBACMockTransactor{contract: contract}, RBACMockFilterer: RBACMockFilterer{contract: contract}}, nil
 }
 
 // RBACMock is an auto generated Go binding around an Ethereum contract.
 type RBACMock struct {
 	RBACMockCaller     // Read-only binding to the contract
 	RBACMockTransactor // Write-only binding to the contract
+	RBACMockFilterer   // Log filterer for contract events
 }
 
 // RBACMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -44,6 +47,11 @@ type RBACMockCaller struct {
 
 // RBACMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type RBACMockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// RBACMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type RBACMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -86,16 +94,16 @@ type RBACMockTransactorRaw struct {
 
 // NewRBACMock creates a new instance of RBACMock, bound to a specific deployed contract.
 func NewRBACMock(address common.Address, backend bind.ContractBackend) (*RBACMock, error) {
-	contract, err := bindRBACMock(address, backend, backend)
+	contract, err := bindRBACMock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &RBACMock{RBACMockCaller: RBACMockCaller{contract: contract}, RBACMockTransactor: RBACMockTransactor{contract: contract}}, nil
+	return &RBACMock{RBACMockCaller: RBACMockCaller{contract: contract}, RBACMockTransactor: RBACMockTransactor{contract: contract}, RBACMockFilterer: RBACMockFilterer{contract: contract}}, nil
 }
 
 // NewRBACMockCaller creates a new read-only instance of RBACMock, bound to a specific deployed contract.
 func NewRBACMockCaller(address common.Address, caller bind.ContractCaller) (*RBACMockCaller, error) {
-	contract, err := bindRBACMock(address, caller, nil)
+	contract, err := bindRBACMock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +112,29 @@ func NewRBACMockCaller(address common.Address, caller bind.ContractCaller) (*RBA
 
 // NewRBACMockTransactor creates a new write-only instance of RBACMock, bound to a specific deployed contract.
 func NewRBACMockTransactor(address common.Address, transactor bind.ContractTransactor) (*RBACMockTransactor, error) {
-	contract, err := bindRBACMock(address, nil, transactor)
+	contract, err := bindRBACMock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &RBACMockTransactor{contract: contract}, nil
 }
 
+// NewRBACMockFilterer creates a new log filterer instance of RBACMock, bound to a specific deployed contract.
+func NewRBACMockFilterer(address common.Address, filterer bind.ContractFilterer) (*RBACMockFilterer, error) {
+	contract, err := bindRBACMock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &RBACMockFilterer{contract: contract}, nil
+}
+
 // bindRBACMock binds a generic wrapper to an already deployed contract.
-func bindRBACMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindRBACMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(RBACMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -391,4 +408,250 @@ func (_RBACMock *RBACMockSession) RemoveAdvisor(_addr common.Address) (*types.Tr
 // Solidity: function removeAdvisor(_addr address) returns()
 func (_RBACMock *RBACMockTransactorSession) RemoveAdvisor(_addr common.Address) (*types.Transaction, error) {
 	return _RBACMock.Contract.RemoveAdvisor(&_RBACMock.TransactOpts, _addr)
+}
+
+// RBACMockRoleAddedIterator is returned from FilterRoleAdded and is used to iterate over the raw logs and unpacked data for RoleAdded events raised by the RBACMock contract.
+type RBACMockRoleAddedIterator struct {
+	Event *RBACMockRoleAdded // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RBACMockRoleAddedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RBACMockRoleAdded)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RBACMockRoleAdded)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RBACMockRoleAddedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RBACMockRoleAddedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RBACMockRoleAdded represents a RoleAdded event raised by the RBACMock contract.
+type RBACMockRoleAdded struct {
+	Addr     common.Address
+	RoleName string
+	Raw      types.Log // Blockchain specific contextual infos
+}
+
+// FilterRoleAdded is a free log retrieval operation binding the contract event 0xbfec83d64eaa953f2708271a023ab9ee82057f8f3578d548c1a4ba0b5b700489.
+//
+// Solidity: event RoleAdded(addr address, roleName string)
+func (_RBACMock *RBACMockFilterer) FilterRoleAdded(opts *bind.FilterOpts) (*RBACMockRoleAddedIterator, error) {
+
+	logs, sub, err := _RBACMock.contract.FilterLogs(opts, "RoleAdded")
+	if err != nil {
+		return nil, err
+	}
+	return &RBACMockRoleAddedIterator{contract: _RBACMock.contract, event: "RoleAdded", logs: logs, sub: sub}, nil
+}
+
+// WatchRoleAdded is a free log subscription operation binding the contract event 0xbfec83d64eaa953f2708271a023ab9ee82057f8f3578d548c1a4ba0b5b700489.
+//
+// Solidity: event RoleAdded(addr address, roleName string)
+func (_RBACMock *RBACMockFilterer) WatchRoleAdded(opts *bind.WatchOpts, sink chan<- *RBACMockRoleAdded) (event.Subscription, error) {
+
+	logs, sub, err := _RBACMock.contract.WatchLogs(opts, "RoleAdded")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RBACMockRoleAdded)
+				if err := _RBACMock.contract.UnpackLog(event, "RoleAdded", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// RBACMockRoleRemovedIterator is returned from FilterRoleRemoved and is used to iterate over the raw logs and unpacked data for RoleRemoved events raised by the RBACMock contract.
+type RBACMockRoleRemovedIterator struct {
+	Event *RBACMockRoleRemoved // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *RBACMockRoleRemovedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(RBACMockRoleRemoved)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(RBACMockRoleRemoved)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *RBACMockRoleRemovedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *RBACMockRoleRemovedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// RBACMockRoleRemoved represents a RoleRemoved event raised by the RBACMock contract.
+type RBACMockRoleRemoved struct {
+	Addr     common.Address
+	RoleName string
+	Raw      types.Log // Blockchain specific contextual infos
+}
+
+// FilterRoleRemoved is a free log retrieval operation binding the contract event 0xd211483f91fc6eff862467f8de606587a30c8fc9981056f051b897a418df803a.
+//
+// Solidity: event RoleRemoved(addr address, roleName string)
+func (_RBACMock *RBACMockFilterer) FilterRoleRemoved(opts *bind.FilterOpts) (*RBACMockRoleRemovedIterator, error) {
+
+	logs, sub, err := _RBACMock.contract.FilterLogs(opts, "RoleRemoved")
+	if err != nil {
+		return nil, err
+	}
+	return &RBACMockRoleRemovedIterator{contract: _RBACMock.contract, event: "RoleRemoved", logs: logs, sub: sub}, nil
+}
+
+// WatchRoleRemoved is a free log subscription operation binding the contract event 0xd211483f91fc6eff862467f8de606587a30c8fc9981056f051b897a418df803a.
+//
+// Solidity: event RoleRemoved(addr address, roleName string)
+func (_RBACMock *RBACMockFilterer) WatchRoleRemoved(opts *bind.WatchOpts, sink chan<- *RBACMockRoleRemoved) (event.Subscription, error) {
+
+	logs, sub, err := _RBACMock.contract.WatchLogs(opts, "RoleRemoved")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(RBACMockRoleRemoved)
+				if err := _RBACMock.contract.UnpackLog(event, "RoleRemoved", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

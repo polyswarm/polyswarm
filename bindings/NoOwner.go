@@ -7,10 +7,12 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // NoOwnerABI is the input ABI used to generate the binding from.
@@ -29,13 +31,14 @@ func DeployNoOwner(auth *bind.TransactOpts, backend bind.ContractBackend) (commo
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &NoOwner{NoOwnerCaller: NoOwnerCaller{contract: contract}, NoOwnerTransactor: NoOwnerTransactor{contract: contract}}, nil
+	return address, tx, &NoOwner{NoOwnerCaller: NoOwnerCaller{contract: contract}, NoOwnerTransactor: NoOwnerTransactor{contract: contract}, NoOwnerFilterer: NoOwnerFilterer{contract: contract}}, nil
 }
 
 // NoOwner is an auto generated Go binding around an Ethereum contract.
 type NoOwner struct {
 	NoOwnerCaller     // Read-only binding to the contract
 	NoOwnerTransactor // Write-only binding to the contract
+	NoOwnerFilterer   // Log filterer for contract events
 }
 
 // NoOwnerCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +48,11 @@ type NoOwnerCaller struct {
 
 // NoOwnerTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type NoOwnerTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// NoOwnerFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type NoOwnerFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +95,16 @@ type NoOwnerTransactorRaw struct {
 
 // NewNoOwner creates a new instance of NoOwner, bound to a specific deployed contract.
 func NewNoOwner(address common.Address, backend bind.ContractBackend) (*NoOwner, error) {
-	contract, err := bindNoOwner(address, backend, backend)
+	contract, err := bindNoOwner(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &NoOwner{NoOwnerCaller: NoOwnerCaller{contract: contract}, NoOwnerTransactor: NoOwnerTransactor{contract: contract}}, nil
+	return &NoOwner{NoOwnerCaller: NoOwnerCaller{contract: contract}, NoOwnerTransactor: NoOwnerTransactor{contract: contract}, NoOwnerFilterer: NoOwnerFilterer{contract: contract}}, nil
 }
 
 // NewNoOwnerCaller creates a new read-only instance of NoOwner, bound to a specific deployed contract.
 func NewNoOwnerCaller(address common.Address, caller bind.ContractCaller) (*NoOwnerCaller, error) {
-	contract, err := bindNoOwner(address, caller, nil)
+	contract, err := bindNoOwner(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +113,29 @@ func NewNoOwnerCaller(address common.Address, caller bind.ContractCaller) (*NoOw
 
 // NewNoOwnerTransactor creates a new write-only instance of NoOwner, bound to a specific deployed contract.
 func NewNoOwnerTransactor(address common.Address, transactor bind.ContractTransactor) (*NoOwnerTransactor, error) {
-	contract, err := bindNoOwner(address, nil, transactor)
+	contract, err := bindNoOwner(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &NoOwnerTransactor{contract: contract}, nil
 }
 
+// NewNoOwnerFilterer creates a new log filterer instance of NoOwner, bound to a specific deployed contract.
+func NewNoOwnerFilterer(address common.Address, filterer bind.ContractFilterer) (*NoOwnerFilterer, error) {
+	contract, err := bindNoOwner(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &NoOwnerFilterer{contract: contract}, nil
+}
+
 // bindNoOwner binds a generic wrapper to an already deployed contract.
-func bindNoOwner(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindNoOwner(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(NoOwnerABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -288,4 +305,145 @@ func (_NoOwner *NoOwnerSession) TransferOwnership(newOwner common.Address) (*typ
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_NoOwner *NoOwnerTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _NoOwner.Contract.TransferOwnership(&_NoOwner.TransactOpts, newOwner)
+}
+
+// NoOwnerOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the NoOwner contract.
+type NoOwnerOwnershipTransferredIterator struct {
+	Event *NoOwnerOwnershipTransferred // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *NoOwnerOwnershipTransferredIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(NoOwnerOwnershipTransferred)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(NoOwnerOwnershipTransferred)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *NoOwnerOwnershipTransferredIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *NoOwnerOwnershipTransferredIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// NoOwnerOwnershipTransferred represents a OwnershipTransferred event raised by the NoOwner contract.
+type NoOwnerOwnershipTransferred struct {
+	PreviousOwner common.Address
+	NewOwner      common.Address
+	Raw           types.Log // Blockchain specific contextual infos
+}
+
+// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_NoOwner *NoOwnerFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*NoOwnerOwnershipTransferredIterator, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _NoOwner.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &NoOwnerOwnershipTransferredIterator{contract: _NoOwner.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
+}
+
+// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_NoOwner *NoOwnerFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *NoOwnerOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _NoOwner.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(NoOwnerOwnershipTransferred)
+				if err := _NoOwner.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

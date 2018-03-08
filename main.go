@@ -12,8 +12,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 
@@ -72,18 +70,22 @@ func getArtifactsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	reader, err := bountyRegistry.DownloadArtifact(ipfshash)
+	links, err := bountyRegistry.ListArtifacts(ipfshash)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	j, err := json.Marshal(links)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", "attachment; filename=\"%v\"")
-	io.Copy(w, reader)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
 }
 
-func getArtifactsStatHandler(w http.ResponseWriter, r *http.Request) {
+func getArtifactHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	ipfshash := vars["ipfshash"]
 
@@ -93,9 +95,64 @@ func getArtifactsStatHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil || id < 0 {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	links, err := bountyRegistry.ListArtifacts(ipfshash)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if id >= len(links) {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	reader, err := bountyRegistry.DownloadArtifact(links[id])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", "attachment; filename=\"%v\"")
+	io.Copy(w, reader)
+}
+
+func getArtifactStatHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	ipfshash := vars["ipfshash"]
+
+	// Verify that this is at least valid base58
+	if _, err := base58.DecodeToBig([]byte(ipfshash)); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil || id < 0 {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	links, err := bountyRegistry.ListArtifacts(ipfshash)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if id >= len(links) {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	stats, err := bountyRegistry.StatArtifact(ipfshash)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -109,15 +166,33 @@ func getArtifactsStatHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func postArtifactsHandler(w http.ResponseWriter, r *http.Request) {
-	hash, uri, err := bountyRegistry.UploadArtifact(r.Body)
+	if err := r.ParseMultipartForm(1 << 12); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	fs := make(map[string]io.Reader)
+	for _, value := range r.MultipartForm.File {
+		for _, fh := range value {
+			f, err := fh.Open()
+			defer f.Close()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			fs[fh.Filename] = f
+		}
+	}
+
+	uri, err := bountyRegistry.UploadArtifacts(fs)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	response := map[string]interface{}{
-		"hash": hash,
-		"uri":  uri,
+		"uri": uri,
 	}
 	j, err := json.Marshal(response)
 	if err != nil {
@@ -140,10 +215,9 @@ func getBountiesHandler(w http.ResponseWriter, r *http.Request) {
 
 func postBountiesHandler(w http.ResponseWriter, r *http.Request) {
 	var b struct {
-		Amount       int         `json:"amount"`
-		ArtifactHash common.Hash `json:"hash"`
-		ArtifactURI  string      `json:"uri"`
-		Duration     int         `json:"duration"`
+		Amount      int    `json:"amount"`
+		ArtifactURI string `json:"uri"`
+		Duration    int    `json:"duration"`
 	}
 
 	dec := json.NewDecoder(r.Body)
@@ -153,7 +227,7 @@ func postBountiesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	guid, err := bountyRegistry.PostBounty(context.Background(), b.ArtifactHash, b.ArtifactURI, b.Amount, b.Duration)
+	guid, err := bountyRegistry.PostBounty(context.Background(), b.ArtifactURI, b.Amount, b.Duration)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -341,7 +415,8 @@ func main() {
 	r.HandleFunc("/events", eventHandler)
 
 	r.HandleFunc("/artifacts/{ipfshash}", getArtifactsHandler).Methods("GET")
-	r.HandleFunc("/artifacts/{ipfshash}/stat", getArtifactsStatHandler).Methods("GET")
+	r.HandleFunc("/artifacts/{ipfshash}/{id}", getArtifactHandler).Methods("GET")
+	r.HandleFunc("/artifacts/{ipfshash}/{id}/stat", getArtifactStatHandler).Methods("GET")
 	r.HandleFunc("/artifacts", postArtifactsHandler).Methods("POST")
 
 	r.HandleFunc("/bounties", getBountiesHandler).Methods("GET")

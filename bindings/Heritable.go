@@ -7,10 +7,12 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // HeritableABI is the input ABI used to generate the binding from.
@@ -29,13 +31,14 @@ func DeployHeritable(auth *bind.TransactOpts, backend bind.ContractBackend, _hea
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &Heritable{HeritableCaller: HeritableCaller{contract: contract}, HeritableTransactor: HeritableTransactor{contract: contract}}, nil
+	return address, tx, &Heritable{HeritableCaller: HeritableCaller{contract: contract}, HeritableTransactor: HeritableTransactor{contract: contract}, HeritableFilterer: HeritableFilterer{contract: contract}}, nil
 }
 
 // Heritable is an auto generated Go binding around an Ethereum contract.
 type Heritable struct {
 	HeritableCaller     // Read-only binding to the contract
 	HeritableTransactor // Write-only binding to the contract
+	HeritableFilterer   // Log filterer for contract events
 }
 
 // HeritableCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +48,11 @@ type HeritableCaller struct {
 
 // HeritableTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type HeritableTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// HeritableFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type HeritableFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +95,16 @@ type HeritableTransactorRaw struct {
 
 // NewHeritable creates a new instance of Heritable, bound to a specific deployed contract.
 func NewHeritable(address common.Address, backend bind.ContractBackend) (*Heritable, error) {
-	contract, err := bindHeritable(address, backend, backend)
+	contract, err := bindHeritable(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &Heritable{HeritableCaller: HeritableCaller{contract: contract}, HeritableTransactor: HeritableTransactor{contract: contract}}, nil
+	return &Heritable{HeritableCaller: HeritableCaller{contract: contract}, HeritableTransactor: HeritableTransactor{contract: contract}, HeritableFilterer: HeritableFilterer{contract: contract}}, nil
 }
 
 // NewHeritableCaller creates a new read-only instance of Heritable, bound to a specific deployed contract.
 func NewHeritableCaller(address common.Address, caller bind.ContractCaller) (*HeritableCaller, error) {
-	contract, err := bindHeritable(address, caller, nil)
+	contract, err := bindHeritable(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +113,29 @@ func NewHeritableCaller(address common.Address, caller bind.ContractCaller) (*He
 
 // NewHeritableTransactor creates a new write-only instance of Heritable, bound to a specific deployed contract.
 func NewHeritableTransactor(address common.Address, transactor bind.ContractTransactor) (*HeritableTransactor, error) {
-	contract, err := bindHeritable(address, nil, transactor)
+	contract, err := bindHeritable(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &HeritableTransactor{contract: contract}, nil
 }
 
+// NewHeritableFilterer creates a new log filterer instance of Heritable, bound to a specific deployed contract.
+func NewHeritableFilterer(address common.Address, filterer bind.ContractFilterer) (*HeritableFilterer, error) {
+	contract, err := bindHeritable(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &HeritableFilterer{contract: contract}, nil
+}
+
 // bindHeritable binds a generic wrapper to an already deployed contract.
-func bindHeritable(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindHeritable(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(HeritableABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -387,4 +404,701 @@ func (_Heritable *HeritableSession) TransferOwnership(newOwner common.Address) (
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_Heritable *HeritableTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _Heritable.Contract.TransferOwnership(&_Heritable.TransactOpts, newOwner)
+}
+
+// HeritableHeirChangedIterator is returned from FilterHeirChanged and is used to iterate over the raw logs and unpacked data for HeirChanged events raised by the Heritable contract.
+type HeritableHeirChangedIterator struct {
+	Event *HeritableHeirChanged // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *HeritableHeirChangedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(HeritableHeirChanged)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(HeritableHeirChanged)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *HeritableHeirChangedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *HeritableHeirChangedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// HeritableHeirChanged represents a HeirChanged event raised by the Heritable contract.
+type HeritableHeirChanged struct {
+	Owner   common.Address
+	NewHeir common.Address
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterHeirChanged is a free log retrieval operation binding the contract event 0x4e6093f85fa64484abd692810d8a44d508792ff7b7a021d9fbd69fa1c6ff18a0.
+//
+// Solidity: event HeirChanged(owner indexed address, newHeir indexed address)
+func (_Heritable *HeritableFilterer) FilterHeirChanged(opts *bind.FilterOpts, owner []common.Address, newHeir []common.Address) (*HeritableHeirChangedIterator, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+	var newHeirRule []interface{}
+	for _, newHeirItem := range newHeir {
+		newHeirRule = append(newHeirRule, newHeirItem)
+	}
+
+	logs, sub, err := _Heritable.contract.FilterLogs(opts, "HeirChanged", ownerRule, newHeirRule)
+	if err != nil {
+		return nil, err
+	}
+	return &HeritableHeirChangedIterator{contract: _Heritable.contract, event: "HeirChanged", logs: logs, sub: sub}, nil
+}
+
+// WatchHeirChanged is a free log subscription operation binding the contract event 0x4e6093f85fa64484abd692810d8a44d508792ff7b7a021d9fbd69fa1c6ff18a0.
+//
+// Solidity: event HeirChanged(owner indexed address, newHeir indexed address)
+func (_Heritable *HeritableFilterer) WatchHeirChanged(opts *bind.WatchOpts, sink chan<- *HeritableHeirChanged, owner []common.Address, newHeir []common.Address) (event.Subscription, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+	var newHeirRule []interface{}
+	for _, newHeirItem := range newHeir {
+		newHeirRule = append(newHeirRule, newHeirItem)
+	}
+
+	logs, sub, err := _Heritable.contract.WatchLogs(opts, "HeirChanged", ownerRule, newHeirRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(HeritableHeirChanged)
+				if err := _Heritable.contract.UnpackLog(event, "HeirChanged", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// HeritableHeirOwnershipClaimedIterator is returned from FilterHeirOwnershipClaimed and is used to iterate over the raw logs and unpacked data for HeirOwnershipClaimed events raised by the Heritable contract.
+type HeritableHeirOwnershipClaimedIterator struct {
+	Event *HeritableHeirOwnershipClaimed // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *HeritableHeirOwnershipClaimedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(HeritableHeirOwnershipClaimed)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(HeritableHeirOwnershipClaimed)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *HeritableHeirOwnershipClaimedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *HeritableHeirOwnershipClaimedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// HeritableHeirOwnershipClaimed represents a HeirOwnershipClaimed event raised by the Heritable contract.
+type HeritableHeirOwnershipClaimed struct {
+	PreviousOwner common.Address
+	NewOwner      common.Address
+	Raw           types.Log // Blockchain specific contextual infos
+}
+
+// FilterHeirOwnershipClaimed is a free log retrieval operation binding the contract event 0x1017a357e19071e4408dbd385f24e591aa5bcee52b444dc0c8abddbe6ad29de6.
+//
+// Solidity: event HeirOwnershipClaimed(previousOwner indexed address, newOwner indexed address)
+func (_Heritable *HeritableFilterer) FilterHeirOwnershipClaimed(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*HeritableHeirOwnershipClaimedIterator, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _Heritable.contract.FilterLogs(opts, "HeirOwnershipClaimed", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &HeritableHeirOwnershipClaimedIterator{contract: _Heritable.contract, event: "HeirOwnershipClaimed", logs: logs, sub: sub}, nil
+}
+
+// WatchHeirOwnershipClaimed is a free log subscription operation binding the contract event 0x1017a357e19071e4408dbd385f24e591aa5bcee52b444dc0c8abddbe6ad29de6.
+//
+// Solidity: event HeirOwnershipClaimed(previousOwner indexed address, newOwner indexed address)
+func (_Heritable *HeritableFilterer) WatchHeirOwnershipClaimed(opts *bind.WatchOpts, sink chan<- *HeritableHeirOwnershipClaimed, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _Heritable.contract.WatchLogs(opts, "HeirOwnershipClaimed", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(HeritableHeirOwnershipClaimed)
+				if err := _Heritable.contract.UnpackLog(event, "HeirOwnershipClaimed", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// HeritableOwnerHeartbeatedIterator is returned from FilterOwnerHeartbeated and is used to iterate over the raw logs and unpacked data for OwnerHeartbeated events raised by the Heritable contract.
+type HeritableOwnerHeartbeatedIterator struct {
+	Event *HeritableOwnerHeartbeated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *HeritableOwnerHeartbeatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(HeritableOwnerHeartbeated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(HeritableOwnerHeartbeated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *HeritableOwnerHeartbeatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *HeritableOwnerHeartbeatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// HeritableOwnerHeartbeated represents a OwnerHeartbeated event raised by the Heritable contract.
+type HeritableOwnerHeartbeated struct {
+	Owner common.Address
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterOwnerHeartbeated is a free log retrieval operation binding the contract event 0xd40b9d9a7572411aff4bbb95ba7bd9a9d4e9b70747ec46f8fe7913c309b68452.
+//
+// Solidity: event OwnerHeartbeated(owner indexed address)
+func (_Heritable *HeritableFilterer) FilterOwnerHeartbeated(opts *bind.FilterOpts, owner []common.Address) (*HeritableOwnerHeartbeatedIterator, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _Heritable.contract.FilterLogs(opts, "OwnerHeartbeated", ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &HeritableOwnerHeartbeatedIterator{contract: _Heritable.contract, event: "OwnerHeartbeated", logs: logs, sub: sub}, nil
+}
+
+// WatchOwnerHeartbeated is a free log subscription operation binding the contract event 0xd40b9d9a7572411aff4bbb95ba7bd9a9d4e9b70747ec46f8fe7913c309b68452.
+//
+// Solidity: event OwnerHeartbeated(owner indexed address)
+func (_Heritable *HeritableFilterer) WatchOwnerHeartbeated(opts *bind.WatchOpts, sink chan<- *HeritableOwnerHeartbeated, owner []common.Address) (event.Subscription, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+
+	logs, sub, err := _Heritable.contract.WatchLogs(opts, "OwnerHeartbeated", ownerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(HeritableOwnerHeartbeated)
+				if err := _Heritable.contract.UnpackLog(event, "OwnerHeartbeated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// HeritableOwnerProclaimedDeadIterator is returned from FilterOwnerProclaimedDead and is used to iterate over the raw logs and unpacked data for OwnerProclaimedDead events raised by the Heritable contract.
+type HeritableOwnerProclaimedDeadIterator struct {
+	Event *HeritableOwnerProclaimedDead // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *HeritableOwnerProclaimedDeadIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(HeritableOwnerProclaimedDead)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(HeritableOwnerProclaimedDead)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *HeritableOwnerProclaimedDeadIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *HeritableOwnerProclaimedDeadIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// HeritableOwnerProclaimedDead represents a OwnerProclaimedDead event raised by the Heritable contract.
+type HeritableOwnerProclaimedDead struct {
+	Owner       common.Address
+	Heir        common.Address
+	TimeOfDeath *big.Int
+	Raw         types.Log // Blockchain specific contextual infos
+}
+
+// FilterOwnerProclaimedDead is a free log retrieval operation binding the contract event 0x66389f1f3251c39e71cb18351daefea45bda23e98df0767266b8aed4ff938277.
+//
+// Solidity: event OwnerProclaimedDead(owner indexed address, heir indexed address, timeOfDeath uint256)
+func (_Heritable *HeritableFilterer) FilterOwnerProclaimedDead(opts *bind.FilterOpts, owner []common.Address, heir []common.Address) (*HeritableOwnerProclaimedDeadIterator, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+	var heirRule []interface{}
+	for _, heirItem := range heir {
+		heirRule = append(heirRule, heirItem)
+	}
+
+	logs, sub, err := _Heritable.contract.FilterLogs(opts, "OwnerProclaimedDead", ownerRule, heirRule)
+	if err != nil {
+		return nil, err
+	}
+	return &HeritableOwnerProclaimedDeadIterator{contract: _Heritable.contract, event: "OwnerProclaimedDead", logs: logs, sub: sub}, nil
+}
+
+// WatchOwnerProclaimedDead is a free log subscription operation binding the contract event 0x66389f1f3251c39e71cb18351daefea45bda23e98df0767266b8aed4ff938277.
+//
+// Solidity: event OwnerProclaimedDead(owner indexed address, heir indexed address, timeOfDeath uint256)
+func (_Heritable *HeritableFilterer) WatchOwnerProclaimedDead(opts *bind.WatchOpts, sink chan<- *HeritableOwnerProclaimedDead, owner []common.Address, heir []common.Address) (event.Subscription, error) {
+
+	var ownerRule []interface{}
+	for _, ownerItem := range owner {
+		ownerRule = append(ownerRule, ownerItem)
+	}
+	var heirRule []interface{}
+	for _, heirItem := range heir {
+		heirRule = append(heirRule, heirItem)
+	}
+
+	logs, sub, err := _Heritable.contract.WatchLogs(opts, "OwnerProclaimedDead", ownerRule, heirRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(HeritableOwnerProclaimedDead)
+				if err := _Heritable.contract.UnpackLog(event, "OwnerProclaimedDead", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// HeritableOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the Heritable contract.
+type HeritableOwnershipTransferredIterator struct {
+	Event *HeritableOwnershipTransferred // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *HeritableOwnershipTransferredIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(HeritableOwnershipTransferred)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(HeritableOwnershipTransferred)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *HeritableOwnershipTransferredIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *HeritableOwnershipTransferredIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// HeritableOwnershipTransferred represents a OwnershipTransferred event raised by the Heritable contract.
+type HeritableOwnershipTransferred struct {
+	PreviousOwner common.Address
+	NewOwner      common.Address
+	Raw           types.Log // Blockchain specific contextual infos
+}
+
+// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_Heritable *HeritableFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*HeritableOwnershipTransferredIterator, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _Heritable.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &HeritableOwnershipTransferredIterator{contract: _Heritable.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
+}
+
+// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
+//
+// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
+func (_Heritable *HeritableFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *HeritableOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
+
+	var previousOwnerRule []interface{}
+	for _, previousOwnerItem := range previousOwner {
+		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
+	}
+	var newOwnerRule []interface{}
+	for _, newOwnerItem := range newOwner {
+		newOwnerRule = append(newOwnerRule, newOwnerItem)
+	}
+
+	logs, sub, err := _Heritable.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(HeritableOwnershipTransferred)
+				if err := _Heritable.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

@@ -3,8 +3,6 @@ package tests
 import (
 	"context"
 	"math/big"
-	//	"os"
-	//	"path/filepath"
 
 	. "gopkg.in/check.v1"
 
@@ -39,21 +37,6 @@ func (s *BountyRegistrySuite) TearDownTest(c *C) {
 
 // USER TESTS GO HERE
 
-//func postFakeVirusBounty(poster *bounty.BountyRegistry) (*big.Int, error) {
-//	baseDir, _ := os.Getwd()
-//	f, err := os.Open(filepath.Join(baseDir, "tests", "test_data", "fake_virus"))
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	hash, uri, err := poster.UploadArtifact(f)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return poster.PostBounty(context.Background(), hash, uri, 20, 300)
-//}
-
 func (s *BountyRegistrySuite) TestPostBounty(c *C) {
 	registry_session, ok := contract.Session("BountyRegistry").(*bindings.BountyRegistrySession)
 	c.Assert(registry_session, NotNil)
@@ -66,7 +49,7 @@ func (s *BountyRegistrySuite) TestPostBounty(c *C) {
 	c.Assert(err, IsNil)
 
 	// Post fake bounty
-	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
+	guid, err := bountyRegistry.PostBounty(context.Background(), "uri", 20, 300)
 	c.Assert(err, IsNil)
 
 	event := <-eventChan
@@ -88,7 +71,7 @@ func (s *BountyRegistrySuite) TestPostAssertion(c *C) {
 	c.Assert(err, IsNil)
 
 	// Post fake bounty
-	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
+	guid, err := bountyRegistry.PostBounty(context.Background(), "uri", 20, 300)
 	c.Assert(err, IsNil)
 
 	event := <-eventChan
@@ -120,7 +103,7 @@ func (s *BountyRegistrySuite) TestPostMultiAssertion(c *C) {
 	c.Assert(err, IsNil)
 
 	// Post fake bounty
-	guid, err := bountyRegistry.PostBounty(context.Background(), [32]byte{}, "uri", 20, 300)
+	guid, err := bountyRegistry.PostBounty(context.Background(), "uri", 20, 300)
 	c.Assert(err, IsNil)
 
 	event := <-eventChan

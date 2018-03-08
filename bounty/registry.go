@@ -2,7 +2,6 @@ package bounty
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"io"
 	"log"
@@ -16,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 
-	"github.com/ipfs/go-ipfs-api"
+	"github.com/polyswarm/go-ipfs-api"
 
 	"github.com/polyswarm/perigord"
 	"github.com/polyswarm/perigord/contract"
@@ -44,57 +43,35 @@ func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclien
 	}
 }
 
-func (br *BountyRegistry) UploadArtifact(r io.Reader) (common.Hash, string, error) {
-	hashR, hashW := io.Pipe()
-	ipfsR, ipfsW := io.Pipe()
-
-	hashChan := make(chan common.Hash, 1)
-	uriChan := make(chan string, 1)
-	doneChan := make(chan bool, 2)
-	errorChan := make(chan error, 2)
-
-	go func() {
-		hash := common.Hash{}
-		h := sha256.New()
-		if _, err := io.Copy(h, hashR); err != nil {
-			errorChan <- err
-		}
-		copy(hash[:], h.Sum(nil))
-		hashChan <- hash
-		doneChan <- true
-	}()
-
-	go func() {
-		ipfs_hash, err := br.ipfssh.Add(ipfsR)
-		if err != nil {
-			errorChan <- err
-		}
-		uriChan <- ipfs_hash
-		doneChan <- true
-	}()
-
-	go func() {
-		defer hashW.Close()
-		defer ipfsW.Close()
-
-		mw := io.MultiWriter(hashW, ipfsW)
-		io.Copy(mw, r)
-	}()
-
-	for c := 0; c < 2; c++ {
-		select {
-		case _ = <-doneChan:
-			break
-		case err := <-errorChan:
-			return common.Hash{}, "", err
-		}
+func (br *BountyRegistry) UploadArtifacts(rs map[string]io.Reader) (string, error) {
+	uris, err := br.ipfssh.AddMultipleWithOpts(rs, true, false, true)
+	if err != nil || len(uris) == 0 {
+		return "", err
 	}
 
-	return <-hashChan, <-uriChan, nil
+	return uris[len(uris)-1], nil
 }
 
 func (br *BountyRegistry) DownloadArtifact(ipfshash string) (io.ReadCloser, error) {
 	return br.ipfssh.Cat(ipfshash)
+}
+
+func (br *BountyRegistry) ListArtifacts(ipfshash string) ([]string, error) {
+	ls, err := br.ipfssh.List(ipfshash)
+	if err != nil {
+		return []string{}, err
+	}
+
+	if len(ls) == 0 {
+		return []string{ipfshash}, nil
+	}
+
+	var hashes []string
+	for _, link := range ls {
+		hashes = append(hashes, link.Hash)
+	}
+
+	return hashes, nil
 }
 
 type ArtifactStats struct {
@@ -120,14 +97,14 @@ func (br *BountyRegistry) StatArtifact(ipfshash string) (*ArtifactStats, error) 
 	}, nil
 }
 
-func (br *BountyRegistry) PostBounty(ctx context.Context, hash common.Hash, uri string, amount, blockDuration int) (*big.Int, error) {
+func (br *BountyRegistry) PostBounty(ctx context.Context, uri string, amount, blockDuration int) (*big.Int, error) {
 	guidInt := new(big.Int)
 	guidInt.SetBytes(uuid.Must(uuid.NewV4()).Bytes())
 
 	amountInt := big.NewInt(int64(amount))
 	blockDurationInt := big.NewInt(int64(blockDuration))
 
-	_, err := br.session.PostBounty(guidInt, amountInt, hash, uri, blockDurationInt)
+	_, err := br.session.PostBounty(guidInt, amountInt, uri, blockDurationInt)
 	if err != nil {
 		return nil, err
 	}

@@ -29,13 +29,14 @@ func DeploySafeMathMock(auth *bind.TransactOpts, backend bind.ContractBackend) (
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &SafeMathMock{SafeMathMockCaller: SafeMathMockCaller{contract: contract}, SafeMathMockTransactor: SafeMathMockTransactor{contract: contract}}, nil
+	return address, tx, &SafeMathMock{SafeMathMockCaller: SafeMathMockCaller{contract: contract}, SafeMathMockTransactor: SafeMathMockTransactor{contract: contract}, SafeMathMockFilterer: SafeMathMockFilterer{contract: contract}}, nil
 }
 
 // SafeMathMock is an auto generated Go binding around an Ethereum contract.
 type SafeMathMock struct {
 	SafeMathMockCaller     // Read-only binding to the contract
 	SafeMathMockTransactor // Write-only binding to the contract
+	SafeMathMockFilterer   // Log filterer for contract events
 }
 
 // SafeMathMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +46,11 @@ type SafeMathMockCaller struct {
 
 // SafeMathMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type SafeMathMockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// SafeMathMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type SafeMathMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +93,16 @@ type SafeMathMockTransactorRaw struct {
 
 // NewSafeMathMock creates a new instance of SafeMathMock, bound to a specific deployed contract.
 func NewSafeMathMock(address common.Address, backend bind.ContractBackend) (*SafeMathMock, error) {
-	contract, err := bindSafeMathMock(address, backend, backend)
+	contract, err := bindSafeMathMock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &SafeMathMock{SafeMathMockCaller: SafeMathMockCaller{contract: contract}, SafeMathMockTransactor: SafeMathMockTransactor{contract: contract}}, nil
+	return &SafeMathMock{SafeMathMockCaller: SafeMathMockCaller{contract: contract}, SafeMathMockTransactor: SafeMathMockTransactor{contract: contract}, SafeMathMockFilterer: SafeMathMockFilterer{contract: contract}}, nil
 }
 
 // NewSafeMathMockCaller creates a new read-only instance of SafeMathMock, bound to a specific deployed contract.
 func NewSafeMathMockCaller(address common.Address, caller bind.ContractCaller) (*SafeMathMockCaller, error) {
-	contract, err := bindSafeMathMock(address, caller, nil)
+	contract, err := bindSafeMathMock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +111,29 @@ func NewSafeMathMockCaller(address common.Address, caller bind.ContractCaller) (
 
 // NewSafeMathMockTransactor creates a new write-only instance of SafeMathMock, bound to a specific deployed contract.
 func NewSafeMathMockTransactor(address common.Address, transactor bind.ContractTransactor) (*SafeMathMockTransactor, error) {
-	contract, err := bindSafeMathMock(address, nil, transactor)
+	contract, err := bindSafeMathMock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &SafeMathMockTransactor{contract: contract}, nil
 }
 
+// NewSafeMathMockFilterer creates a new log filterer instance of SafeMathMock, bound to a specific deployed contract.
+func NewSafeMathMockFilterer(address common.Address, filterer bind.ContractFilterer) (*SafeMathMockFilterer, error) {
+	contract, err := bindSafeMathMock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &SafeMathMockFilterer{contract: contract}, nil
+}
+
 // bindSafeMathMock binds a generic wrapper to an already deployed contract.
-func bindSafeMathMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindSafeMathMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(SafeMathMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

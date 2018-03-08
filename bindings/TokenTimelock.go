@@ -29,13 +29,14 @@ func DeployTokenTimelock(auth *bind.TransactOpts, backend bind.ContractBackend, 
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &TokenTimelock{TokenTimelockCaller: TokenTimelockCaller{contract: contract}, TokenTimelockTransactor: TokenTimelockTransactor{contract: contract}}, nil
+	return address, tx, &TokenTimelock{TokenTimelockCaller: TokenTimelockCaller{contract: contract}, TokenTimelockTransactor: TokenTimelockTransactor{contract: contract}, TokenTimelockFilterer: TokenTimelockFilterer{contract: contract}}, nil
 }
 
 // TokenTimelock is an auto generated Go binding around an Ethereum contract.
 type TokenTimelock struct {
 	TokenTimelockCaller     // Read-only binding to the contract
 	TokenTimelockTransactor // Write-only binding to the contract
+	TokenTimelockFilterer   // Log filterer for contract events
 }
 
 // TokenTimelockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +46,11 @@ type TokenTimelockCaller struct {
 
 // TokenTimelockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type TokenTimelockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// TokenTimelockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type TokenTimelockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +93,16 @@ type TokenTimelockTransactorRaw struct {
 
 // NewTokenTimelock creates a new instance of TokenTimelock, bound to a specific deployed contract.
 func NewTokenTimelock(address common.Address, backend bind.ContractBackend) (*TokenTimelock, error) {
-	contract, err := bindTokenTimelock(address, backend, backend)
+	contract, err := bindTokenTimelock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &TokenTimelock{TokenTimelockCaller: TokenTimelockCaller{contract: contract}, TokenTimelockTransactor: TokenTimelockTransactor{contract: contract}}, nil
+	return &TokenTimelock{TokenTimelockCaller: TokenTimelockCaller{contract: contract}, TokenTimelockTransactor: TokenTimelockTransactor{contract: contract}, TokenTimelockFilterer: TokenTimelockFilterer{contract: contract}}, nil
 }
 
 // NewTokenTimelockCaller creates a new read-only instance of TokenTimelock, bound to a specific deployed contract.
 func NewTokenTimelockCaller(address common.Address, caller bind.ContractCaller) (*TokenTimelockCaller, error) {
-	contract, err := bindTokenTimelock(address, caller, nil)
+	contract, err := bindTokenTimelock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +111,29 @@ func NewTokenTimelockCaller(address common.Address, caller bind.ContractCaller) 
 
 // NewTokenTimelockTransactor creates a new write-only instance of TokenTimelock, bound to a specific deployed contract.
 func NewTokenTimelockTransactor(address common.Address, transactor bind.ContractTransactor) (*TokenTimelockTransactor, error) {
-	contract, err := bindTokenTimelock(address, nil, transactor)
+	contract, err := bindTokenTimelock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &TokenTimelockTransactor{contract: contract}, nil
 }
 
+// NewTokenTimelockFilterer creates a new log filterer instance of TokenTimelock, bound to a specific deployed contract.
+func NewTokenTimelockFilterer(address common.Address, filterer bind.ContractFilterer) (*TokenTimelockFilterer, error) {
+	contract, err := bindTokenTimelock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &TokenTimelockFilterer{contract: contract}, nil
+}
+
 // bindTokenTimelock binds a generic wrapper to an already deployed contract.
-func bindTokenTimelock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindTokenTimelock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(TokenTimelockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

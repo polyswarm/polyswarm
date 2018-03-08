@@ -28,13 +28,14 @@ func DeploySafeERC20Helper(auth *bind.TransactOpts, backend bind.ContractBackend
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &SafeERC20Helper{SafeERC20HelperCaller: SafeERC20HelperCaller{contract: contract}, SafeERC20HelperTransactor: SafeERC20HelperTransactor{contract: contract}}, nil
+	return address, tx, &SafeERC20Helper{SafeERC20HelperCaller: SafeERC20HelperCaller{contract: contract}, SafeERC20HelperTransactor: SafeERC20HelperTransactor{contract: contract}, SafeERC20HelperFilterer: SafeERC20HelperFilterer{contract: contract}}, nil
 }
 
 // SafeERC20Helper is an auto generated Go binding around an Ethereum contract.
 type SafeERC20Helper struct {
 	SafeERC20HelperCaller     // Read-only binding to the contract
 	SafeERC20HelperTransactor // Write-only binding to the contract
+	SafeERC20HelperFilterer   // Log filterer for contract events
 }
 
 // SafeERC20HelperCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -44,6 +45,11 @@ type SafeERC20HelperCaller struct {
 
 // SafeERC20HelperTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type SafeERC20HelperTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// SafeERC20HelperFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type SafeERC20HelperFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -86,16 +92,16 @@ type SafeERC20HelperTransactorRaw struct {
 
 // NewSafeERC20Helper creates a new instance of SafeERC20Helper, bound to a specific deployed contract.
 func NewSafeERC20Helper(address common.Address, backend bind.ContractBackend) (*SafeERC20Helper, error) {
-	contract, err := bindSafeERC20Helper(address, backend, backend)
+	contract, err := bindSafeERC20Helper(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &SafeERC20Helper{SafeERC20HelperCaller: SafeERC20HelperCaller{contract: contract}, SafeERC20HelperTransactor: SafeERC20HelperTransactor{contract: contract}}, nil
+	return &SafeERC20Helper{SafeERC20HelperCaller: SafeERC20HelperCaller{contract: contract}, SafeERC20HelperTransactor: SafeERC20HelperTransactor{contract: contract}, SafeERC20HelperFilterer: SafeERC20HelperFilterer{contract: contract}}, nil
 }
 
 // NewSafeERC20HelperCaller creates a new read-only instance of SafeERC20Helper, bound to a specific deployed contract.
 func NewSafeERC20HelperCaller(address common.Address, caller bind.ContractCaller) (*SafeERC20HelperCaller, error) {
-	contract, err := bindSafeERC20Helper(address, caller, nil)
+	contract, err := bindSafeERC20Helper(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +110,29 @@ func NewSafeERC20HelperCaller(address common.Address, caller bind.ContractCaller
 
 // NewSafeERC20HelperTransactor creates a new write-only instance of SafeERC20Helper, bound to a specific deployed contract.
 func NewSafeERC20HelperTransactor(address common.Address, transactor bind.ContractTransactor) (*SafeERC20HelperTransactor, error) {
-	contract, err := bindSafeERC20Helper(address, nil, transactor)
+	contract, err := bindSafeERC20Helper(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &SafeERC20HelperTransactor{contract: contract}, nil
 }
 
+// NewSafeERC20HelperFilterer creates a new log filterer instance of SafeERC20Helper, bound to a specific deployed contract.
+func NewSafeERC20HelperFilterer(address common.Address, filterer bind.ContractFilterer) (*SafeERC20HelperFilterer, error) {
+	contract, err := bindSafeERC20Helper(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &SafeERC20HelperFilterer{contract: contract}, nil
+}
+
 // bindSafeERC20Helper binds a generic wrapper to an already deployed contract.
-func bindSafeERC20Helper(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindSafeERC20Helper(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(SafeERC20HelperABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

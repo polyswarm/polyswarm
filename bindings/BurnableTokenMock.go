@@ -7,10 +7,12 @@ import (
 	"math/big"
 	"strings"
 
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // BurnableTokenMockABI is the input ABI used to generate the binding from.
@@ -29,13 +31,14 @@ func DeployBurnableTokenMock(auth *bind.TransactOpts, backend bind.ContractBacke
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &BurnableTokenMock{BurnableTokenMockCaller: BurnableTokenMockCaller{contract: contract}, BurnableTokenMockTransactor: BurnableTokenMockTransactor{contract: contract}}, nil
+	return address, tx, &BurnableTokenMock{BurnableTokenMockCaller: BurnableTokenMockCaller{contract: contract}, BurnableTokenMockTransactor: BurnableTokenMockTransactor{contract: contract}, BurnableTokenMockFilterer: BurnableTokenMockFilterer{contract: contract}}, nil
 }
 
 // BurnableTokenMock is an auto generated Go binding around an Ethereum contract.
 type BurnableTokenMock struct {
 	BurnableTokenMockCaller     // Read-only binding to the contract
 	BurnableTokenMockTransactor // Write-only binding to the contract
+	BurnableTokenMockFilterer   // Log filterer for contract events
 }
 
 // BurnableTokenMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +48,11 @@ type BurnableTokenMockCaller struct {
 
 // BurnableTokenMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type BurnableTokenMockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// BurnableTokenMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type BurnableTokenMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +95,16 @@ type BurnableTokenMockTransactorRaw struct {
 
 // NewBurnableTokenMock creates a new instance of BurnableTokenMock, bound to a specific deployed contract.
 func NewBurnableTokenMock(address common.Address, backend bind.ContractBackend) (*BurnableTokenMock, error) {
-	contract, err := bindBurnableTokenMock(address, backend, backend)
+	contract, err := bindBurnableTokenMock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &BurnableTokenMock{BurnableTokenMockCaller: BurnableTokenMockCaller{contract: contract}, BurnableTokenMockTransactor: BurnableTokenMockTransactor{contract: contract}}, nil
+	return &BurnableTokenMock{BurnableTokenMockCaller: BurnableTokenMockCaller{contract: contract}, BurnableTokenMockTransactor: BurnableTokenMockTransactor{contract: contract}, BurnableTokenMockFilterer: BurnableTokenMockFilterer{contract: contract}}, nil
 }
 
 // NewBurnableTokenMockCaller creates a new read-only instance of BurnableTokenMock, bound to a specific deployed contract.
 func NewBurnableTokenMockCaller(address common.Address, caller bind.ContractCaller) (*BurnableTokenMockCaller, error) {
-	contract, err := bindBurnableTokenMock(address, caller, nil)
+	contract, err := bindBurnableTokenMock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +113,29 @@ func NewBurnableTokenMockCaller(address common.Address, caller bind.ContractCall
 
 // NewBurnableTokenMockTransactor creates a new write-only instance of BurnableTokenMock, bound to a specific deployed contract.
 func NewBurnableTokenMockTransactor(address common.Address, transactor bind.ContractTransactor) (*BurnableTokenMockTransactor, error) {
-	contract, err := bindBurnableTokenMock(address, nil, transactor)
+	contract, err := bindBurnableTokenMock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &BurnableTokenMockTransactor{contract: contract}, nil
 }
 
+// NewBurnableTokenMockFilterer creates a new log filterer instance of BurnableTokenMock, bound to a specific deployed contract.
+func NewBurnableTokenMockFilterer(address common.Address, filterer bind.ContractFilterer) (*BurnableTokenMockFilterer, error) {
+	contract, err := bindBurnableTokenMock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &BurnableTokenMockFilterer{contract: contract}, nil
+}
+
 // bindBurnableTokenMock binds a generic wrapper to an already deployed contract.
-func bindBurnableTokenMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindBurnableTokenMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(BurnableTokenMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -251,4 +268,279 @@ func (_BurnableTokenMock *BurnableTokenMockSession) Transfer(_to common.Address,
 // Solidity: function transfer(_to address, _value uint256) returns(bool)
 func (_BurnableTokenMock *BurnableTokenMockTransactorSession) Transfer(_to common.Address, _value *big.Int) (*types.Transaction, error) {
 	return _BurnableTokenMock.Contract.Transfer(&_BurnableTokenMock.TransactOpts, _to, _value)
+}
+
+// BurnableTokenMockBurnIterator is returned from FilterBurn and is used to iterate over the raw logs and unpacked data for Burn events raised by the BurnableTokenMock contract.
+type BurnableTokenMockBurnIterator struct {
+	Event *BurnableTokenMockBurn // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *BurnableTokenMockBurnIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(BurnableTokenMockBurn)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(BurnableTokenMockBurn)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *BurnableTokenMockBurnIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *BurnableTokenMockBurnIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// BurnableTokenMockBurn represents a Burn event raised by the BurnableTokenMock contract.
+type BurnableTokenMockBurn struct {
+	Burner common.Address
+	Value  *big.Int
+	Raw    types.Log // Blockchain specific contextual infos
+}
+
+// FilterBurn is a free log retrieval operation binding the contract event 0xcc16f5dbb4873280815c1ee09dbd06736cffcc184412cf7a71a0fdb75d397ca5.
+//
+// Solidity: event Burn(burner indexed address, value uint256)
+func (_BurnableTokenMock *BurnableTokenMockFilterer) FilterBurn(opts *bind.FilterOpts, burner []common.Address) (*BurnableTokenMockBurnIterator, error) {
+
+	var burnerRule []interface{}
+	for _, burnerItem := range burner {
+		burnerRule = append(burnerRule, burnerItem)
+	}
+
+	logs, sub, err := _BurnableTokenMock.contract.FilterLogs(opts, "Burn", burnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return &BurnableTokenMockBurnIterator{contract: _BurnableTokenMock.contract, event: "Burn", logs: logs, sub: sub}, nil
+}
+
+// WatchBurn is a free log subscription operation binding the contract event 0xcc16f5dbb4873280815c1ee09dbd06736cffcc184412cf7a71a0fdb75d397ca5.
+//
+// Solidity: event Burn(burner indexed address, value uint256)
+func (_BurnableTokenMock *BurnableTokenMockFilterer) WatchBurn(opts *bind.WatchOpts, sink chan<- *BurnableTokenMockBurn, burner []common.Address) (event.Subscription, error) {
+
+	var burnerRule []interface{}
+	for _, burnerItem := range burner {
+		burnerRule = append(burnerRule, burnerItem)
+	}
+
+	logs, sub, err := _BurnableTokenMock.contract.WatchLogs(opts, "Burn", burnerRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(BurnableTokenMockBurn)
+				if err := _BurnableTokenMock.contract.UnpackLog(event, "Burn", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// BurnableTokenMockTransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the BurnableTokenMock contract.
+type BurnableTokenMockTransferIterator struct {
+	Event *BurnableTokenMockTransfer // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *BurnableTokenMockTransferIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(BurnableTokenMockTransfer)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(BurnableTokenMockTransfer)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *BurnableTokenMockTransferIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *BurnableTokenMockTransferIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// BurnableTokenMockTransfer represents a Transfer event raised by the BurnableTokenMock contract.
+type BurnableTokenMockTransfer struct {
+	From  common.Address
+	To    common.Address
+	Value *big.Int
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+//
+// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
+func (_BurnableTokenMock *BurnableTokenMockFilterer) FilterTransfer(opts *bind.FilterOpts, from []common.Address, to []common.Address) (*BurnableTokenMockTransferIterator, error) {
+
+	var fromRule []interface{}
+	for _, fromItem := range from {
+		fromRule = append(fromRule, fromItem)
+	}
+	var toRule []interface{}
+	for _, toItem := range to {
+		toRule = append(toRule, toItem)
+	}
+
+	logs, sub, err := _BurnableTokenMock.contract.FilterLogs(opts, "Transfer", fromRule, toRule)
+	if err != nil {
+		return nil, err
+	}
+	return &BurnableTokenMockTransferIterator{contract: _BurnableTokenMock.contract, event: "Transfer", logs: logs, sub: sub}, nil
+}
+
+// WatchTransfer is a free log subscription operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+//
+// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
+func (_BurnableTokenMock *BurnableTokenMockFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *BurnableTokenMockTransfer, from []common.Address, to []common.Address) (event.Subscription, error) {
+
+	var fromRule []interface{}
+	for _, fromItem := range from {
+		fromRule = append(fromRule, fromItem)
+	}
+	var toRule []interface{}
+	for _, toItem := range to {
+		toRule = append(toRule, toItem)
+	}
+
+	logs, sub, err := _BurnableTokenMock.contract.WatchLogs(opts, "Transfer", fromRule, toRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(BurnableTokenMockTransfer)
+				if err := _BurnableTokenMock.contract.UnpackLog(event, "Transfer", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
 }

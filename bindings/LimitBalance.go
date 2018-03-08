@@ -29,13 +29,14 @@ func DeployLimitBalance(auth *bind.TransactOpts, backend bind.ContractBackend, _
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &LimitBalance{LimitBalanceCaller: LimitBalanceCaller{contract: contract}, LimitBalanceTransactor: LimitBalanceTransactor{contract: contract}}, nil
+	return address, tx, &LimitBalance{LimitBalanceCaller: LimitBalanceCaller{contract: contract}, LimitBalanceTransactor: LimitBalanceTransactor{contract: contract}, LimitBalanceFilterer: LimitBalanceFilterer{contract: contract}}, nil
 }
 
 // LimitBalance is an auto generated Go binding around an Ethereum contract.
 type LimitBalance struct {
 	LimitBalanceCaller     // Read-only binding to the contract
 	LimitBalanceTransactor // Write-only binding to the contract
+	LimitBalanceFilterer   // Log filterer for contract events
 }
 
 // LimitBalanceCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +46,11 @@ type LimitBalanceCaller struct {
 
 // LimitBalanceTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type LimitBalanceTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// LimitBalanceFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type LimitBalanceFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +93,16 @@ type LimitBalanceTransactorRaw struct {
 
 // NewLimitBalance creates a new instance of LimitBalance, bound to a specific deployed contract.
 func NewLimitBalance(address common.Address, backend bind.ContractBackend) (*LimitBalance, error) {
-	contract, err := bindLimitBalance(address, backend, backend)
+	contract, err := bindLimitBalance(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &LimitBalance{LimitBalanceCaller: LimitBalanceCaller{contract: contract}, LimitBalanceTransactor: LimitBalanceTransactor{contract: contract}}, nil
+	return &LimitBalance{LimitBalanceCaller: LimitBalanceCaller{contract: contract}, LimitBalanceTransactor: LimitBalanceTransactor{contract: contract}, LimitBalanceFilterer: LimitBalanceFilterer{contract: contract}}, nil
 }
 
 // NewLimitBalanceCaller creates a new read-only instance of LimitBalance, bound to a specific deployed contract.
 func NewLimitBalanceCaller(address common.Address, caller bind.ContractCaller) (*LimitBalanceCaller, error) {
-	contract, err := bindLimitBalance(address, caller, nil)
+	contract, err := bindLimitBalance(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +111,29 @@ func NewLimitBalanceCaller(address common.Address, caller bind.ContractCaller) (
 
 // NewLimitBalanceTransactor creates a new write-only instance of LimitBalance, bound to a specific deployed contract.
 func NewLimitBalanceTransactor(address common.Address, transactor bind.ContractTransactor) (*LimitBalanceTransactor, error) {
-	contract, err := bindLimitBalance(address, nil, transactor)
+	contract, err := bindLimitBalance(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &LimitBalanceTransactor{contract: contract}, nil
 }
 
+// NewLimitBalanceFilterer creates a new log filterer instance of LimitBalance, bound to a specific deployed contract.
+func NewLimitBalanceFilterer(address common.Address, filterer bind.ContractFilterer) (*LimitBalanceFilterer, error) {
+	contract, err := bindLimitBalance(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &LimitBalanceFilterer{contract: contract}, nil
+}
+
 // bindLimitBalance binds a generic wrapper to an already deployed contract.
-func bindLimitBalance(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindLimitBalance(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(LimitBalanceABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

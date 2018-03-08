@@ -29,13 +29,14 @@ func DeployLimitBalanceMock(auth *bind.TransactOpts, backend bind.ContractBacken
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &LimitBalanceMock{LimitBalanceMockCaller: LimitBalanceMockCaller{contract: contract}, LimitBalanceMockTransactor: LimitBalanceMockTransactor{contract: contract}}, nil
+	return address, tx, &LimitBalanceMock{LimitBalanceMockCaller: LimitBalanceMockCaller{contract: contract}, LimitBalanceMockTransactor: LimitBalanceMockTransactor{contract: contract}, LimitBalanceMockFilterer: LimitBalanceMockFilterer{contract: contract}}, nil
 }
 
 // LimitBalanceMock is an auto generated Go binding around an Ethereum contract.
 type LimitBalanceMock struct {
 	LimitBalanceMockCaller     // Read-only binding to the contract
 	LimitBalanceMockTransactor // Write-only binding to the contract
+	LimitBalanceMockFilterer   // Log filterer for contract events
 }
 
 // LimitBalanceMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,6 +46,11 @@ type LimitBalanceMockCaller struct {
 
 // LimitBalanceMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type LimitBalanceMockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// LimitBalanceMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type LimitBalanceMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -87,16 +93,16 @@ type LimitBalanceMockTransactorRaw struct {
 
 // NewLimitBalanceMock creates a new instance of LimitBalanceMock, bound to a specific deployed contract.
 func NewLimitBalanceMock(address common.Address, backend bind.ContractBackend) (*LimitBalanceMock, error) {
-	contract, err := bindLimitBalanceMock(address, backend, backend)
+	contract, err := bindLimitBalanceMock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &LimitBalanceMock{LimitBalanceMockCaller: LimitBalanceMockCaller{contract: contract}, LimitBalanceMockTransactor: LimitBalanceMockTransactor{contract: contract}}, nil
+	return &LimitBalanceMock{LimitBalanceMockCaller: LimitBalanceMockCaller{contract: contract}, LimitBalanceMockTransactor: LimitBalanceMockTransactor{contract: contract}, LimitBalanceMockFilterer: LimitBalanceMockFilterer{contract: contract}}, nil
 }
 
 // NewLimitBalanceMockCaller creates a new read-only instance of LimitBalanceMock, bound to a specific deployed contract.
 func NewLimitBalanceMockCaller(address common.Address, caller bind.ContractCaller) (*LimitBalanceMockCaller, error) {
-	contract, err := bindLimitBalanceMock(address, caller, nil)
+	contract, err := bindLimitBalanceMock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -105,20 +111,29 @@ func NewLimitBalanceMockCaller(address common.Address, caller bind.ContractCalle
 
 // NewLimitBalanceMockTransactor creates a new write-only instance of LimitBalanceMock, bound to a specific deployed contract.
 func NewLimitBalanceMockTransactor(address common.Address, transactor bind.ContractTransactor) (*LimitBalanceMockTransactor, error) {
-	contract, err := bindLimitBalanceMock(address, nil, transactor)
+	contract, err := bindLimitBalanceMock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &LimitBalanceMockTransactor{contract: contract}, nil
 }
 
+// NewLimitBalanceMockFilterer creates a new log filterer instance of LimitBalanceMock, bound to a specific deployed contract.
+func NewLimitBalanceMockFilterer(address common.Address, filterer bind.ContractFilterer) (*LimitBalanceMockFilterer, error) {
+	contract, err := bindLimitBalanceMock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &LimitBalanceMockFilterer{contract: contract}, nil
+}
+
 // bindLimitBalanceMock binds a generic wrapper to an already deployed contract.
-func bindLimitBalanceMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindLimitBalanceMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(LimitBalanceMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

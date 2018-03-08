@@ -28,13 +28,14 @@ func DeployECRecoveryMock(auth *bind.TransactOpts, backend bind.ContractBackend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &ECRecoveryMock{ECRecoveryMockCaller: ECRecoveryMockCaller{contract: contract}, ECRecoveryMockTransactor: ECRecoveryMockTransactor{contract: contract}}, nil
+	return address, tx, &ECRecoveryMock{ECRecoveryMockCaller: ECRecoveryMockCaller{contract: contract}, ECRecoveryMockTransactor: ECRecoveryMockTransactor{contract: contract}, ECRecoveryMockFilterer: ECRecoveryMockFilterer{contract: contract}}, nil
 }
 
 // ECRecoveryMock is an auto generated Go binding around an Ethereum contract.
 type ECRecoveryMock struct {
 	ECRecoveryMockCaller     // Read-only binding to the contract
 	ECRecoveryMockTransactor // Write-only binding to the contract
+	ECRecoveryMockFilterer   // Log filterer for contract events
 }
 
 // ECRecoveryMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -44,6 +45,11 @@ type ECRecoveryMockCaller struct {
 
 // ECRecoveryMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ECRecoveryMockTransactor struct {
+	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+}
+
+// ECRecoveryMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
+type ECRecoveryMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -86,16 +92,16 @@ type ECRecoveryMockTransactorRaw struct {
 
 // NewECRecoveryMock creates a new instance of ECRecoveryMock, bound to a specific deployed contract.
 func NewECRecoveryMock(address common.Address, backend bind.ContractBackend) (*ECRecoveryMock, error) {
-	contract, err := bindECRecoveryMock(address, backend, backend)
+	contract, err := bindECRecoveryMock(address, backend, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ECRecoveryMock{ECRecoveryMockCaller: ECRecoveryMockCaller{contract: contract}, ECRecoveryMockTransactor: ECRecoveryMockTransactor{contract: contract}}, nil
+	return &ECRecoveryMock{ECRecoveryMockCaller: ECRecoveryMockCaller{contract: contract}, ECRecoveryMockTransactor: ECRecoveryMockTransactor{contract: contract}, ECRecoveryMockFilterer: ECRecoveryMockFilterer{contract: contract}}, nil
 }
 
 // NewECRecoveryMockCaller creates a new read-only instance of ECRecoveryMock, bound to a specific deployed contract.
 func NewECRecoveryMockCaller(address common.Address, caller bind.ContractCaller) (*ECRecoveryMockCaller, error) {
-	contract, err := bindECRecoveryMock(address, caller, nil)
+	contract, err := bindECRecoveryMock(address, caller, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -104,20 +110,29 @@ func NewECRecoveryMockCaller(address common.Address, caller bind.ContractCaller)
 
 // NewECRecoveryMockTransactor creates a new write-only instance of ECRecoveryMock, bound to a specific deployed contract.
 func NewECRecoveryMockTransactor(address common.Address, transactor bind.ContractTransactor) (*ECRecoveryMockTransactor, error) {
-	contract, err := bindECRecoveryMock(address, nil, transactor)
+	contract, err := bindECRecoveryMock(address, nil, transactor, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &ECRecoveryMockTransactor{contract: contract}, nil
 }
 
+// NewECRecoveryMockFilterer creates a new log filterer instance of ECRecoveryMock, bound to a specific deployed contract.
+func NewECRecoveryMockFilterer(address common.Address, filterer bind.ContractFilterer) (*ECRecoveryMockFilterer, error) {
+	contract, err := bindECRecoveryMock(address, nil, nil, filterer)
+	if err != nil {
+		return nil, err
+	}
+	return &ECRecoveryMockFilterer{contract: contract}, nil
+}
+
 // bindECRecoveryMock binds a generic wrapper to an already deployed contract.
-func bindECRecoveryMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
+func bindECRecoveryMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ECRecoveryMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

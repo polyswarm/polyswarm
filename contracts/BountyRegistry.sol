@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 import "zeppelin-solidity/contracts/math/SafeMath.sol";
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
-import "NectarToken.sol";
+import "./NectarToken.sol";
 
 
 contract BountyRegistry is Pausable {
@@ -58,10 +58,22 @@ contract BountyRegistry is Pausable {
     uint128[] public bountyGuids;
     mapping (uint128 => Bounty) public bountiesByGuid;
     mapping (uint128 => Assertion[]) public assertionsByGuid;
+    mapping (address => bool) public arbiters;
 
     function BountyRegistry(address nectarTokenAddr) public {
         owner = msg.sender;
         token = NectarToken(nectarTokenAddr);
+    }
+
+    function addArbiter(address newArbiter) external whenNotPaused onlyOwner {
+        require(newArbiter != address(0));
+        require(!arbiters[newArbiter]);
+
+        arbiters[newArbiter] = true;
+    }
+
+    function removeArbiter(address arbiter) external whenNotPaused onlyOwner {
+        arbiters[arbiter] = false;
     }
 
     function postBounty(
@@ -144,26 +156,55 @@ contract BountyRegistry is Pausable {
         );
     }
 
-    // TODO: The final verdict will be determined by arbiters, for now the only
-    // vote that counts is the contract owner
     function settleBounty(
-        uint128 guid,
+        uint128 bountyGuid,
         uint256 verdicts
     )
         external
         whenNotPaused
     {
         // Check if this bounty has been initialized
-        require(bountiesByGuid[guid].author != address(0));
+        require(bountiesByGuid[bountyGuid].author != address(0));
         // Check if the deadline has expired
-        require(bountiesByGuid[guid].expirationBlock <= block.number);
+        require(bountiesByGuid[bountyGuid].expirationBlock <= block.number);
+        // Check if we are an arbiter allowed to settle
+        require(arbiters[msg.sender]);
 
-        bountiesByGuid[guid].verdicts = verdicts;
-        bountiesByGuid[guid].resolved = true;
+        bountiesByGuid[bountyGuid].verdicts = verdicts;
+        bountiesByGuid[bountyGuid].resolved = true;
 
-        // TODO: Iterate all assertions and pay out accordingly from contract escrow
+        uint256 pot = bountiesByGuid[bountyGuid].amount;
+        uint256 numAssertions = assertionsByGuid[bountyGuid].length;
+        uint256 numLosers = 0;
+        for (uint256 i = 0; i < numAssertions; i++) {
+            Assertion memory a = assertionsByGuid[bountyGuid][i];
 
-        NewVerdict(guid, verdicts);
+            // For now, verdicts are all-or-nothing
+            if (a.verdicts != verdicts) {
+                pot = pot.add(a.bid);
+                numLosers = numLosers.add(1);
+            }
+        }
+
+        // Arbiter will get a split too
+        uint256 numWinners = numAssertions.sub(numLosers).add(1);
+        uint256 split = pot.div(numWinners);
+
+        for (i = 0; i < numAssertions; i++) {
+            a = assertionsByGuid[bountyGuid][i];
+
+            if (a.verdicts == verdicts) {
+                uint256 reward = a.bid.add(split);
+                // TODO: Don't revert if one transfer fails, what to do?
+                require(token.transfer(a.author, reward));
+                pot = pot.sub(reward);
+            }
+        }
+
+        // Transfer remainder of pot to arbiter, handles fractional NCT remainders
+        require(token.transfer(msg.sender, pot));
+
+        NewVerdict(bountyGuid, verdicts);
     }
 
     function getNumberOfBounties() external view returns (uint) {

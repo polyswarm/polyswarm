@@ -2,4 +2,5 @@ build/
 priv_testnet/
 keystore/
 dev.json
+polyswarm
 *.swp

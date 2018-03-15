@@ -16,7 +16,7 @@ import (
 const ReentrancyGuardABI = "[]"
 
 // ReentrancyGuardBin is the compiled bytecode used for deploying new contracts.
-const ReentrancyGuardBin = `60606040526000805460ff191690553415601857600080fd5b60358060256000396000f3006060604052600080fd00a165627a7a723058202dc910d8627d7cf46b2f4418b68c55fbcc393ff93595d49d522bcb0a1ce70e6e0029`
+const ReentrancyGuardBin = `60606040526000805460ff191690553415601857600080fd5b60358060256000396000f3006060604052600080fd00a165627a7a72305820bf66aeecd251526c158f04c48249dc8fca362823010f0e7a312109003927b4f10029`
 
 // DeployReentrancyGuard deploys a new Ethereum contract, binding an instance of ReentrancyGuard to it.
 func DeployReentrancyGuard(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *ReentrancyGuard, error) {

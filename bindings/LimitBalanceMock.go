@@ -17,7 +17,7 @@ import (
 const LimitBalanceMockABI = "[{\"constant\":false,\"inputs\":[],\"name\":\"limitedDeposit\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"limit\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}]"
 
 // LimitBalanceMockBin is the compiled bytecode used for deploying new contracts.
-const LimitBalanceMockBin = `60606040526103e860005560d0806100186000396000f30060606040526004361060485763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166386f3d0cd8114604d578063a4d66daf146055575b600080fd5b60536077565b005b3415605f57600080fd5b6065609e565b60405190815260200160405180910390f35b60005473ffffffffffffffffffffffffffffffffffffffff3016311115609c57600080fd5b565b600054815600a165627a7a7230582045a7fff853172424e4ebac124263d908c76310df701007bf1dafd9e9945ea73a0029`
+const LimitBalanceMockBin = `60606040526103e860005560d0806100186000396000f30060606040526004361060485763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166386f3d0cd8114604d578063a4d66daf146055575b600080fd5b60536077565b005b3415605f57600080fd5b6065609e565b60405190815260200160405180910390f35b60005473ffffffffffffffffffffffffffffffffffffffff3016311115609c57600080fd5b565b600054815600a165627a7a72305820ab576179c39768f100ebf67c1af0ab3120689457336d90da5b3db4108c3cb8870029`
 
 // DeployLimitBalanceMock deploys a new Ethereum contract, binding an instance of LimitBalanceMock to it.
 func DeployLimitBalanceMock(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *LimitBalanceMock, error) {

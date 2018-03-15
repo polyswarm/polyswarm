@@ -17,7 +17,7 @@ import (
 const LimitBalanceABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"limit\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_limit\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"}]"
 
 // LimitBalanceBin is the compiled bytecode used for deploying new contracts.
-const LimitBalanceBin = `6060604052341561000f57600080fd5b6040516020806100cc8339810160405280805160005550506097806100356000396000f300606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663a4d66daf81146043575b600080fd5b3415604d57600080fd5b60536065565b60405190815260200160405180910390f35b600054815600a165627a7a72305820f887a5ffff3cf6016b575ed193478abe7db653bd1f76b7ece86812ccef4592740029`
+const LimitBalanceBin = `6060604052341561000f57600080fd5b6040516020806100cc8339810160405280805160005550506097806100356000396000f300606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663a4d66daf81146043575b600080fd5b3415604d57600080fd5b60536065565b60405190815260200160405180910390f35b600054815600a165627a7a72305820453dc9376f9ac9a8bd83d6524b1f46a2dee717d50bcd4c5a0f255e52da29ab910029`
 
 // DeployLimitBalance deploys a new Ethereum contract, binding an instance of LimitBalance to it.
 func DeployLimitBalance(auth *bind.TransactOpts, backend bind.ContractBackend, _limit *big.Int) (common.Address, *types.Transaction, *LimitBalance, error) {

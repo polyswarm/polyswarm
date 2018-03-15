@@ -16,7 +16,7 @@ import (
 const ForceEtherABI = "[{\"constant\":false,\"inputs\":[{\"name\":\"_recipient\",\"type\":\"address\"}],\"name\":\"destroyAndSend\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"constructor\"}]"
 
 // ForceEtherBin is the compiled bytecode used for deploying new contracts.
-const ForceEtherBin = `606060405260b3806100126000396000f300606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663f5074f4181146043575b600080fd5b3415604d57600080fd5b606c73ffffffffffffffffffffffffffffffffffffffff60043516606e565b005b8073ffffffffffffffffffffffffffffffffffffffff16ff00a165627a7a723058204dfc2b602a2446dcdd299282317a472a260dbc17aa0a0ddd15f9fc530318bca10029`
+const ForceEtherBin = `606060405260b3806100126000396000f300606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663f5074f4181146043575b600080fd5b3415604d57600080fd5b606c73ffffffffffffffffffffffffffffffffffffffff60043516606e565b005b8073ffffffffffffffffffffffffffffffffffffffff16ff00a165627a7a723058202980775e63d27cfd490fa72e9b197344f1e4a50da4772ae33d3c006ffd996de10029`
 
 // DeployForceEther deploys a new Ethereum contract, binding an instance of ForceEther to it.
 func DeployForceEther(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *ForceEther, error) {

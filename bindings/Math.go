@@ -16,7 +16,7 @@ import (
 const MathABI = "[]"
 
 // MathBin is the compiled bytecode used for deploying new contracts.
-const MathBin = `60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a72305820db99ec2b182e06d7d0d846afe6ce30a8579a81da9beb74cbdc30cc261780e9b70029`
+const MathBin = `604c602c600b82828239805160001a60731460008114601c57601e565bfe5b5030600052607381538281f30073000000000000000000000000000000000000000030146060604052600080fd00a165627a7a723058200c3a8e0bf9171ac9985e84fdfb58fb867430d2b65b990a931b3c736757e5da180029`
 
 // DeployMath deploys a new Ethereum contract, binding an instance of Math to it.
 func DeployMath(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *Math, error) {

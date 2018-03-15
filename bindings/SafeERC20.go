@@ -16,7 +16,7 @@ import (
 const SafeERC20ABI = "[]"
 
 // SafeERC20Bin is the compiled bytecode used for deploying new contracts.
-const SafeERC20Bin = `60606040523415600e57600080fd5b603580601b6000396000f3006060604052600080fd00a165627a7a723058209a47f43be5b4cdf44c5ce64343add4c77850b3d40994c0992a54add46c00e4720029`
+const SafeERC20Bin = `604c602c600b82828239805160001a60731460008114601c57601e565bfe5b5030600052607381538281f30073000000000000000000000000000000000000000030146060604052600080fd00a165627a7a72305820a36eeec3d8f1b40b3052d6480e9d791e5d92944c7134a70ec221ccbade03a4c90029`
 
 // DeploySafeERC20 deploys a new Ethereum contract, binding an instance of SafeERC20 to it.
 func DeploySafeERC20(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *SafeERC20, error) {

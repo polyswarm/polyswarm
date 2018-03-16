@@ -21,7 +21,7 @@ services:
             - "~/.ethash:/root/.ethash"
         command: ["--nodiscover", "--maxpeers", "0", "--mine", "--minerthreads", "1", "--rpc", "--rpcapi", "eth,web3,personal,net"]
     ipfs:
-        image: "polyswarm/ipfs:latest"
+        image: "ipfs/go-ipfs:latest"
         environment:
             - IPFS_BIND_IP=0.0.0.0
             - IPFS_BOOTSTRAP_RM_ALL=true

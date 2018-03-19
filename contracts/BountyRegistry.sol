@@ -20,8 +20,9 @@ contract BountyRegistry is Pausable {
 
     struct Assertion {
         address author;
-        uint256 verdicts;
         uint256 bid;
+        uint256 mask;
+        uint256 verdicts;
         string metadata;
     }
 
@@ -36,9 +37,10 @@ contract BountyRegistry is Pausable {
     event NewAssertion(
         uint128 bountyGuid,
         address author,
-        uint256 verdicts,
         uint256 index,
         uint256 bid,
+        uint256 mask,
+        uint256 verdicts,
         string metdata
     );
 
@@ -50,10 +52,11 @@ contract BountyRegistry is Pausable {
     address internal owner;
     NectarToken internal token;
 
-    uint256 public constant BOUNTY_FEE = 10;
-    uint256 public constant ASSERTION_FEE = 1;
-    uint256 public constant BOUNTY_AMOUNT_MINIMUM = 1;
-    uint256 public constant ASSERTION_BID_MINIMUM = 1;
+    // 0.0625NCT (1/16)
+    uint256 public constant BOUNTY_FEE = 62500000000000000;
+    uint256 public constant ASSERTION_FEE = 62500000000000000;
+    uint256 public constant BOUNTY_AMOUNT_MINIMUM = 62500000000000000;
+    uint256 public constant ASSERTION_BID_MINIMUM = 62500000000000000;
 
     uint128[] public bountyGuids;
     mapping (uint128 => Bounty) public bountiesByGuid;
@@ -63,6 +66,11 @@ contract BountyRegistry is Pausable {
     function BountyRegistry(address nectarTokenAddr) public {
         owner = msg.sender;
         token = NectarToken(nectarTokenAddr);
+    }
+
+    modifier onlyArbiter() {
+        require(arbiters[msg.sender]);
+        _;
     }
 
     function addArbiter(address newArbiter) external whenNotPaused onlyOwner {
@@ -120,8 +128,9 @@ contract BountyRegistry is Pausable {
 
     function postAssertion(
         uint128 bountyGuid,
-        uint256 verdicts,
         uint256 bid,
+        uint256 mask,
+        uint256 verdicts,
         string metadata
     )
         external
@@ -129,18 +138,19 @@ contract BountyRegistry is Pausable {
     {
         // Check if this bounty has been initialized
         require(bountiesByGuid[bountyGuid].author != address(0));
-        // Check if this bounty is active
-        require(bountiesByGuid[bountyGuid].expirationBlock > block.number);
         // Check that our bid amount is sufficient
         require(bid >= ASSERTION_BID_MINIMUM);
+        // Check if this bounty is active
+        require(bountiesByGuid[bountyGuid].expirationBlock > block.number);
 
         // Assess fees and transfer bid amount into escrow
         require(token.transferFrom(msg.sender, address(this), bid.add(ASSERTION_FEE)));
 
         Assertion memory a = Assertion(
             msg.sender,
-            verdicts,
             bid,
+            mask,
+            verdicts,
             metadata
         );
 
@@ -149,9 +159,10 @@ contract BountyRegistry is Pausable {
         NewAssertion(
             bountyGuid,
             a.author,
-            a.verdicts,
             index,
             a.bid,
+            a.mask,
+            a.verdicts,
             a.metadata
         );
     }
@@ -161,48 +172,54 @@ contract BountyRegistry is Pausable {
         uint256 verdicts
     )
         external
+        onlyArbiter
         whenNotPaused
     {
+        Bounty memory bounty = bountiesByGuid[bountyGuid];
+        Assertion[] memory assertions = assertionsByGuid[bountyGuid];
+
         // Check if this bounty has been initialized
-        require(bountiesByGuid[bountyGuid].author != address(0));
+        require(bounty.author != address(0));
         // Check if the deadline has expired
-        require(bountiesByGuid[bountyGuid].expirationBlock <= block.number);
-        // Check if we are an arbiter allowed to settle
-        require(arbiters[msg.sender]);
+        require(bounty.expirationBlock <= block.number);
 
-        bountiesByGuid[bountyGuid].verdicts = verdicts;
-        bountiesByGuid[bountyGuid].resolved = true;
+        bounty.verdicts = verdicts;
+        bounty.resolved = true;
 
-        uint256 pot = bountiesByGuid[bountyGuid].amount;
-        uint256 numAssertions = assertionsByGuid[bountyGuid].length;
+        uint256 i = 0;
+
+        uint256 numAssertions = assertions.length;
+        uint256 pot = bounty.amount;
+        uint256 fees = BOUNTY_FEE.add(ASSERTION_FEE.mul(numAssertions));
+
         uint256 numLosers = 0;
-        for (uint256 i = 0; i < numAssertions; i++) {
-            Assertion memory a = assertionsByGuid[bountyGuid][i];
-
-            // For now, verdicts are all-or-nothing
-            if (a.verdicts != verdicts) {
-                pot = pot.add(a.bid);
+        for (i = 0; i < numAssertions; i++) {
+            // TODO: For now, verdicts are all-or-nothing
+            if (assertions[i].verdicts != verdicts) {
+                pot = pot.add(assertions[i].bid);
                 numLosers = numLosers.add(1);
             }
         }
 
         // Arbiter will get a split too
         uint256 numWinners = numAssertions.sub(numLosers).add(1);
+        // Split is bounty amount + all bids divided by number of winners,
+        // rounded down. Remainder goes to arbiter.
         uint256 split = pot.div(numWinners);
+        uint256 remainder = pot % numWinners;
 
+        uint256 reward = 0;
         for (i = 0; i < numAssertions; i++) {
-            a = assertionsByGuid[bountyGuid][i];
-
-            if (a.verdicts == verdicts) {
-                uint256 reward = a.bid.add(split);
+            if (assertions[i].verdicts == verdicts) {
+                reward = assertions[i].bid.add(split);
                 // TODO: Don't revert if one transfer fails, what to do?
-                require(token.transfer(a.author, reward));
-                pot = pot.sub(reward);
+                // Transfers are not expected to ever fail though
+                require(token.transfer(assertions[i].author, reward));
             }
         }
 
         // Transfer remainder of pot to arbiter, handles fractional NCT remainders
-        require(token.transfer(msg.sender, pot));
+        require(token.transfer(msg.sender, split.add(fees).add(remainder)));
 
         NewVerdict(bountyGuid, verdicts);
     }

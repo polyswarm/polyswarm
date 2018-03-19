@@ -16,7 +16,7 @@ import (
 const InsecureTargetMockABI = "[{\"constant\":false,\"inputs\":[],\"name\":\"checkInvariant\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // InsecureTargetMockBin is the compiled bytecode used for deploying new contracts.
-const InsecureTargetMockBin = `60606040523415600e57600080fd5b60988061001c6000396000f300606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663e79487da81146043575b600080fd5b3415604d57600080fd5b60536067565b604051901515815260200160405180910390f35b6000905600a165627a7a72305820826d9e56e0f1136fe0ff3b87a16c39877b3ed674bc385072fa56e1da4854cd650029`
+const InsecureTargetMockBin = `60606040523415600e57600080fd5b60988061001c6000396000f300606060405260043610603e5763ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663e79487da81146043575b600080fd5b3415604d57600080fd5b60536067565b604051901515815260200160405180910390f35b6000905600a165627a7a7230582009909651d104aa754dab2a53729054ccb0818657693331560af6373e74a8d6de0029`
 
 // DeployInsecureTargetMock deploys a new Ethereum contract, binding an instance of InsecureTargetMock to it.
 func DeployInsecureTargetMock(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *InsecureTargetMock, error) {

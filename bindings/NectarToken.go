@@ -16,10 +16,10 @@ import (
 )
 
 // NectarTokenABI is the input ABI used to generate the binding from.
-const NectarTokenABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"mintingFinished\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_subtractedValue\",\"type\":\"uint256\"}],\"name\":\"decreaseApproval\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"balance\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"finishMinting\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"},{\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_addedValue\",\"type\":\"uint256\"}],\"name\":\"increaseApproval\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Mint\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"MintFinished\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}]"
+const NectarTokenABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"mintingFinished\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"from\",\"type\":\"address\"},{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_amount\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_subtractedValue\",\"type\":\"uint256\"}],\"name\":\"decreaseApproval\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"balance\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"finishMinting\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"to\",\"type\":\"address\"},{\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"enableTransfers\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"transfersEnabled\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"},{\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_addedValue\",\"type\":\"uint256\"}],\"name\":\"increaseApproval\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"_owner\",\"type\":\"address\"},{\"name\":\"_spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"TransfersEnabled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"Mint\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"MintFinished\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"}]"
 
 // NectarTokenBin is the compiled bytecode used for deploying new contracts.
-const NectarTokenBin = `606060409081526003805460a060020a60ff02191690558051908101604052600681527f52656b74617200000000000000000000000000000000000000000000000000006020820152600490805161005b9291602001906100d3565b5060408051908101604052600381527f524b540000000000000000000000000000000000000000000000000000000000602082015260059080516100a39291602001906100d3565b506006805460ff1916601217905560038054600160a060020a033316600160a060020a031990911617905561016e565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061011457805160ff1916838001178555610141565b82800160010185558215610141579182015b82811115610141578251825591602001919060010190610126565b5061014d929150610151565b5090565b61016b91905b8082111561014d5760008155600101610157565b90565b610e0f8061017d6000396000f3006060604052600436106100d75763ffffffff60e060020a60003504166305d2035b81146100dc57806306fdde0314610103578063095ea7b31461018d57806318160ddd146101af57806323b872dd146101d4578063313ce567146101fc57806340c10f1914610225578063661884631461024757806370a08231146102695780637d64bcb4146102885780638da5cb5b1461029b57806395d89b41146102ca578063a9059cbb146102dd578063cae9ca51146102ff578063d73dd62314610364578063dd62ed3e14610386578063f2fde38b146103ab575b600080fd5b34156100e757600080fd5b6100ef6103cc565b604051901515815260200160405180910390f35b341561010e57600080fd5b6101166103ed565b60405160208082528190810183818151815260200191508051906020019080838360005b8381101561015257808201518382015260200161013a565b50505050905090810190601f16801561017f5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561019857600080fd5b6100ef600160a060020a036004351660243561048b565b34156101ba57600080fd5b6101c26104e5565b60405190815260200160405180910390f35b34156101df57600080fd5b6100ef600160a060020a03600435811690602435166044356104eb565b341561020757600080fd5b61020f61066d565b60405160ff909116815260200160405180910390f35b341561023057600080fd5b6100ef600160a060020a0360043516602435610676565b341561025257600080fd5b6100ef600160a060020a0360043516602435610794565b341561027457600080fd5b6101c2600160a060020a036004351661087c565b341561029357600080fd5b6100ef610897565b34156102a657600080fd5b6102ae610944565b604051600160a060020a03909116815260200160405180910390f35b34156102d557600080fd5b610116610953565b34156102e857600080fd5b6100ef600160a060020a03600435166024356109be565b341561030a57600080fd5b6100ef60048035600160a060020a03169060248035919060649060443590810190830135806020601f82018190048102016040519081016040528181529291906020840183838082843750949650610ab995505050505050565b341561036f57600080fd5b6100ef600160a060020a0360043516602435610c43565b341561039157600080fd5b6101c2600160a060020a0360043581169060243516610cd5565b34156103b657600080fd5b6103ca600160a060020a0360043516610d00565b005b60035474010000000000000000000000000000000000000000900460ff1681565b60048054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156104835780601f1061045857610100808354040283529160200191610483565b820191906000526020600020905b81548152906001019060200180831161046657829003601f168201915b505050505081565b600160a060020a0333811660008181526002602090815260408083209487168084529490915280822085905590929190600080516020610dc48339815191529085905190815260200160405180910390a350600192915050565b60005481565b6000600160a060020a038316151561050257600080fd5b600160a060020a03841660009081526001602052604090205482111561052757600080fd5b600160a060020a038085166000908152600260209081526040808320339094168352929052205482111561055a57600080fd5b600160a060020a038416600090815260016020526040902054610583908363ffffffff610d9b16565b600160a060020a0380861660009081526001602052604080822093909355908516815220546105b8908363ffffffff610dad16565b600160a060020a03808516600090815260016020908152604080832094909455878316825260028152838220339093168252919091522054610600908363ffffffff610d9b16565b600160a060020a03808616600081815260026020908152604080832033861684529091529081902093909355908516917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9085905190815260200160405180910390a35060019392505050565b60065460ff1681565b60035460009033600160a060020a0390811691161461069457600080fd5b60035474010000000000000000000000000000000000000000900460ff16156106bc57600080fd5b6000546106cf908363ffffffff610dad16565b6000908155600160a060020a0384168152600160205260409020546106fa908363ffffffff610dad16565b600160a060020a0384166000818152600160205260409081902092909255907f0f6798a560793a54c3bcfe86a93cde1e73087d944c0ea20544137d41213968859084905190815260200160405180910390a2600160a060020a03831660007fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef8460405190815260200160405180910390a350600192915050565b600160a060020a033381166000908152600260209081526040808320938616835292905290812054808311156107f157600160a060020a033381166000908152600260209081526040808320938816835292905290812055610828565b610801818463ffffffff610d9b16565b600160a060020a033381166000908152600260209081526040808320938916835292905220555b600160a060020a033381166000818152600260209081526040808320948916808452949091529081902054600080516020610dc4833981519152915190815260200160405180910390a35060019392505050565b600160a060020a031660009081526001602052604090205490565b60035460009033600160a060020a039081169116146108b557600080fd5b60035474010000000000000000000000000000000000000000900460ff16156108dd57600080fd5b6003805474ff00000000000000000000000000000000000000001916740100000000000000000000000000000000000000001790557fae5184fba832cb2b1f702aca6117b8d265eaf03ad33eb133f19dde0f5920fa0860405160405180910390a150600190565b600354600160a060020a031681565b60058054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156104835780601f1061045857610100808354040283529160200191610483565b6000600160a060020a03831615156109d557600080fd5b600160a060020a0333166000908152600160205260409020548211156109fa57600080fd5b600160a060020a033316600090815260016020526040902054610a23908363ffffffff610d9b16565b600160a060020a033381166000908152600160205260408082209390935590851681522054610a58908363ffffffff610dad16565b600160a060020a0380851660008181526001602052604090819020939093559133909116907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9085905190815260200160405180910390a350600192915050565b600160a060020a0333811660008181526002602090815260408083209488168084529490915280822086905590929190600080516020610dc48339815191529086905190815260200160405180910390a383600160a060020a03166040517f72656365697665417070726f76616c28616464726573732c75696e743235362c81527f616464726573732c6279746573290000000000000000000000000000000000006020820152602e01604051809103902060e060020a9004338530866040518563ffffffff1660e060020a0281526004018085600160a060020a0316600160a060020a0316815260200184815260200183600160a060020a0316600160a060020a03168152602001828051906020019080838360005b83811015610be8578082015183820152602001610bd0565b50505050905090810190601f168015610c155780820380516001836020036101000a031916815260200191505b509450505050506000604051808303816000875af1925050501515610c3957600080fd5b5060019392505050565b600160a060020a033381166000908152600260209081526040808320938616835292905290812054610c7b908363ffffffff610dad16565b600160a060020a033381166000818152600260209081526040808320948916808452949091529081902084905591929091600080516020610dc483398151915291905190815260200160405180910390a350600192915050565b600160a060020a03918216600090815260026020908152604080832093909416825291909152205490565b60035433600160a060020a03908116911614610d1b57600080fd5b600160a060020a0381161515610d3057600080fd5b600354600160a060020a0380831691167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a36003805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b600082821115610da757fe5b50900390565b600082820183811015610dbc57fe5b939250505056008c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925a165627a7a72305820792621480d758a67278a862f41db42199fc11d1c165e9bd0406abdecc0a4a48d0029`
+const NectarTokenBin = `606060409081526003805460a060020a60ff02191690558051908101604052600681527f52656b74617200000000000000000000000000000000000000000000000000006020820152600490805161005b9291602001906100d8565b5060408051908101604052600381527f524b540000000000000000000000000000000000000000000000000000000000602082015260059080516100a39291602001906100d8565b5060068054601260ff199091161761ff001916905560038054600160a060020a03191633600160a060020a0316179055610173565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f1061011957805160ff1916838001178555610146565b82800160010185558215610146579182015b8281111561014657825182559160200191906001019061012b565b50610152929150610156565b5090565b61017091905b80821115610152576000815560010161015c565b90565b610f2b806101826000396000f3006060604052600436106100ed5763ffffffff60e060020a60003504166305d2035b81146100f257806306fdde0314610119578063095ea7b3146101a357806318160ddd146101c557806323b872dd146101ea578063313ce5671461021257806340c10f191461023b578063661884631461025d57806370a082311461027f5780637d64bcb41461029e5780638da5cb5b146102b157806395d89b41146102e0578063a9059cbb146102f3578063af35c6c714610315578063bef97c871461032a578063cae9ca511461033d578063d73dd623146103a2578063dd62ed3e146103c4578063f2fde38b146103e9575b600080fd5b34156100fd57600080fd5b610105610408565b604051901515815260200160405180910390f35b341561012457600080fd5b61012c610429565b60405160208082528190810183818151815260200191508051906020019080838360005b83811015610168578082015183820152602001610150565b50505050905090810190601f1680156101955780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b34156101ae57600080fd5b610105600160a060020a03600435166024356104c7565b34156101d057600080fd5b6101d8610521565b60405190815260200160405180910390f35b34156101f557600080fd5b610105600160a060020a0360043581169060243516604435610527565b341561021d57600080fd5b610225610553565b60405160ff909116815260200160405180910390f35b341561024657600080fd5b610105600160a060020a036004351660243561055c565b341561026857600080fd5b610105600160a060020a036004351660243561067b565b341561028a57600080fd5b6101d8600160a060020a0360043516610763565b34156102a957600080fd5b61010561077e565b34156102bc57600080fd5b6102c461082b565b604051600160a060020a03909116815260200160405180910390f35b34156102eb57600080fd5b61012c61083a565b34156102fe57600080fd5b610105600160a060020a03600435166024356108a5565b341561032057600080fd5b6103286108cf565b005b341561033557600080fd5b61010561093c565b341561034857600080fd5b61010560048035600160a060020a03169060248035919060649060443590810190830135806020601f8201819004810201604051908101604052818152929190602084018383808284375094965061094a95505050505050565b34156103ad57600080fd5b610105600160a060020a0360043516602435610ad4565b34156103cf57600080fd5b6101d8600160a060020a0360043581169060243516610b66565b34156103f457600080fd5b610328600160a060020a0360043516610b91565b60035474010000000000000000000000000000000000000000900460ff1681565b60048054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156104bf5780601f10610494576101008083540402835291602001916104bf565b820191906000526020600020905b8154815290600101906020018083116104a257829003601f168201915b505050505081565b600160a060020a0333811660008181526002602090815260408083209487168084529490915280822085905590929190600080516020610ee08339815191529085905190815260200160405180910390a350600192915050565b60015490565b600654600090610100900460ff16151561054057600080fd5b61054b848484610c2c565b949350505050565b60065460ff1681565b60035460009033600160a060020a0390811691161461057a57600080fd5b60035474010000000000000000000000000000000000000000900460ff16156105a257600080fd5b6001546105b5908363ffffffff610dac16565b600155600160a060020a0383166000908152602081905260409020546105e1908363ffffffff610dac16565b600160a060020a0384166000818152602081905260409081902092909255907f0f6798a560793a54c3bcfe86a93cde1e73087d944c0ea20544137d41213968859084905190815260200160405180910390a2600160a060020a03831660007fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef8460405190815260200160405180910390a350600192915050565b600160a060020a033381166000908152600260209081526040808320938616835292905290812054808311156106d857600160a060020a03338116600090815260026020908152604080832093881683529290529081205561070f565b6106e8818463ffffffff610dbb16565b600160a060020a033381166000908152600260209081526040808320938916835292905220555b600160a060020a033381166000818152600260209081526040808320948916808452949091529081902054600080516020610ee0833981519152915190815260200160405180910390a35060019392505050565b600160a060020a031660009081526020819052604090205490565b60035460009033600160a060020a0390811691161461079c57600080fd5b60035474010000000000000000000000000000000000000000900460ff16156107c457600080fd5b6003805474ff00000000000000000000000000000000000000001916740100000000000000000000000000000000000000001790557fae5184fba832cb2b1f702aca6117b8d265eaf03ad33eb133f19dde0f5920fa0860405160405180910390a150600190565b600354600160a060020a031681565b60058054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156104bf5780601f10610494576101008083540402835291602001916104bf565b600654600090610100900460ff1615156108be57600080fd5b6108c88383610dcd565b9392505050565b60035433600160a060020a039081169116146108ea57600080fd5b600654610100900460ff16156108ff57600080fd5b6006805461ff0019166101001790557feadb24812ab3c9a55c774958184293ebdb6c7f6a2dbab11f397d80c86feb65d360405160405180910390a1565b600654610100900460ff1681565b600160a060020a0333811660008181526002602090815260408083209488168084529490915280822086905590929190600080516020610ee08339815191529086905190815260200160405180910390a383600160a060020a03166040517f72656365697665417070726f76616c28616464726573732c75696e743235362c81527f616464726573732c6279746573290000000000000000000000000000000000006020820152602e01604051809103902060e060020a9004338530866040518563ffffffff1660e060020a0281526004018085600160a060020a0316600160a060020a0316815260200184815260200183600160a060020a0316600160a060020a03168152602001828051906020019080838360005b83811015610a79578082015183820152602001610a61565b50505050905090810190601f168015610aa65780820380516001836020036101000a031916815260200191505b509450505050506000604051808303816000875af1925050501515610aca57600080fd5b5060019392505050565b600160a060020a033381166000908152600260209081526040808320938616835292905290812054610b0c908363ffffffff610dac16565b600160a060020a033381166000818152600260209081526040808320948916808452949091529081902084905591929091600080516020610ee083398151915291905190815260200160405180910390a350600192915050565b600160a060020a03918216600090815260026020908152604080832093909416825291909152205490565b60035433600160a060020a03908116911614610bac57600080fd5b600160a060020a0381161515610bc157600080fd5b600354600160a060020a0380831691167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a36003805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b6000600160a060020a0383161515610c4357600080fd5b600160a060020a038416600090815260208190526040902054821115610c6857600080fd5b600160a060020a0380851660009081526002602090815260408083203390941683529290522054821115610c9b57600080fd5b600160a060020a038416600090815260208190526040902054610cc4908363ffffffff610dbb16565b600160a060020a038086166000908152602081905260408082209390935590851681522054610cf9908363ffffffff610dac16565b600160a060020a0380851660009081526020818152604080832094909455878316825260028152838220339093168252919091522054610d3f908363ffffffff610dbb16565b600160a060020a03808616600081815260026020908152604080832033861684529091529081902093909355908516917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9085905190815260200160405180910390a35060019392505050565b6000828201838110156108c857fe5b600082821115610dc757fe5b50900390565b6000600160a060020a0383161515610de457600080fd5b600160a060020a033316600090815260208190526040902054821115610e0957600080fd5b600160a060020a033316600090815260208190526040902054610e32908363ffffffff610dbb16565b600160a060020a033381166000908152602081905260408082209390935590851681522054610e67908363ffffffff610dac16565b60008085600160a060020a0316600160a060020a031681526020019081526020016000208190555082600160a060020a031633600160a060020a03167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef8460405190815260200160405180910390a35060019291505056008c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925a165627a7a723058208ef44eaf7916892cf0e6161832f89f51c873f85ab397b07df686957953747ca50029`
 
 // DeployNectarToken deploys a new Ethereum contract, binding an instance of NectarToken to it.
 func DeployNectarToken(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *NectarToken, error) {
@@ -384,6 +384,32 @@ func (_NectarToken *NectarTokenCallerSession) TotalSupply() (*big.Int, error) {
 	return _NectarToken.Contract.TotalSupply(&_NectarToken.CallOpts)
 }
 
+// TransfersEnabled is a free data retrieval call binding the contract method 0xbef97c87.
+//
+// Solidity: function transfersEnabled() constant returns(bool)
+func (_NectarToken *NectarTokenCaller) TransfersEnabled(opts *bind.CallOpts) (bool, error) {
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := _NectarToken.contract.Call(opts, out, "transfersEnabled")
+	return *ret0, err
+}
+
+// TransfersEnabled is a free data retrieval call binding the contract method 0xbef97c87.
+//
+// Solidity: function transfersEnabled() constant returns(bool)
+func (_NectarToken *NectarTokenSession) TransfersEnabled() (bool, error) {
+	return _NectarToken.Contract.TransfersEnabled(&_NectarToken.CallOpts)
+}
+
+// TransfersEnabled is a free data retrieval call binding the contract method 0xbef97c87.
+//
+// Solidity: function transfersEnabled() constant returns(bool)
+func (_NectarToken *NectarTokenCallerSession) TransfersEnabled() (bool, error) {
+	return _NectarToken.Contract.TransfersEnabled(&_NectarToken.CallOpts)
+}
+
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
 // Solidity: function approve(_spender address, _value uint256) returns(bool)
@@ -445,6 +471,27 @@ func (_NectarToken *NectarTokenSession) DecreaseApproval(_spender common.Address
 // Solidity: function decreaseApproval(_spender address, _subtractedValue uint256) returns(bool)
 func (_NectarToken *NectarTokenTransactorSession) DecreaseApproval(_spender common.Address, _subtractedValue *big.Int) (*types.Transaction, error) {
 	return _NectarToken.Contract.DecreaseApproval(&_NectarToken.TransactOpts, _spender, _subtractedValue)
+}
+
+// EnableTransfers is a paid mutator transaction binding the contract method 0xaf35c6c7.
+//
+// Solidity: function enableTransfers() returns()
+func (_NectarToken *NectarTokenTransactor) EnableTransfers(opts *bind.TransactOpts) (*types.Transaction, error) {
+	return _NectarToken.contract.Transact(opts, "enableTransfers")
+}
+
+// EnableTransfers is a paid mutator transaction binding the contract method 0xaf35c6c7.
+//
+// Solidity: function enableTransfers() returns()
+func (_NectarToken *NectarTokenSession) EnableTransfers() (*types.Transaction, error) {
+	return _NectarToken.Contract.EnableTransfers(&_NectarToken.TransactOpts)
+}
+
+// EnableTransfers is a paid mutator transaction binding the contract method 0xaf35c6c7.
+//
+// Solidity: function enableTransfers() returns()
+func (_NectarToken *NectarTokenTransactorSession) EnableTransfers() (*types.Transaction, error) {
+	return _NectarToken.Contract.EnableTransfers(&_NectarToken.TransactOpts)
 }
 
 // FinishMinting is a paid mutator transaction binding the contract method 0x7d64bcb4.
@@ -512,44 +559,44 @@ func (_NectarToken *NectarTokenTransactorSession) Mint(_to common.Address, _amou
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(_to address, _value uint256) returns(bool)
-func (_NectarToken *NectarTokenTransactor) Transfer(opts *bind.TransactOpts, _to common.Address, _value *big.Int) (*types.Transaction, error) {
-	return _NectarToken.contract.Transact(opts, "transfer", _to, _value)
+// Solidity: function transfer(to address, value uint256) returns(bool)
+func (_NectarToken *NectarTokenTransactor) Transfer(opts *bind.TransactOpts, to common.Address, value *big.Int) (*types.Transaction, error) {
+	return _NectarToken.contract.Transact(opts, "transfer", to, value)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(_to address, _value uint256) returns(bool)
-func (_NectarToken *NectarTokenSession) Transfer(_to common.Address, _value *big.Int) (*types.Transaction, error) {
-	return _NectarToken.Contract.Transfer(&_NectarToken.TransactOpts, _to, _value)
+// Solidity: function transfer(to address, value uint256) returns(bool)
+func (_NectarToken *NectarTokenSession) Transfer(to common.Address, value *big.Int) (*types.Transaction, error) {
+	return _NectarToken.Contract.Transfer(&_NectarToken.TransactOpts, to, value)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(_to address, _value uint256) returns(bool)
-func (_NectarToken *NectarTokenTransactorSession) Transfer(_to common.Address, _value *big.Int) (*types.Transaction, error) {
-	return _NectarToken.Contract.Transfer(&_NectarToken.TransactOpts, _to, _value)
+// Solidity: function transfer(to address, value uint256) returns(bool)
+func (_NectarToken *NectarTokenTransactorSession) Transfer(to common.Address, value *big.Int) (*types.Transaction, error) {
+	return _NectarToken.Contract.Transfer(&_NectarToken.TransactOpts, to, value)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(_from address, _to address, _value uint256) returns(bool)
-func (_NectarToken *NectarTokenTransactor) TransferFrom(opts *bind.TransactOpts, _from common.Address, _to common.Address, _value *big.Int) (*types.Transaction, error) {
-	return _NectarToken.contract.Transact(opts, "transferFrom", _from, _to, _value)
+// Solidity: function transferFrom(from address, to address, value uint256) returns(bool)
+func (_NectarToken *NectarTokenTransactor) TransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, value *big.Int) (*types.Transaction, error) {
+	return _NectarToken.contract.Transact(opts, "transferFrom", from, to, value)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(_from address, _to address, _value uint256) returns(bool)
-func (_NectarToken *NectarTokenSession) TransferFrom(_from common.Address, _to common.Address, _value *big.Int) (*types.Transaction, error) {
-	return _NectarToken.Contract.TransferFrom(&_NectarToken.TransactOpts, _from, _to, _value)
+// Solidity: function transferFrom(from address, to address, value uint256) returns(bool)
+func (_NectarToken *NectarTokenSession) TransferFrom(from common.Address, to common.Address, value *big.Int) (*types.Transaction, error) {
+	return _NectarToken.Contract.TransferFrom(&_NectarToken.TransactOpts, from, to, value)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(_from address, _to address, _value uint256) returns(bool)
-func (_NectarToken *NectarTokenTransactorSession) TransferFrom(_from common.Address, _to common.Address, _value *big.Int) (*types.Transaction, error) {
-	return _NectarToken.Contract.TransferFrom(&_NectarToken.TransactOpts, _from, _to, _value)
+// Solidity: function transferFrom(from address, to address, value uint256) returns(bool)
+func (_NectarToken *NectarTokenTransactorSession) TransferFrom(from common.Address, to common.Address, value *big.Int) (*types.Transaction, error) {
+	return _NectarToken.Contract.TransferFrom(&_NectarToken.TransactOpts, from, to, value)
 }
 
 // TransferOwnership is a paid mutator transaction binding the contract method 0xf2fde38b.
@@ -1232,6 +1279,127 @@ func (_NectarToken *NectarTokenFilterer) WatchTransfer(opts *bind.WatchOpts, sin
 				// New log arrived, parse the event and forward to the user
 				event := new(NectarTokenTransfer)
 				if err := _NectarToken.contract.UnpackLog(event, "Transfer", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// NectarTokenTransfersEnabledIterator is returned from FilterTransfersEnabled and is used to iterate over the raw logs and unpacked data for TransfersEnabled events raised by the NectarToken contract.
+type NectarTokenTransfersEnabledIterator struct {
+	Event *NectarTokenTransfersEnabled // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *NectarTokenTransfersEnabledIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(NectarTokenTransfersEnabled)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(NectarTokenTransfersEnabled)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *NectarTokenTransfersEnabledIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *NectarTokenTransfersEnabledIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// NectarTokenTransfersEnabled represents a TransfersEnabled event raised by the NectarToken contract.
+type NectarTokenTransfersEnabled struct {
+	Raw types.Log // Blockchain specific contextual infos
+}
+
+// FilterTransfersEnabled is a free log retrieval operation binding the contract event 0xeadb24812ab3c9a55c774958184293ebdb6c7f6a2dbab11f397d80c86feb65d3.
+//
+// Solidity: event TransfersEnabled()
+func (_NectarToken *NectarTokenFilterer) FilterTransfersEnabled(opts *bind.FilterOpts) (*NectarTokenTransfersEnabledIterator, error) {
+
+	logs, sub, err := _NectarToken.contract.FilterLogs(opts, "TransfersEnabled")
+	if err != nil {
+		return nil, err
+	}
+	return &NectarTokenTransfersEnabledIterator{contract: _NectarToken.contract, event: "TransfersEnabled", logs: logs, sub: sub}, nil
+}
+
+// WatchTransfersEnabled is a free log subscription operation binding the contract event 0xeadb24812ab3c9a55c774958184293ebdb6c7f6a2dbab11f397d80c86feb65d3.
+//
+// Solidity: event TransfersEnabled()
+func (_NectarToken *NectarTokenFilterer) WatchTransfersEnabled(opts *bind.WatchOpts, sink chan<- *NectarTokenTransfersEnabled) (event.Subscription, error) {
+
+	logs, sub, err := _NectarToken.contract.WatchLogs(opts, "TransfersEnabled")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(NectarTokenTransfersEnabled)
+				if err := _NectarToken.contract.UnpackLog(event, "TransfersEnabled", log); err != nil {
 					return err
 				}
 				event.Raw = log

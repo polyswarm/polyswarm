@@ -16,7 +16,7 @@ import (
 )
 
 // CappedCrowdsaleABI is the input ABI used to generate the binding from.
-const CappedCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"rate\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"endTime\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"cap\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"weiRaised\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"wallet\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"startTime\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"beneficiary\",\"type\":\"address\"}],\"name\":\"buyTokens\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"hasEnded\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_cap\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"purchaser\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"beneficiary\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TokenPurchase\",\"type\":\"event\"}]"
+const CappedCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"rate\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"cap\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"weiRaised\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"capReached\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"wallet\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_beneficiary\",\"type\":\"address\"}],\"name\":\"buyTokens\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"_cap\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"purchaser\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"beneficiary\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TokenPurchase\",\"type\":\"event\"}]"
 
 // CappedCrowdsale is an auto generated Go binding around an Ethereum contract.
 type CappedCrowdsale struct {
@@ -186,56 +186,30 @@ func (_CappedCrowdsale *CappedCrowdsaleCallerSession) Cap() (*big.Int, error) {
 	return _CappedCrowdsale.Contract.Cap(&_CappedCrowdsale.CallOpts)
 }
 
-// EndTime is a free data retrieval call binding the contract method 0x3197cbb6.
+// CapReached is a free data retrieval call binding the contract method 0x4f935945.
 //
-// Solidity: function endTime() constant returns(uint256)
-func (_CappedCrowdsale *CappedCrowdsaleCaller) EndTime(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _CappedCrowdsale.contract.Call(opts, out, "endTime")
-	return *ret0, err
-}
-
-// EndTime is a free data retrieval call binding the contract method 0x3197cbb6.
-//
-// Solidity: function endTime() constant returns(uint256)
-func (_CappedCrowdsale *CappedCrowdsaleSession) EndTime() (*big.Int, error) {
-	return _CappedCrowdsale.Contract.EndTime(&_CappedCrowdsale.CallOpts)
-}
-
-// EndTime is a free data retrieval call binding the contract method 0x3197cbb6.
-//
-// Solidity: function endTime() constant returns(uint256)
-func (_CappedCrowdsale *CappedCrowdsaleCallerSession) EndTime() (*big.Int, error) {
-	return _CappedCrowdsale.Contract.EndTime(&_CappedCrowdsale.CallOpts)
-}
-
-// HasEnded is a free data retrieval call binding the contract method 0xecb70fb7.
-//
-// Solidity: function hasEnded() constant returns(bool)
-func (_CappedCrowdsale *CappedCrowdsaleCaller) HasEnded(opts *bind.CallOpts) (bool, error) {
+// Solidity: function capReached() constant returns(bool)
+func (_CappedCrowdsale *CappedCrowdsaleCaller) CapReached(opts *bind.CallOpts) (bool, error) {
 	var (
 		ret0 = new(bool)
 	)
 	out := ret0
-	err := _CappedCrowdsale.contract.Call(opts, out, "hasEnded")
+	err := _CappedCrowdsale.contract.Call(opts, out, "capReached")
 	return *ret0, err
 }
 
-// HasEnded is a free data retrieval call binding the contract method 0xecb70fb7.
+// CapReached is a free data retrieval call binding the contract method 0x4f935945.
 //
-// Solidity: function hasEnded() constant returns(bool)
-func (_CappedCrowdsale *CappedCrowdsaleSession) HasEnded() (bool, error) {
-	return _CappedCrowdsale.Contract.HasEnded(&_CappedCrowdsale.CallOpts)
+// Solidity: function capReached() constant returns(bool)
+func (_CappedCrowdsale *CappedCrowdsaleSession) CapReached() (bool, error) {
+	return _CappedCrowdsale.Contract.CapReached(&_CappedCrowdsale.CallOpts)
 }
 
-// HasEnded is a free data retrieval call binding the contract method 0xecb70fb7.
+// CapReached is a free data retrieval call binding the contract method 0x4f935945.
 //
-// Solidity: function hasEnded() constant returns(bool)
-func (_CappedCrowdsale *CappedCrowdsaleCallerSession) HasEnded() (bool, error) {
-	return _CappedCrowdsale.Contract.HasEnded(&_CappedCrowdsale.CallOpts)
+// Solidity: function capReached() constant returns(bool)
+func (_CappedCrowdsale *CappedCrowdsaleCallerSession) CapReached() (bool, error) {
+	return _CappedCrowdsale.Contract.CapReached(&_CappedCrowdsale.CallOpts)
 }
 
 // Rate is a free data retrieval call binding the contract method 0x2c4e722e.
@@ -262,32 +236,6 @@ func (_CappedCrowdsale *CappedCrowdsaleSession) Rate() (*big.Int, error) {
 // Solidity: function rate() constant returns(uint256)
 func (_CappedCrowdsale *CappedCrowdsaleCallerSession) Rate() (*big.Int, error) {
 	return _CappedCrowdsale.Contract.Rate(&_CappedCrowdsale.CallOpts)
-}
-
-// StartTime is a free data retrieval call binding the contract method 0x78e97925.
-//
-// Solidity: function startTime() constant returns(uint256)
-func (_CappedCrowdsale *CappedCrowdsaleCaller) StartTime(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _CappedCrowdsale.contract.Call(opts, out, "startTime")
-	return *ret0, err
-}
-
-// StartTime is a free data retrieval call binding the contract method 0x78e97925.
-//
-// Solidity: function startTime() constant returns(uint256)
-func (_CappedCrowdsale *CappedCrowdsaleSession) StartTime() (*big.Int, error) {
-	return _CappedCrowdsale.Contract.StartTime(&_CappedCrowdsale.CallOpts)
-}
-
-// StartTime is a free data retrieval call binding the contract method 0x78e97925.
-//
-// Solidity: function startTime() constant returns(uint256)
-func (_CappedCrowdsale *CappedCrowdsaleCallerSession) StartTime() (*big.Int, error) {
-	return _CappedCrowdsale.Contract.StartTime(&_CappedCrowdsale.CallOpts)
 }
 
 // Token is a free data retrieval call binding the contract method 0xfc0c546a.
@@ -370,23 +318,23 @@ func (_CappedCrowdsale *CappedCrowdsaleCallerSession) WeiRaised() (*big.Int, err
 
 // BuyTokens is a paid mutator transaction binding the contract method 0xec8ac4d8.
 //
-// Solidity: function buyTokens(beneficiary address) returns()
-func (_CappedCrowdsale *CappedCrowdsaleTransactor) BuyTokens(opts *bind.TransactOpts, beneficiary common.Address) (*types.Transaction, error) {
-	return _CappedCrowdsale.contract.Transact(opts, "buyTokens", beneficiary)
+// Solidity: function buyTokens(_beneficiary address) returns()
+func (_CappedCrowdsale *CappedCrowdsaleTransactor) BuyTokens(opts *bind.TransactOpts, _beneficiary common.Address) (*types.Transaction, error) {
+	return _CappedCrowdsale.contract.Transact(opts, "buyTokens", _beneficiary)
 }
 
 // BuyTokens is a paid mutator transaction binding the contract method 0xec8ac4d8.
 //
-// Solidity: function buyTokens(beneficiary address) returns()
-func (_CappedCrowdsale *CappedCrowdsaleSession) BuyTokens(beneficiary common.Address) (*types.Transaction, error) {
-	return _CappedCrowdsale.Contract.BuyTokens(&_CappedCrowdsale.TransactOpts, beneficiary)
+// Solidity: function buyTokens(_beneficiary address) returns()
+func (_CappedCrowdsale *CappedCrowdsaleSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
+	return _CappedCrowdsale.Contract.BuyTokens(&_CappedCrowdsale.TransactOpts, _beneficiary)
 }
 
 // BuyTokens is a paid mutator transaction binding the contract method 0xec8ac4d8.
 //
-// Solidity: function buyTokens(beneficiary address) returns()
-func (_CappedCrowdsale *CappedCrowdsaleTransactorSession) BuyTokens(beneficiary common.Address) (*types.Transaction, error) {
-	return _CappedCrowdsale.Contract.BuyTokens(&_CappedCrowdsale.TransactOpts, beneficiary)
+// Solidity: function buyTokens(_beneficiary address) returns()
+func (_CappedCrowdsale *CappedCrowdsaleTransactorSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
+	return _CappedCrowdsale.Contract.BuyTokens(&_CappedCrowdsale.TransactOpts, _beneficiary)
 }
 
 // CappedCrowdsaleTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the CappedCrowdsale contract.

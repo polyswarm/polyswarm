@@ -16,7 +16,7 @@ import (
 )
 
 // FinalizableCrowdsaleABI is the input ABI used to generate the binding from.
-const FinalizableCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"rate\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"endTime\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"weiRaised\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"finalize\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"wallet\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"startTime\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"isFinalized\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"beneficiary\",\"type\":\"address\"}],\"name\":\"buyTokens\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"hasEnded\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"Finalized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"purchaser\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"beneficiary\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TokenPurchase\",\"type\":\"event\"}]"
+const FinalizableCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"hasClosed\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"rate\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"weiRaised\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"closingTime\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"finalize\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"wallet\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"isFinalized\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"openingTime\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_beneficiary\",\"type\":\"address\"}],\"name\":\"buyTokens\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"token\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"Finalized\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"purchaser\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"beneficiary\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TokenPurchase\",\"type\":\"event\"}]"
 
 // FinalizableCrowdsale is an auto generated Go binding around an Ethereum contract.
 type FinalizableCrowdsale struct {
@@ -160,56 +160,56 @@ func (_FinalizableCrowdsale *FinalizableCrowdsaleTransactorRaw) Transact(opts *b
 	return _FinalizableCrowdsale.Contract.contract.Transact(opts, method, params...)
 }
 
-// EndTime is a free data retrieval call binding the contract method 0x3197cbb6.
+// ClosingTime is a free data retrieval call binding the contract method 0x4b6753bc.
 //
-// Solidity: function endTime() constant returns(uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleCaller) EndTime(opts *bind.CallOpts) (*big.Int, error) {
+// Solidity: function closingTime() constant returns(uint256)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleCaller) ClosingTime(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
 	)
 	out := ret0
-	err := _FinalizableCrowdsale.contract.Call(opts, out, "endTime")
+	err := _FinalizableCrowdsale.contract.Call(opts, out, "closingTime")
 	return *ret0, err
 }
 
-// EndTime is a free data retrieval call binding the contract method 0x3197cbb6.
+// ClosingTime is a free data retrieval call binding the contract method 0x4b6753bc.
 //
-// Solidity: function endTime() constant returns(uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) EndTime() (*big.Int, error) {
-	return _FinalizableCrowdsale.Contract.EndTime(&_FinalizableCrowdsale.CallOpts)
+// Solidity: function closingTime() constant returns(uint256)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) ClosingTime() (*big.Int, error) {
+	return _FinalizableCrowdsale.Contract.ClosingTime(&_FinalizableCrowdsale.CallOpts)
 }
 
-// EndTime is a free data retrieval call binding the contract method 0x3197cbb6.
+// ClosingTime is a free data retrieval call binding the contract method 0x4b6753bc.
 //
-// Solidity: function endTime() constant returns(uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) EndTime() (*big.Int, error) {
-	return _FinalizableCrowdsale.Contract.EndTime(&_FinalizableCrowdsale.CallOpts)
+// Solidity: function closingTime() constant returns(uint256)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) ClosingTime() (*big.Int, error) {
+	return _FinalizableCrowdsale.Contract.ClosingTime(&_FinalizableCrowdsale.CallOpts)
 }
 
-// HasEnded is a free data retrieval call binding the contract method 0xecb70fb7.
+// HasClosed is a free data retrieval call binding the contract method 0x1515bc2b.
 //
-// Solidity: function hasEnded() constant returns(bool)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleCaller) HasEnded(opts *bind.CallOpts) (bool, error) {
+// Solidity: function hasClosed() constant returns(bool)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleCaller) HasClosed(opts *bind.CallOpts) (bool, error) {
 	var (
 		ret0 = new(bool)
 	)
 	out := ret0
-	err := _FinalizableCrowdsale.contract.Call(opts, out, "hasEnded")
+	err := _FinalizableCrowdsale.contract.Call(opts, out, "hasClosed")
 	return *ret0, err
 }
 
-// HasEnded is a free data retrieval call binding the contract method 0xecb70fb7.
+// HasClosed is a free data retrieval call binding the contract method 0x1515bc2b.
 //
-// Solidity: function hasEnded() constant returns(bool)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) HasEnded() (bool, error) {
-	return _FinalizableCrowdsale.Contract.HasEnded(&_FinalizableCrowdsale.CallOpts)
+// Solidity: function hasClosed() constant returns(bool)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) HasClosed() (bool, error) {
+	return _FinalizableCrowdsale.Contract.HasClosed(&_FinalizableCrowdsale.CallOpts)
 }
 
-// HasEnded is a free data retrieval call binding the contract method 0xecb70fb7.
+// HasClosed is a free data retrieval call binding the contract method 0x1515bc2b.
 //
-// Solidity: function hasEnded() constant returns(bool)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) HasEnded() (bool, error) {
-	return _FinalizableCrowdsale.Contract.HasEnded(&_FinalizableCrowdsale.CallOpts)
+// Solidity: function hasClosed() constant returns(bool)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) HasClosed() (bool, error) {
+	return _FinalizableCrowdsale.Contract.HasClosed(&_FinalizableCrowdsale.CallOpts)
 }
 
 // IsFinalized is a free data retrieval call binding the contract method 0x8d4e4083.
@@ -236,6 +236,32 @@ func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) IsFinalized() (bool, e
 // Solidity: function isFinalized() constant returns(bool)
 func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) IsFinalized() (bool, error) {
 	return _FinalizableCrowdsale.Contract.IsFinalized(&_FinalizableCrowdsale.CallOpts)
+}
+
+// OpeningTime is a free data retrieval call binding the contract method 0xb7a8807c.
+//
+// Solidity: function openingTime() constant returns(uint256)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleCaller) OpeningTime(opts *bind.CallOpts) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _FinalizableCrowdsale.contract.Call(opts, out, "openingTime")
+	return *ret0, err
+}
+
+// OpeningTime is a free data retrieval call binding the contract method 0xb7a8807c.
+//
+// Solidity: function openingTime() constant returns(uint256)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) OpeningTime() (*big.Int, error) {
+	return _FinalizableCrowdsale.Contract.OpeningTime(&_FinalizableCrowdsale.CallOpts)
+}
+
+// OpeningTime is a free data retrieval call binding the contract method 0xb7a8807c.
+//
+// Solidity: function openingTime() constant returns(uint256)
+func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) OpeningTime() (*big.Int, error) {
+	return _FinalizableCrowdsale.Contract.OpeningTime(&_FinalizableCrowdsale.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -288,32 +314,6 @@ func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) Rate() (*big.Int, erro
 // Solidity: function rate() constant returns(uint256)
 func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) Rate() (*big.Int, error) {
 	return _FinalizableCrowdsale.Contract.Rate(&_FinalizableCrowdsale.CallOpts)
-}
-
-// StartTime is a free data retrieval call binding the contract method 0x78e97925.
-//
-// Solidity: function startTime() constant returns(uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleCaller) StartTime(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _FinalizableCrowdsale.contract.Call(opts, out, "startTime")
-	return *ret0, err
-}
-
-// StartTime is a free data retrieval call binding the contract method 0x78e97925.
-//
-// Solidity: function startTime() constant returns(uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) StartTime() (*big.Int, error) {
-	return _FinalizableCrowdsale.Contract.StartTime(&_FinalizableCrowdsale.CallOpts)
-}
-
-// StartTime is a free data retrieval call binding the contract method 0x78e97925.
-//
-// Solidity: function startTime() constant returns(uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) StartTime() (*big.Int, error) {
-	return _FinalizableCrowdsale.Contract.StartTime(&_FinalizableCrowdsale.CallOpts)
 }
 
 // Token is a free data retrieval call binding the contract method 0xfc0c546a.
@@ -396,23 +396,23 @@ func (_FinalizableCrowdsale *FinalizableCrowdsaleCallerSession) WeiRaised() (*bi
 
 // BuyTokens is a paid mutator transaction binding the contract method 0xec8ac4d8.
 //
-// Solidity: function buyTokens(beneficiary address) returns()
-func (_FinalizableCrowdsale *FinalizableCrowdsaleTransactor) BuyTokens(opts *bind.TransactOpts, beneficiary common.Address) (*types.Transaction, error) {
-	return _FinalizableCrowdsale.contract.Transact(opts, "buyTokens", beneficiary)
+// Solidity: function buyTokens(_beneficiary address) returns()
+func (_FinalizableCrowdsale *FinalizableCrowdsaleTransactor) BuyTokens(opts *bind.TransactOpts, _beneficiary common.Address) (*types.Transaction, error) {
+	return _FinalizableCrowdsale.contract.Transact(opts, "buyTokens", _beneficiary)
 }
 
 // BuyTokens is a paid mutator transaction binding the contract method 0xec8ac4d8.
 //
-// Solidity: function buyTokens(beneficiary address) returns()
-func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) BuyTokens(beneficiary common.Address) (*types.Transaction, error) {
-	return _FinalizableCrowdsale.Contract.BuyTokens(&_FinalizableCrowdsale.TransactOpts, beneficiary)
+// Solidity: function buyTokens(_beneficiary address) returns()
+func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
+	return _FinalizableCrowdsale.Contract.BuyTokens(&_FinalizableCrowdsale.TransactOpts, _beneficiary)
 }
 
 // BuyTokens is a paid mutator transaction binding the contract method 0xec8ac4d8.
 //
-// Solidity: function buyTokens(beneficiary address) returns()
-func (_FinalizableCrowdsale *FinalizableCrowdsaleTransactorSession) BuyTokens(beneficiary common.Address) (*types.Transaction, error) {
-	return _FinalizableCrowdsale.Contract.BuyTokens(&_FinalizableCrowdsale.TransactOpts, beneficiary)
+// Solidity: function buyTokens(_beneficiary address) returns()
+func (_FinalizableCrowdsale *FinalizableCrowdsaleTransactorSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
+	return _FinalizableCrowdsale.Contract.BuyTokens(&_FinalizableCrowdsale.TransactOpts, _beneficiary)
 }
 
 // Finalize is a paid mutator transaction binding the contract method 0x4bb278f3.

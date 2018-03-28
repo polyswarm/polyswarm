@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // FinalizableCrowdsaleABI is the input ABI used to generate the binding from.
@@ -22,7 +20,6 @@ const FinalizableCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"ha
 type FinalizableCrowdsale struct {
 	FinalizableCrowdsaleCaller     // Read-only binding to the contract
 	FinalizableCrowdsaleTransactor // Write-only binding to the contract
-	FinalizableCrowdsaleFilterer   // Log filterer for contract events
 }
 
 // FinalizableCrowdsaleCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -32,11 +29,6 @@ type FinalizableCrowdsaleCaller struct {
 
 // FinalizableCrowdsaleTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type FinalizableCrowdsaleTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// FinalizableCrowdsaleFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type FinalizableCrowdsaleFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -79,16 +71,16 @@ type FinalizableCrowdsaleTransactorRaw struct {
 
 // NewFinalizableCrowdsale creates a new instance of FinalizableCrowdsale, bound to a specific deployed contract.
 func NewFinalizableCrowdsale(address common.Address, backend bind.ContractBackend) (*FinalizableCrowdsale, error) {
-	contract, err := bindFinalizableCrowdsale(address, backend, backend, backend)
+	contract, err := bindFinalizableCrowdsale(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &FinalizableCrowdsale{FinalizableCrowdsaleCaller: FinalizableCrowdsaleCaller{contract: contract}, FinalizableCrowdsaleTransactor: FinalizableCrowdsaleTransactor{contract: contract}, FinalizableCrowdsaleFilterer: FinalizableCrowdsaleFilterer{contract: contract}}, nil
+	return &FinalizableCrowdsale{FinalizableCrowdsaleCaller: FinalizableCrowdsaleCaller{contract: contract}, FinalizableCrowdsaleTransactor: FinalizableCrowdsaleTransactor{contract: contract}}, nil
 }
 
 // NewFinalizableCrowdsaleCaller creates a new read-only instance of FinalizableCrowdsale, bound to a specific deployed contract.
 func NewFinalizableCrowdsaleCaller(address common.Address, caller bind.ContractCaller) (*FinalizableCrowdsaleCaller, error) {
-	contract, err := bindFinalizableCrowdsale(address, caller, nil, nil)
+	contract, err := bindFinalizableCrowdsale(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,29 +89,20 @@ func NewFinalizableCrowdsaleCaller(address common.Address, caller bind.ContractC
 
 // NewFinalizableCrowdsaleTransactor creates a new write-only instance of FinalizableCrowdsale, bound to a specific deployed contract.
 func NewFinalizableCrowdsaleTransactor(address common.Address, transactor bind.ContractTransactor) (*FinalizableCrowdsaleTransactor, error) {
-	contract, err := bindFinalizableCrowdsale(address, nil, transactor, nil)
+	contract, err := bindFinalizableCrowdsale(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &FinalizableCrowdsaleTransactor{contract: contract}, nil
 }
 
-// NewFinalizableCrowdsaleFilterer creates a new log filterer instance of FinalizableCrowdsale, bound to a specific deployed contract.
-func NewFinalizableCrowdsaleFilterer(address common.Address, filterer bind.ContractFilterer) (*FinalizableCrowdsaleFilterer, error) {
-	contract, err := bindFinalizableCrowdsale(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &FinalizableCrowdsaleFilterer{contract: contract}, nil
-}
-
 // bindFinalizableCrowdsale binds a generic wrapper to an already deployed contract.
-func bindFinalizableCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindFinalizableCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(FinalizableCrowdsaleABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -455,409 +438,4 @@ func (_FinalizableCrowdsale *FinalizableCrowdsaleSession) TransferOwnership(newO
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_FinalizableCrowdsale *FinalizableCrowdsaleTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _FinalizableCrowdsale.Contract.TransferOwnership(&_FinalizableCrowdsale.TransactOpts, newOwner)
-}
-
-// FinalizableCrowdsaleFinalizedIterator is returned from FilterFinalized and is used to iterate over the raw logs and unpacked data for Finalized events raised by the FinalizableCrowdsale contract.
-type FinalizableCrowdsaleFinalizedIterator struct {
-	Event *FinalizableCrowdsaleFinalized // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *FinalizableCrowdsaleFinalizedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(FinalizableCrowdsaleFinalized)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(FinalizableCrowdsaleFinalized)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *FinalizableCrowdsaleFinalizedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *FinalizableCrowdsaleFinalizedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// FinalizableCrowdsaleFinalized represents a Finalized event raised by the FinalizableCrowdsale contract.
-type FinalizableCrowdsaleFinalized struct {
-	Raw types.Log // Blockchain specific contextual infos
-}
-
-// FilterFinalized is a free log retrieval operation binding the contract event 0x6823b073d48d6e3a7d385eeb601452d680e74bb46afe3255a7d778f3a9b17681.
-//
-// Solidity: event Finalized()
-func (_FinalizableCrowdsale *FinalizableCrowdsaleFilterer) FilterFinalized(opts *bind.FilterOpts) (*FinalizableCrowdsaleFinalizedIterator, error) {
-
-	logs, sub, err := _FinalizableCrowdsale.contract.FilterLogs(opts, "Finalized")
-	if err != nil {
-		return nil, err
-	}
-	return &FinalizableCrowdsaleFinalizedIterator{contract: _FinalizableCrowdsale.contract, event: "Finalized", logs: logs, sub: sub}, nil
-}
-
-// WatchFinalized is a free log subscription operation binding the contract event 0x6823b073d48d6e3a7d385eeb601452d680e74bb46afe3255a7d778f3a9b17681.
-//
-// Solidity: event Finalized()
-func (_FinalizableCrowdsale *FinalizableCrowdsaleFilterer) WatchFinalized(opts *bind.WatchOpts, sink chan<- *FinalizableCrowdsaleFinalized) (event.Subscription, error) {
-
-	logs, sub, err := _FinalizableCrowdsale.contract.WatchLogs(opts, "Finalized")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(FinalizableCrowdsaleFinalized)
-				if err := _FinalizableCrowdsale.contract.UnpackLog(event, "Finalized", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// FinalizableCrowdsaleOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the FinalizableCrowdsale contract.
-type FinalizableCrowdsaleOwnershipTransferredIterator struct {
-	Event *FinalizableCrowdsaleOwnershipTransferred // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *FinalizableCrowdsaleOwnershipTransferredIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(FinalizableCrowdsaleOwnershipTransferred)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(FinalizableCrowdsaleOwnershipTransferred)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *FinalizableCrowdsaleOwnershipTransferredIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *FinalizableCrowdsaleOwnershipTransferredIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// FinalizableCrowdsaleOwnershipTransferred represents a OwnershipTransferred event raised by the FinalizableCrowdsale contract.
-type FinalizableCrowdsaleOwnershipTransferred struct {
-	PreviousOwner common.Address
-	NewOwner      common.Address
-	Raw           types.Log // Blockchain specific contextual infos
-}
-
-// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*FinalizableCrowdsaleOwnershipTransferredIterator, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _FinalizableCrowdsale.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return &FinalizableCrowdsaleOwnershipTransferredIterator{contract: _FinalizableCrowdsale.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
-}
-
-// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *FinalizableCrowdsaleOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _FinalizableCrowdsale.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(FinalizableCrowdsaleOwnershipTransferred)
-				if err := _FinalizableCrowdsale.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// FinalizableCrowdsaleTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the FinalizableCrowdsale contract.
-type FinalizableCrowdsaleTokenPurchaseIterator struct {
-	Event *FinalizableCrowdsaleTokenPurchase // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *FinalizableCrowdsaleTokenPurchaseIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(FinalizableCrowdsaleTokenPurchase)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(FinalizableCrowdsaleTokenPurchase)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *FinalizableCrowdsaleTokenPurchaseIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *FinalizableCrowdsaleTokenPurchaseIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// FinalizableCrowdsaleTokenPurchase represents a TokenPurchase event raised by the FinalizableCrowdsale contract.
-type FinalizableCrowdsaleTokenPurchase struct {
-	Purchaser   common.Address
-	Beneficiary common.Address
-	Value       *big.Int
-	Amount      *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterTokenPurchase is a free log retrieval operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleFilterer) FilterTokenPurchase(opts *bind.FilterOpts, purchaser []common.Address, beneficiary []common.Address) (*FinalizableCrowdsaleTokenPurchaseIterator, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _FinalizableCrowdsale.contract.FilterLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &FinalizableCrowdsaleTokenPurchaseIterator{contract: _FinalizableCrowdsale.contract, event: "TokenPurchase", logs: logs, sub: sub}, nil
-}
-
-// WatchTokenPurchase is a free log subscription operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_FinalizableCrowdsale *FinalizableCrowdsaleFilterer) WatchTokenPurchase(opts *bind.WatchOpts, sink chan<- *FinalizableCrowdsaleTokenPurchase, purchaser []common.Address, beneficiary []common.Address) (event.Subscription, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _FinalizableCrowdsale.contract.WatchLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(FinalizableCrowdsaleTokenPurchase)
-				if err := _FinalizableCrowdsale.contract.UnpackLog(event, "TokenPurchase", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

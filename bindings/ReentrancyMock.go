@@ -29,14 +29,13 @@ func DeployReentrancyMock(auth *bind.TransactOpts, backend bind.ContractBackend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &ReentrancyMock{ReentrancyMockCaller: ReentrancyMockCaller{contract: contract}, ReentrancyMockTransactor: ReentrancyMockTransactor{contract: contract}, ReentrancyMockFilterer: ReentrancyMockFilterer{contract: contract}}, nil
+	return address, tx, &ReentrancyMock{ReentrancyMockCaller: ReentrancyMockCaller{contract: contract}, ReentrancyMockTransactor: ReentrancyMockTransactor{contract: contract}}, nil
 }
 
 // ReentrancyMock is an auto generated Go binding around an Ethereum contract.
 type ReentrancyMock struct {
 	ReentrancyMockCaller     // Read-only binding to the contract
 	ReentrancyMockTransactor // Write-only binding to the contract
-	ReentrancyMockFilterer   // Log filterer for contract events
 }
 
 // ReentrancyMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -46,11 +45,6 @@ type ReentrancyMockCaller struct {
 
 // ReentrancyMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ReentrancyMockTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// ReentrancyMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type ReentrancyMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -93,16 +87,16 @@ type ReentrancyMockTransactorRaw struct {
 
 // NewReentrancyMock creates a new instance of ReentrancyMock, bound to a specific deployed contract.
 func NewReentrancyMock(address common.Address, backend bind.ContractBackend) (*ReentrancyMock, error) {
-	contract, err := bindReentrancyMock(address, backend, backend, backend)
+	contract, err := bindReentrancyMock(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ReentrancyMock{ReentrancyMockCaller: ReentrancyMockCaller{contract: contract}, ReentrancyMockTransactor: ReentrancyMockTransactor{contract: contract}, ReentrancyMockFilterer: ReentrancyMockFilterer{contract: contract}}, nil
+	return &ReentrancyMock{ReentrancyMockCaller: ReentrancyMockCaller{contract: contract}, ReentrancyMockTransactor: ReentrancyMockTransactor{contract: contract}}, nil
 }
 
 // NewReentrancyMockCaller creates a new read-only instance of ReentrancyMock, bound to a specific deployed contract.
 func NewReentrancyMockCaller(address common.Address, caller bind.ContractCaller) (*ReentrancyMockCaller, error) {
-	contract, err := bindReentrancyMock(address, caller, nil, nil)
+	contract, err := bindReentrancyMock(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,29 +105,20 @@ func NewReentrancyMockCaller(address common.Address, caller bind.ContractCaller)
 
 // NewReentrancyMockTransactor creates a new write-only instance of ReentrancyMock, bound to a specific deployed contract.
 func NewReentrancyMockTransactor(address common.Address, transactor bind.ContractTransactor) (*ReentrancyMockTransactor, error) {
-	contract, err := bindReentrancyMock(address, nil, transactor, nil)
+	contract, err := bindReentrancyMock(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &ReentrancyMockTransactor{contract: contract}, nil
 }
 
-// NewReentrancyMockFilterer creates a new log filterer instance of ReentrancyMock, bound to a specific deployed contract.
-func NewReentrancyMockFilterer(address common.Address, filterer bind.ContractFilterer) (*ReentrancyMockFilterer, error) {
-	contract, err := bindReentrancyMock(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &ReentrancyMockFilterer{contract: contract}, nil
-}
-
 // bindReentrancyMock binds a generic wrapper to an already deployed contract.
-func bindReentrancyMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindReentrancyMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ReentrancyMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

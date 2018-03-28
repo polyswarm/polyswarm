@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // PostDeliveryCrowdsaleABI is the input ABI used to generate the binding from.
@@ -22,7 +20,6 @@ const PostDeliveryCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"h
 type PostDeliveryCrowdsale struct {
 	PostDeliveryCrowdsaleCaller     // Read-only binding to the contract
 	PostDeliveryCrowdsaleTransactor // Write-only binding to the contract
-	PostDeliveryCrowdsaleFilterer   // Log filterer for contract events
 }
 
 // PostDeliveryCrowdsaleCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -32,11 +29,6 @@ type PostDeliveryCrowdsaleCaller struct {
 
 // PostDeliveryCrowdsaleTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type PostDeliveryCrowdsaleTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// PostDeliveryCrowdsaleFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type PostDeliveryCrowdsaleFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -79,16 +71,16 @@ type PostDeliveryCrowdsaleTransactorRaw struct {
 
 // NewPostDeliveryCrowdsale creates a new instance of PostDeliveryCrowdsale, bound to a specific deployed contract.
 func NewPostDeliveryCrowdsale(address common.Address, backend bind.ContractBackend) (*PostDeliveryCrowdsale, error) {
-	contract, err := bindPostDeliveryCrowdsale(address, backend, backend, backend)
+	contract, err := bindPostDeliveryCrowdsale(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &PostDeliveryCrowdsale{PostDeliveryCrowdsaleCaller: PostDeliveryCrowdsaleCaller{contract: contract}, PostDeliveryCrowdsaleTransactor: PostDeliveryCrowdsaleTransactor{contract: contract}, PostDeliveryCrowdsaleFilterer: PostDeliveryCrowdsaleFilterer{contract: contract}}, nil
+	return &PostDeliveryCrowdsale{PostDeliveryCrowdsaleCaller: PostDeliveryCrowdsaleCaller{contract: contract}, PostDeliveryCrowdsaleTransactor: PostDeliveryCrowdsaleTransactor{contract: contract}}, nil
 }
 
 // NewPostDeliveryCrowdsaleCaller creates a new read-only instance of PostDeliveryCrowdsale, bound to a specific deployed contract.
 func NewPostDeliveryCrowdsaleCaller(address common.Address, caller bind.ContractCaller) (*PostDeliveryCrowdsaleCaller, error) {
-	contract, err := bindPostDeliveryCrowdsale(address, caller, nil, nil)
+	contract, err := bindPostDeliveryCrowdsale(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,29 +89,20 @@ func NewPostDeliveryCrowdsaleCaller(address common.Address, caller bind.Contract
 
 // NewPostDeliveryCrowdsaleTransactor creates a new write-only instance of PostDeliveryCrowdsale, bound to a specific deployed contract.
 func NewPostDeliveryCrowdsaleTransactor(address common.Address, transactor bind.ContractTransactor) (*PostDeliveryCrowdsaleTransactor, error) {
-	contract, err := bindPostDeliveryCrowdsale(address, nil, transactor, nil)
+	contract, err := bindPostDeliveryCrowdsale(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &PostDeliveryCrowdsaleTransactor{contract: contract}, nil
 }
 
-// NewPostDeliveryCrowdsaleFilterer creates a new log filterer instance of PostDeliveryCrowdsale, bound to a specific deployed contract.
-func NewPostDeliveryCrowdsaleFilterer(address common.Address, filterer bind.ContractFilterer) (*PostDeliveryCrowdsaleFilterer, error) {
-	contract, err := bindPostDeliveryCrowdsale(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &PostDeliveryCrowdsaleFilterer{contract: contract}, nil
-}
-
 // bindPostDeliveryCrowdsale binds a generic wrapper to an already deployed contract.
-func bindPostDeliveryCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindPostDeliveryCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(PostDeliveryCrowdsaleABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -408,147 +391,4 @@ func (_PostDeliveryCrowdsale *PostDeliveryCrowdsaleSession) WithdrawTokens() (*t
 // Solidity: function withdrawTokens() returns()
 func (_PostDeliveryCrowdsale *PostDeliveryCrowdsaleTransactorSession) WithdrawTokens() (*types.Transaction, error) {
 	return _PostDeliveryCrowdsale.Contract.WithdrawTokens(&_PostDeliveryCrowdsale.TransactOpts)
-}
-
-// PostDeliveryCrowdsaleTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the PostDeliveryCrowdsale contract.
-type PostDeliveryCrowdsaleTokenPurchaseIterator struct {
-	Event *PostDeliveryCrowdsaleTokenPurchase // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *PostDeliveryCrowdsaleTokenPurchaseIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(PostDeliveryCrowdsaleTokenPurchase)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(PostDeliveryCrowdsaleTokenPurchase)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *PostDeliveryCrowdsaleTokenPurchaseIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *PostDeliveryCrowdsaleTokenPurchaseIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// PostDeliveryCrowdsaleTokenPurchase represents a TokenPurchase event raised by the PostDeliveryCrowdsale contract.
-type PostDeliveryCrowdsaleTokenPurchase struct {
-	Purchaser   common.Address
-	Beneficiary common.Address
-	Value       *big.Int
-	Amount      *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterTokenPurchase is a free log retrieval operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_PostDeliveryCrowdsale *PostDeliveryCrowdsaleFilterer) FilterTokenPurchase(opts *bind.FilterOpts, purchaser []common.Address, beneficiary []common.Address) (*PostDeliveryCrowdsaleTokenPurchaseIterator, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _PostDeliveryCrowdsale.contract.FilterLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &PostDeliveryCrowdsaleTokenPurchaseIterator{contract: _PostDeliveryCrowdsale.contract, event: "TokenPurchase", logs: logs, sub: sub}, nil
-}
-
-// WatchTokenPurchase is a free log subscription operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_PostDeliveryCrowdsale *PostDeliveryCrowdsaleFilterer) WatchTokenPurchase(opts *bind.WatchOpts, sink chan<- *PostDeliveryCrowdsaleTokenPurchase, purchaser []common.Address, beneficiary []common.Address) (event.Subscription, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _PostDeliveryCrowdsale.contract.WatchLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(PostDeliveryCrowdsaleTokenPurchase)
-				if err := _PostDeliveryCrowdsale.contract.UnpackLog(event, "TokenPurchase", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

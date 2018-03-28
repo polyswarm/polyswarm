@@ -16,9 +16,9 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	"github.com/polyswarm/go-ipfs-api"
+	"github.com/polyswarm/perigord/contract"
 
 	"github.com/polyswarm/perigord"
-	"github.com/polyswarm/perigord/contract"
 	"github.com/polyswarm/polyswarm/bindings"
 
 	"github.com/satori/go.uuid"
@@ -31,7 +31,7 @@ type BountyRegistry struct {
 }
 
 func NewBountyRegistry(session *bindings.BountyRegistrySession, client *ethclient.Client, ipfs string) *BountyRegistry {
-	session.TransactOpts.GasLimit = 1000000
+	session.TransactOpts.GasLimit = big.NewInt(1000000)
 
 	ipfssh := shell.NewShell(ipfs)
 	ipfssh.SetTimeout(15 * time.Second)
@@ -109,24 +109,25 @@ func (br *BountyRegistry) PostBounty(ctx context.Context, uri string, amount, bl
 		return nil, err
 	}
 
-	//	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
-	//	defer cancel()
-	//	_, err = perigord.WaitMined(ctx, br.client, tx)
+	//ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	//defer cancel()
+	//_, err = perigord.WaitMined(ctx, br.client, tx)
 	return guidInt, nil
 }
 
-func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int, verdicts []bool, bid int, metadata string) error {
+func (br *BountyRegistry) PostAssertion(ctx context.Context, bountyGuid *big.Int, bid int, mask []bool, verdicts []bool, metadata string) error {
 	bidInt := big.NewInt(int64(bid))
+	maskInt := boolArrayToBigInt(mask)
 	verdictsInt := boolArrayToBigInt(verdicts)
 
-	_, err := br.session.PostAssertion(bountyGuid, verdictsInt, bidInt, metadata)
+	_, err := br.session.PostAssertion(bountyGuid, bidInt, maskInt, verdictsInt, metadata)
 	if err != nil {
 		return err
 	}
 
-	//	ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
-	//	defer cancel()
-	//	_, err = perigord.WaitMined(ctx, br.client, tx)
+	//ctx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	//defer cancel()
+	//_, err = perigord.WaitMined(ctx, br.client, tx)
 	return nil
 }
 
@@ -137,8 +138,8 @@ type Event struct {
 
 func (br *BountyRegistry) WatchForEvents(eventChan chan *Event) error {
 	topics := map[string]common.Hash{
-		"Bounty":    perigord.EventSignatureToTopicHash("NewBounty(uint128,address,uint256,bytes32,string,uint256)"),
-		"Assertion": perigord.EventSignatureToTopicHash("NewAssertion(uint128,address,uint256,uint256,uint256,string)"),
+		"Bounty":    perigord.EventSignatureToTopicHash("NewBounty(uint128,address,uint256,string,uint256)"),
+		"Assertion": perigord.EventSignatureToTopicHash("NewAssertion(uint128,address,uint256,uint256,uint256,uint256,string)"),
 		"Verdict":   perigord.EventSignatureToTopicHash("NewVerdict(uint128,uint256)"),
 	}
 

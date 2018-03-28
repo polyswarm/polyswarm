@@ -28,14 +28,13 @@ func DeployReentrancyGuard(auth *bind.TransactOpts, backend bind.ContractBackend
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &ReentrancyGuard{ReentrancyGuardCaller: ReentrancyGuardCaller{contract: contract}, ReentrancyGuardTransactor: ReentrancyGuardTransactor{contract: contract}, ReentrancyGuardFilterer: ReentrancyGuardFilterer{contract: contract}}, nil
+	return address, tx, &ReentrancyGuard{ReentrancyGuardCaller: ReentrancyGuardCaller{contract: contract}, ReentrancyGuardTransactor: ReentrancyGuardTransactor{contract: contract}}, nil
 }
 
 // ReentrancyGuard is an auto generated Go binding around an Ethereum contract.
 type ReentrancyGuard struct {
 	ReentrancyGuardCaller     // Read-only binding to the contract
 	ReentrancyGuardTransactor // Write-only binding to the contract
-	ReentrancyGuardFilterer   // Log filterer for contract events
 }
 
 // ReentrancyGuardCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,11 +44,6 @@ type ReentrancyGuardCaller struct {
 
 // ReentrancyGuardTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ReentrancyGuardTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// ReentrancyGuardFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type ReentrancyGuardFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -92,16 +86,16 @@ type ReentrancyGuardTransactorRaw struct {
 
 // NewReentrancyGuard creates a new instance of ReentrancyGuard, bound to a specific deployed contract.
 func NewReentrancyGuard(address common.Address, backend bind.ContractBackend) (*ReentrancyGuard, error) {
-	contract, err := bindReentrancyGuard(address, backend, backend, backend)
+	contract, err := bindReentrancyGuard(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ReentrancyGuard{ReentrancyGuardCaller: ReentrancyGuardCaller{contract: contract}, ReentrancyGuardTransactor: ReentrancyGuardTransactor{contract: contract}, ReentrancyGuardFilterer: ReentrancyGuardFilterer{contract: contract}}, nil
+	return &ReentrancyGuard{ReentrancyGuardCaller: ReentrancyGuardCaller{contract: contract}, ReentrancyGuardTransactor: ReentrancyGuardTransactor{contract: contract}}, nil
 }
 
 // NewReentrancyGuardCaller creates a new read-only instance of ReentrancyGuard, bound to a specific deployed contract.
 func NewReentrancyGuardCaller(address common.Address, caller bind.ContractCaller) (*ReentrancyGuardCaller, error) {
-	contract, err := bindReentrancyGuard(address, caller, nil, nil)
+	contract, err := bindReentrancyGuard(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -110,29 +104,20 @@ func NewReentrancyGuardCaller(address common.Address, caller bind.ContractCaller
 
 // NewReentrancyGuardTransactor creates a new write-only instance of ReentrancyGuard, bound to a specific deployed contract.
 func NewReentrancyGuardTransactor(address common.Address, transactor bind.ContractTransactor) (*ReentrancyGuardTransactor, error) {
-	contract, err := bindReentrancyGuard(address, nil, transactor, nil)
+	contract, err := bindReentrancyGuard(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &ReentrancyGuardTransactor{contract: contract}, nil
 }
 
-// NewReentrancyGuardFilterer creates a new log filterer instance of ReentrancyGuard, bound to a specific deployed contract.
-func NewReentrancyGuardFilterer(address common.Address, filterer bind.ContractFilterer) (*ReentrancyGuardFilterer, error) {
-	contract, err := bindReentrancyGuard(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &ReentrancyGuardFilterer{contract: contract}, nil
-}
-
 // bindReentrancyGuard binds a generic wrapper to an already deployed contract.
-func bindReentrancyGuard(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindReentrancyGuard(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ReentrancyGuardABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

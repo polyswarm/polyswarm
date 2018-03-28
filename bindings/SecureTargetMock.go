@@ -28,14 +28,13 @@ func DeploySecureTargetMock(auth *bind.TransactOpts, backend bind.ContractBacken
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &SecureTargetMock{SecureTargetMockCaller: SecureTargetMockCaller{contract: contract}, SecureTargetMockTransactor: SecureTargetMockTransactor{contract: contract}, SecureTargetMockFilterer: SecureTargetMockFilterer{contract: contract}}, nil
+	return address, tx, &SecureTargetMock{SecureTargetMockCaller: SecureTargetMockCaller{contract: contract}, SecureTargetMockTransactor: SecureTargetMockTransactor{contract: contract}}, nil
 }
 
 // SecureTargetMock is an auto generated Go binding around an Ethereum contract.
 type SecureTargetMock struct {
 	SecureTargetMockCaller     // Read-only binding to the contract
 	SecureTargetMockTransactor // Write-only binding to the contract
-	SecureTargetMockFilterer   // Log filterer for contract events
 }
 
 // SecureTargetMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,11 +44,6 @@ type SecureTargetMockCaller struct {
 
 // SecureTargetMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type SecureTargetMockTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// SecureTargetMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type SecureTargetMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -92,16 +86,16 @@ type SecureTargetMockTransactorRaw struct {
 
 // NewSecureTargetMock creates a new instance of SecureTargetMock, bound to a specific deployed contract.
 func NewSecureTargetMock(address common.Address, backend bind.ContractBackend) (*SecureTargetMock, error) {
-	contract, err := bindSecureTargetMock(address, backend, backend, backend)
+	contract, err := bindSecureTargetMock(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &SecureTargetMock{SecureTargetMockCaller: SecureTargetMockCaller{contract: contract}, SecureTargetMockTransactor: SecureTargetMockTransactor{contract: contract}, SecureTargetMockFilterer: SecureTargetMockFilterer{contract: contract}}, nil
+	return &SecureTargetMock{SecureTargetMockCaller: SecureTargetMockCaller{contract: contract}, SecureTargetMockTransactor: SecureTargetMockTransactor{contract: contract}}, nil
 }
 
 // NewSecureTargetMockCaller creates a new read-only instance of SecureTargetMock, bound to a specific deployed contract.
 func NewSecureTargetMockCaller(address common.Address, caller bind.ContractCaller) (*SecureTargetMockCaller, error) {
-	contract, err := bindSecureTargetMock(address, caller, nil, nil)
+	contract, err := bindSecureTargetMock(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -110,29 +104,20 @@ func NewSecureTargetMockCaller(address common.Address, caller bind.ContractCalle
 
 // NewSecureTargetMockTransactor creates a new write-only instance of SecureTargetMock, bound to a specific deployed contract.
 func NewSecureTargetMockTransactor(address common.Address, transactor bind.ContractTransactor) (*SecureTargetMockTransactor, error) {
-	contract, err := bindSecureTargetMock(address, nil, transactor, nil)
+	contract, err := bindSecureTargetMock(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &SecureTargetMockTransactor{contract: contract}, nil
 }
 
-// NewSecureTargetMockFilterer creates a new log filterer instance of SecureTargetMock, bound to a specific deployed contract.
-func NewSecureTargetMockFilterer(address common.Address, filterer bind.ContractFilterer) (*SecureTargetMockFilterer, error) {
-	contract, err := bindSecureTargetMock(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &SecureTargetMockFilterer{contract: contract}, nil
-}
-
 // bindSecureTargetMock binds a generic wrapper to an already deployed contract.
-func bindSecureTargetMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindSecureTargetMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(SecureTargetMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

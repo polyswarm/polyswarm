@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // TimedCrowdsaleImplABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeployTimedCrowdsaleImpl(auth *bind.TransactOpts, backend bind.ContractBack
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &TimedCrowdsaleImpl{TimedCrowdsaleImplCaller: TimedCrowdsaleImplCaller{contract: contract}, TimedCrowdsaleImplTransactor: TimedCrowdsaleImplTransactor{contract: contract}, TimedCrowdsaleImplFilterer: TimedCrowdsaleImplFilterer{contract: contract}}, nil
+	return address, tx, &TimedCrowdsaleImpl{TimedCrowdsaleImplCaller: TimedCrowdsaleImplCaller{contract: contract}, TimedCrowdsaleImplTransactor: TimedCrowdsaleImplTransactor{contract: contract}}, nil
 }
 
 // TimedCrowdsaleImpl is an auto generated Go binding around an Ethereum contract.
 type TimedCrowdsaleImpl struct {
 	TimedCrowdsaleImplCaller     // Read-only binding to the contract
 	TimedCrowdsaleImplTransactor // Write-only binding to the contract
-	TimedCrowdsaleImplFilterer   // Log filterer for contract events
 }
 
 // TimedCrowdsaleImplCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type TimedCrowdsaleImplCaller struct {
 
 // TimedCrowdsaleImplTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type TimedCrowdsaleImplTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// TimedCrowdsaleImplFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type TimedCrowdsaleImplFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type TimedCrowdsaleImplTransactorRaw struct {
 
 // NewTimedCrowdsaleImpl creates a new instance of TimedCrowdsaleImpl, bound to a specific deployed contract.
 func NewTimedCrowdsaleImpl(address common.Address, backend bind.ContractBackend) (*TimedCrowdsaleImpl, error) {
-	contract, err := bindTimedCrowdsaleImpl(address, backend, backend, backend)
+	contract, err := bindTimedCrowdsaleImpl(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &TimedCrowdsaleImpl{TimedCrowdsaleImplCaller: TimedCrowdsaleImplCaller{contract: contract}, TimedCrowdsaleImplTransactor: TimedCrowdsaleImplTransactor{contract: contract}, TimedCrowdsaleImplFilterer: TimedCrowdsaleImplFilterer{contract: contract}}, nil
+	return &TimedCrowdsaleImpl{TimedCrowdsaleImplCaller: TimedCrowdsaleImplCaller{contract: contract}, TimedCrowdsaleImplTransactor: TimedCrowdsaleImplTransactor{contract: contract}}, nil
 }
 
 // NewTimedCrowdsaleImplCaller creates a new read-only instance of TimedCrowdsaleImpl, bound to a specific deployed contract.
 func NewTimedCrowdsaleImplCaller(address common.Address, caller bind.ContractCaller) (*TimedCrowdsaleImplCaller, error) {
-	contract, err := bindTimedCrowdsaleImpl(address, caller, nil, nil)
+	contract, err := bindTimedCrowdsaleImpl(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewTimedCrowdsaleImplCaller(address common.Address, caller bind.ContractCal
 
 // NewTimedCrowdsaleImplTransactor creates a new write-only instance of TimedCrowdsaleImpl, bound to a specific deployed contract.
 func NewTimedCrowdsaleImplTransactor(address common.Address, transactor bind.ContractTransactor) (*TimedCrowdsaleImplTransactor, error) {
-	contract, err := bindTimedCrowdsaleImpl(address, nil, transactor, nil)
+	contract, err := bindTimedCrowdsaleImpl(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &TimedCrowdsaleImplTransactor{contract: contract}, nil
 }
 
-// NewTimedCrowdsaleImplFilterer creates a new log filterer instance of TimedCrowdsaleImpl, bound to a specific deployed contract.
-func NewTimedCrowdsaleImplFilterer(address common.Address, filterer bind.ContractFilterer) (*TimedCrowdsaleImplFilterer, error) {
-	contract, err := bindTimedCrowdsaleImpl(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &TimedCrowdsaleImplFilterer{contract: contract}, nil
-}
-
 // bindTimedCrowdsaleImpl binds a generic wrapper to an already deployed contract.
-func bindTimedCrowdsaleImpl(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindTimedCrowdsaleImpl(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(TimedCrowdsaleImplABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -377,147 +360,4 @@ func (_TimedCrowdsaleImpl *TimedCrowdsaleImplSession) BuyTokens(_beneficiary com
 // Solidity: function buyTokens(_beneficiary address) returns()
 func (_TimedCrowdsaleImpl *TimedCrowdsaleImplTransactorSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
 	return _TimedCrowdsaleImpl.Contract.BuyTokens(&_TimedCrowdsaleImpl.TransactOpts, _beneficiary)
-}
-
-// TimedCrowdsaleImplTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the TimedCrowdsaleImpl contract.
-type TimedCrowdsaleImplTokenPurchaseIterator struct {
-	Event *TimedCrowdsaleImplTokenPurchase // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *TimedCrowdsaleImplTokenPurchaseIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(TimedCrowdsaleImplTokenPurchase)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(TimedCrowdsaleImplTokenPurchase)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *TimedCrowdsaleImplTokenPurchaseIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *TimedCrowdsaleImplTokenPurchaseIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// TimedCrowdsaleImplTokenPurchase represents a TokenPurchase event raised by the TimedCrowdsaleImpl contract.
-type TimedCrowdsaleImplTokenPurchase struct {
-	Purchaser   common.Address
-	Beneficiary common.Address
-	Value       *big.Int
-	Amount      *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterTokenPurchase is a free log retrieval operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_TimedCrowdsaleImpl *TimedCrowdsaleImplFilterer) FilterTokenPurchase(opts *bind.FilterOpts, purchaser []common.Address, beneficiary []common.Address) (*TimedCrowdsaleImplTokenPurchaseIterator, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _TimedCrowdsaleImpl.contract.FilterLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &TimedCrowdsaleImplTokenPurchaseIterator{contract: _TimedCrowdsaleImpl.contract, event: "TokenPurchase", logs: logs, sub: sub}, nil
-}
-
-// WatchTokenPurchase is a free log subscription operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_TimedCrowdsaleImpl *TimedCrowdsaleImplFilterer) WatchTokenPurchase(opts *bind.WatchOpts, sink chan<- *TimedCrowdsaleImplTokenPurchase, purchaser []common.Address, beneficiary []common.Address) (event.Subscription, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _TimedCrowdsaleImpl.contract.WatchLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(TimedCrowdsaleImplTokenPurchase)
-				if err := _TimedCrowdsaleImpl.contract.UnpackLog(event, "TokenPurchase", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

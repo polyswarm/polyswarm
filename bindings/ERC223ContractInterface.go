@@ -20,7 +20,6 @@ const ERC223ContractInterfaceABI = "[{\"constant\":false,\"inputs\":[{\"name\":\
 type ERC223ContractInterface struct {
 	ERC223ContractInterfaceCaller     // Read-only binding to the contract
 	ERC223ContractInterfaceTransactor // Write-only binding to the contract
-	ERC223ContractInterfaceFilterer   // Log filterer for contract events
 }
 
 // ERC223ContractInterfaceCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -30,11 +29,6 @@ type ERC223ContractInterfaceCaller struct {
 
 // ERC223ContractInterfaceTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ERC223ContractInterfaceTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// ERC223ContractInterfaceFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type ERC223ContractInterfaceFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -77,16 +71,16 @@ type ERC223ContractInterfaceTransactorRaw struct {
 
 // NewERC223ContractInterface creates a new instance of ERC223ContractInterface, bound to a specific deployed contract.
 func NewERC223ContractInterface(address common.Address, backend bind.ContractBackend) (*ERC223ContractInterface, error) {
-	contract, err := bindERC223ContractInterface(address, backend, backend, backend)
+	contract, err := bindERC223ContractInterface(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ERC223ContractInterface{ERC223ContractInterfaceCaller: ERC223ContractInterfaceCaller{contract: contract}, ERC223ContractInterfaceTransactor: ERC223ContractInterfaceTransactor{contract: contract}, ERC223ContractInterfaceFilterer: ERC223ContractInterfaceFilterer{contract: contract}}, nil
+	return &ERC223ContractInterface{ERC223ContractInterfaceCaller: ERC223ContractInterfaceCaller{contract: contract}, ERC223ContractInterfaceTransactor: ERC223ContractInterfaceTransactor{contract: contract}}, nil
 }
 
 // NewERC223ContractInterfaceCaller creates a new read-only instance of ERC223ContractInterface, bound to a specific deployed contract.
 func NewERC223ContractInterfaceCaller(address common.Address, caller bind.ContractCaller) (*ERC223ContractInterfaceCaller, error) {
-	contract, err := bindERC223ContractInterface(address, caller, nil, nil)
+	contract, err := bindERC223ContractInterface(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -95,29 +89,20 @@ func NewERC223ContractInterfaceCaller(address common.Address, caller bind.Contra
 
 // NewERC223ContractInterfaceTransactor creates a new write-only instance of ERC223ContractInterface, bound to a specific deployed contract.
 func NewERC223ContractInterfaceTransactor(address common.Address, transactor bind.ContractTransactor) (*ERC223ContractInterfaceTransactor, error) {
-	contract, err := bindERC223ContractInterface(address, nil, transactor, nil)
+	contract, err := bindERC223ContractInterface(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &ERC223ContractInterfaceTransactor{contract: contract}, nil
 }
 
-// NewERC223ContractInterfaceFilterer creates a new log filterer instance of ERC223ContractInterface, bound to a specific deployed contract.
-func NewERC223ContractInterfaceFilterer(address common.Address, filterer bind.ContractFilterer) (*ERC223ContractInterfaceFilterer, error) {
-	contract, err := bindERC223ContractInterface(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &ERC223ContractInterfaceFilterer{contract: contract}, nil
-}
-
 // bindERC223ContractInterface binds a generic wrapper to an already deployed contract.
-func bindERC223ContractInterface(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindERC223ContractInterface(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ERC223ContractInterfaceABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

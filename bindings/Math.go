@@ -28,14 +28,13 @@ func DeployMath(auth *bind.TransactOpts, backend bind.ContractBackend) (common.A
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &Math{MathCaller: MathCaller{contract: contract}, MathTransactor: MathTransactor{contract: contract}, MathFilterer: MathFilterer{contract: contract}}, nil
+	return address, tx, &Math{MathCaller: MathCaller{contract: contract}, MathTransactor: MathTransactor{contract: contract}}, nil
 }
 
 // Math is an auto generated Go binding around an Ethereum contract.
 type Math struct {
 	MathCaller     // Read-only binding to the contract
 	MathTransactor // Write-only binding to the contract
-	MathFilterer   // Log filterer for contract events
 }
 
 // MathCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,11 +44,6 @@ type MathCaller struct {
 
 // MathTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type MathTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// MathFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type MathFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -92,16 +86,16 @@ type MathTransactorRaw struct {
 
 // NewMath creates a new instance of Math, bound to a specific deployed contract.
 func NewMath(address common.Address, backend bind.ContractBackend) (*Math, error) {
-	contract, err := bindMath(address, backend, backend, backend)
+	contract, err := bindMath(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &Math{MathCaller: MathCaller{contract: contract}, MathTransactor: MathTransactor{contract: contract}, MathFilterer: MathFilterer{contract: contract}}, nil
+	return &Math{MathCaller: MathCaller{contract: contract}, MathTransactor: MathTransactor{contract: contract}}, nil
 }
 
 // NewMathCaller creates a new read-only instance of Math, bound to a specific deployed contract.
 func NewMathCaller(address common.Address, caller bind.ContractCaller) (*MathCaller, error) {
-	contract, err := bindMath(address, caller, nil, nil)
+	contract, err := bindMath(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -110,29 +104,20 @@ func NewMathCaller(address common.Address, caller bind.ContractCaller) (*MathCal
 
 // NewMathTransactor creates a new write-only instance of Math, bound to a specific deployed contract.
 func NewMathTransactor(address common.Address, transactor bind.ContractTransactor) (*MathTransactor, error) {
-	contract, err := bindMath(address, nil, transactor, nil)
+	contract, err := bindMath(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &MathTransactor{contract: contract}, nil
 }
 
-// NewMathFilterer creates a new log filterer instance of Math, bound to a specific deployed contract.
-func NewMathFilterer(address common.Address, filterer bind.ContractFilterer) (*MathFilterer, error) {
-	contract, err := bindMath(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &MathFilterer{contract: contract}, nil
-}
-
 // bindMath binds a generic wrapper to an already deployed contract.
-func bindMath(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindMath(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(MathABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

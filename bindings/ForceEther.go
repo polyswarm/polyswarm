@@ -28,14 +28,13 @@ func DeployForceEther(auth *bind.TransactOpts, backend bind.ContractBackend) (co
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &ForceEther{ForceEtherCaller: ForceEtherCaller{contract: contract}, ForceEtherTransactor: ForceEtherTransactor{contract: contract}, ForceEtherFilterer: ForceEtherFilterer{contract: contract}}, nil
+	return address, tx, &ForceEther{ForceEtherCaller: ForceEtherCaller{contract: contract}, ForceEtherTransactor: ForceEtherTransactor{contract: contract}}, nil
 }
 
 // ForceEther is an auto generated Go binding around an Ethereum contract.
 type ForceEther struct {
 	ForceEtherCaller     // Read-only binding to the contract
 	ForceEtherTransactor // Write-only binding to the contract
-	ForceEtherFilterer   // Log filterer for contract events
 }
 
 // ForceEtherCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,11 +44,6 @@ type ForceEtherCaller struct {
 
 // ForceEtherTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ForceEtherTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// ForceEtherFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type ForceEtherFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -92,16 +86,16 @@ type ForceEtherTransactorRaw struct {
 
 // NewForceEther creates a new instance of ForceEther, bound to a specific deployed contract.
 func NewForceEther(address common.Address, backend bind.ContractBackend) (*ForceEther, error) {
-	contract, err := bindForceEther(address, backend, backend, backend)
+	contract, err := bindForceEther(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ForceEther{ForceEtherCaller: ForceEtherCaller{contract: contract}, ForceEtherTransactor: ForceEtherTransactor{contract: contract}, ForceEtherFilterer: ForceEtherFilterer{contract: contract}}, nil
+	return &ForceEther{ForceEtherCaller: ForceEtherCaller{contract: contract}, ForceEtherTransactor: ForceEtherTransactor{contract: contract}}, nil
 }
 
 // NewForceEtherCaller creates a new read-only instance of ForceEther, bound to a specific deployed contract.
 func NewForceEtherCaller(address common.Address, caller bind.ContractCaller) (*ForceEtherCaller, error) {
-	contract, err := bindForceEther(address, caller, nil, nil)
+	contract, err := bindForceEther(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -110,29 +104,20 @@ func NewForceEtherCaller(address common.Address, caller bind.ContractCaller) (*F
 
 // NewForceEtherTransactor creates a new write-only instance of ForceEther, bound to a specific deployed contract.
 func NewForceEtherTransactor(address common.Address, transactor bind.ContractTransactor) (*ForceEtherTransactor, error) {
-	contract, err := bindForceEther(address, nil, transactor, nil)
+	contract, err := bindForceEther(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &ForceEtherTransactor{contract: contract}, nil
 }
 
-// NewForceEtherFilterer creates a new log filterer instance of ForceEther, bound to a specific deployed contract.
-func NewForceEtherFilterer(address common.Address, filterer bind.ContractFilterer) (*ForceEtherFilterer, error) {
-	contract, err := bindForceEther(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &ForceEtherFilterer{contract: contract}, nil
-}
-
 // bindForceEther binds a generic wrapper to an already deployed contract.
-func bindForceEther(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindForceEther(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ForceEtherABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

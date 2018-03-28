@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // MessageHelperABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeployMessageHelper(auth *bind.TransactOpts, backend bind.ContractBackend) 
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &MessageHelper{MessageHelperCaller: MessageHelperCaller{contract: contract}, MessageHelperTransactor: MessageHelperTransactor{contract: contract}, MessageHelperFilterer: MessageHelperFilterer{contract: contract}}, nil
+	return address, tx, &MessageHelper{MessageHelperCaller: MessageHelperCaller{contract: contract}, MessageHelperTransactor: MessageHelperTransactor{contract: contract}}, nil
 }
 
 // MessageHelper is an auto generated Go binding around an Ethereum contract.
 type MessageHelper struct {
 	MessageHelperCaller     // Read-only binding to the contract
 	MessageHelperTransactor // Write-only binding to the contract
-	MessageHelperFilterer   // Log filterer for contract events
 }
 
 // MessageHelperCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type MessageHelperCaller struct {
 
 // MessageHelperTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type MessageHelperTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// MessageHelperFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type MessageHelperFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type MessageHelperTransactorRaw struct {
 
 // NewMessageHelper creates a new instance of MessageHelper, bound to a specific deployed contract.
 func NewMessageHelper(address common.Address, backend bind.ContractBackend) (*MessageHelper, error) {
-	contract, err := bindMessageHelper(address, backend, backend, backend)
+	contract, err := bindMessageHelper(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &MessageHelper{MessageHelperCaller: MessageHelperCaller{contract: contract}, MessageHelperTransactor: MessageHelperTransactor{contract: contract}, MessageHelperFilterer: MessageHelperFilterer{contract: contract}}, nil
+	return &MessageHelper{MessageHelperCaller: MessageHelperCaller{contract: contract}, MessageHelperTransactor: MessageHelperTransactor{contract: contract}}, nil
 }
 
 // NewMessageHelperCaller creates a new read-only instance of MessageHelper, bound to a specific deployed contract.
 func NewMessageHelperCaller(address common.Address, caller bind.ContractCaller) (*MessageHelperCaller, error) {
-	contract, err := bindMessageHelper(address, caller, nil, nil)
+	contract, err := bindMessageHelper(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewMessageHelperCaller(address common.Address, caller bind.ContractCaller) 
 
 // NewMessageHelperTransactor creates a new write-only instance of MessageHelper, bound to a specific deployed contract.
 func NewMessageHelperTransactor(address common.Address, transactor bind.ContractTransactor) (*MessageHelperTransactor, error) {
-	contract, err := bindMessageHelper(address, nil, transactor, nil)
+	contract, err := bindMessageHelper(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &MessageHelperTransactor{contract: contract}, nil
 }
 
-// NewMessageHelperFilterer creates a new log filterer instance of MessageHelper, bound to a specific deployed contract.
-func NewMessageHelperFilterer(address common.Address, filterer bind.ContractFilterer) (*MessageHelperFilterer, error) {
-	contract, err := bindMessageHelper(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &MessageHelperFilterer{contract: contract}, nil
-}
-
 // bindMessageHelper binds a generic wrapper to an already deployed contract.
-func bindMessageHelper(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindMessageHelper(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(MessageHelperABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -237,128 +220,4 @@ func (_MessageHelper *MessageHelperSession) ShowMessage(message [32]byte, number
 // Solidity: function showMessage(message bytes32, number uint256, text string) returns(bool)
 func (_MessageHelper *MessageHelperTransactorSession) ShowMessage(message [32]byte, number *big.Int, text string) (*types.Transaction, error) {
 	return _MessageHelper.Contract.ShowMessage(&_MessageHelper.TransactOpts, message, number, text)
-}
-
-// MessageHelperShowIterator is returned from FilterShow and is used to iterate over the raw logs and unpacked data for Show events raised by the MessageHelper contract.
-type MessageHelperShowIterator struct {
-	Event *MessageHelperShow // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *MessageHelperShowIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(MessageHelperShow)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(MessageHelperShow)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *MessageHelperShowIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *MessageHelperShowIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// MessageHelperShow represents a Show event raised by the MessageHelper contract.
-type MessageHelperShow struct {
-	B32    [32]byte
-	Number *big.Int
-	Text   string
-	Raw    types.Log // Blockchain specific contextual infos
-}
-
-// FilterShow is a free log retrieval operation binding the contract event 0x53f52bd5d580b08520e25370d30be415b61c6ff8e378023685ca03eec817b10f.
-//
-// Solidity: event Show(b32 bytes32, number uint256, text string)
-func (_MessageHelper *MessageHelperFilterer) FilterShow(opts *bind.FilterOpts) (*MessageHelperShowIterator, error) {
-
-	logs, sub, err := _MessageHelper.contract.FilterLogs(opts, "Show")
-	if err != nil {
-		return nil, err
-	}
-	return &MessageHelperShowIterator{contract: _MessageHelper.contract, event: "Show", logs: logs, sub: sub}, nil
-}
-
-// WatchShow is a free log subscription operation binding the contract event 0x53f52bd5d580b08520e25370d30be415b61c6ff8e378023685ca03eec817b10f.
-//
-// Solidity: event Show(b32 bytes32, number uint256, text string)
-func (_MessageHelper *MessageHelperFilterer) WatchShow(opts *bind.WatchOpts, sink chan<- *MessageHelperShow) (event.Subscription, error) {
-
-	logs, sub, err := _MessageHelper.contract.WatchLogs(opts, "Show")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(MessageHelperShow)
-				if err := _MessageHelper.contract.UnpackLog(event, "Show", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // ERC827TokenABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeployERC827Token(auth *bind.TransactOpts, backend bind.ContractBackend) (c
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &ERC827Token{ERC827TokenCaller: ERC827TokenCaller{contract: contract}, ERC827TokenTransactor: ERC827TokenTransactor{contract: contract}, ERC827TokenFilterer: ERC827TokenFilterer{contract: contract}}, nil
+	return address, tx, &ERC827Token{ERC827TokenCaller: ERC827TokenCaller{contract: contract}, ERC827TokenTransactor: ERC827TokenTransactor{contract: contract}}, nil
 }
 
 // ERC827Token is an auto generated Go binding around an Ethereum contract.
 type ERC827Token struct {
 	ERC827TokenCaller     // Read-only binding to the contract
 	ERC827TokenTransactor // Write-only binding to the contract
-	ERC827TokenFilterer   // Log filterer for contract events
 }
 
 // ERC827TokenCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type ERC827TokenCaller struct {
 
 // ERC827TokenTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ERC827TokenTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// ERC827TokenFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type ERC827TokenFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type ERC827TokenTransactorRaw struct {
 
 // NewERC827Token creates a new instance of ERC827Token, bound to a specific deployed contract.
 func NewERC827Token(address common.Address, backend bind.ContractBackend) (*ERC827Token, error) {
-	contract, err := bindERC827Token(address, backend, backend, backend)
+	contract, err := bindERC827Token(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ERC827Token{ERC827TokenCaller: ERC827TokenCaller{contract: contract}, ERC827TokenTransactor: ERC827TokenTransactor{contract: contract}, ERC827TokenFilterer: ERC827TokenFilterer{contract: contract}}, nil
+	return &ERC827Token{ERC827TokenCaller: ERC827TokenCaller{contract: contract}, ERC827TokenTransactor: ERC827TokenTransactor{contract: contract}}, nil
 }
 
 // NewERC827TokenCaller creates a new read-only instance of ERC827Token, bound to a specific deployed contract.
 func NewERC827TokenCaller(address common.Address, caller bind.ContractCaller) (*ERC827TokenCaller, error) {
-	contract, err := bindERC827Token(address, caller, nil, nil)
+	contract, err := bindERC827Token(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewERC827TokenCaller(address common.Address, caller bind.ContractCaller) (*
 
 // NewERC827TokenTransactor creates a new write-only instance of ERC827Token, bound to a specific deployed contract.
 func NewERC827TokenTransactor(address common.Address, transactor bind.ContractTransactor) (*ERC827TokenTransactor, error) {
-	contract, err := bindERC827Token(address, nil, transactor, nil)
+	contract, err := bindERC827Token(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &ERC827TokenTransactor{contract: contract}, nil
 }
 
-// NewERC827TokenFilterer creates a new log filterer instance of ERC827Token, bound to a specific deployed contract.
-func NewERC827TokenFilterer(address common.Address, filterer bind.ContractFilterer) (*ERC827TokenFilterer, error) {
-	contract, err := bindERC827Token(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &ERC827TokenFilterer{contract: contract}, nil
-}
-
 // bindERC827Token binds a generic wrapper to an already deployed contract.
-func bindERC827Token(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindERC827Token(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ERC827TokenABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -357,288 +340,4 @@ func (_ERC827Token *ERC827TokenSession) TransferFrom(_from common.Address, _to c
 // Solidity: function transferFrom(_from address, _to address, _value uint256, _data bytes) returns(bool)
 func (_ERC827Token *ERC827TokenTransactorSession) TransferFrom(_from common.Address, _to common.Address, _value *big.Int, _data []byte) (*types.Transaction, error) {
 	return _ERC827Token.Contract.TransferFrom(&_ERC827Token.TransactOpts, _from, _to, _value, _data)
-}
-
-// ERC827TokenApprovalIterator is returned from FilterApproval and is used to iterate over the raw logs and unpacked data for Approval events raised by the ERC827Token contract.
-type ERC827TokenApprovalIterator struct {
-	Event *ERC827TokenApproval // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *ERC827TokenApprovalIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ERC827TokenApproval)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(ERC827TokenApproval)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *ERC827TokenApprovalIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *ERC827TokenApprovalIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// ERC827TokenApproval represents a Approval event raised by the ERC827Token contract.
-type ERC827TokenApproval struct {
-	Owner   common.Address
-	Spender common.Address
-	Value   *big.Int
-	Raw     types.Log // Blockchain specific contextual infos
-}
-
-// FilterApproval is a free log retrieval operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
-//
-// Solidity: event Approval(owner indexed address, spender indexed address, value uint256)
-func (_ERC827Token *ERC827TokenFilterer) FilterApproval(opts *bind.FilterOpts, owner []common.Address, spender []common.Address) (*ERC827TokenApprovalIterator, error) {
-
-	var ownerRule []interface{}
-	for _, ownerItem := range owner {
-		ownerRule = append(ownerRule, ownerItem)
-	}
-	var spenderRule []interface{}
-	for _, spenderItem := range spender {
-		spenderRule = append(spenderRule, spenderItem)
-	}
-
-	logs, sub, err := _ERC827Token.contract.FilterLogs(opts, "Approval", ownerRule, spenderRule)
-	if err != nil {
-		return nil, err
-	}
-	return &ERC827TokenApprovalIterator{contract: _ERC827Token.contract, event: "Approval", logs: logs, sub: sub}, nil
-}
-
-// WatchApproval is a free log subscription operation binding the contract event 0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925.
-//
-// Solidity: event Approval(owner indexed address, spender indexed address, value uint256)
-func (_ERC827Token *ERC827TokenFilterer) WatchApproval(opts *bind.WatchOpts, sink chan<- *ERC827TokenApproval, owner []common.Address, spender []common.Address) (event.Subscription, error) {
-
-	var ownerRule []interface{}
-	for _, ownerItem := range owner {
-		ownerRule = append(ownerRule, ownerItem)
-	}
-	var spenderRule []interface{}
-	for _, spenderItem := range spender {
-		spenderRule = append(spenderRule, spenderItem)
-	}
-
-	logs, sub, err := _ERC827Token.contract.WatchLogs(opts, "Approval", ownerRule, spenderRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(ERC827TokenApproval)
-				if err := _ERC827Token.contract.UnpackLog(event, "Approval", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// ERC827TokenTransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the ERC827Token contract.
-type ERC827TokenTransferIterator struct {
-	Event *ERC827TokenTransfer // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *ERC827TokenTransferIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ERC827TokenTransfer)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(ERC827TokenTransfer)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *ERC827TokenTransferIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *ERC827TokenTransferIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// ERC827TokenTransfer represents a Transfer event raised by the ERC827Token contract.
-type ERC827TokenTransfer struct {
-	From  common.Address
-	To    common.Address
-	Value *big.Int
-	Raw   types.Log // Blockchain specific contextual infos
-}
-
-// FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
-//
-// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
-func (_ERC827Token *ERC827TokenFilterer) FilterTransfer(opts *bind.FilterOpts, from []common.Address, to []common.Address) (*ERC827TokenTransferIterator, error) {
-
-	var fromRule []interface{}
-	for _, fromItem := range from {
-		fromRule = append(fromRule, fromItem)
-	}
-	var toRule []interface{}
-	for _, toItem := range to {
-		toRule = append(toRule, toItem)
-	}
-
-	logs, sub, err := _ERC827Token.contract.FilterLogs(opts, "Transfer", fromRule, toRule)
-	if err != nil {
-		return nil, err
-	}
-	return &ERC827TokenTransferIterator{contract: _ERC827Token.contract, event: "Transfer", logs: logs, sub: sub}, nil
-}
-
-// WatchTransfer is a free log subscription operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
-//
-// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
-func (_ERC827Token *ERC827TokenFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *ERC827TokenTransfer, from []common.Address, to []common.Address) (event.Subscription, error) {
-
-	var fromRule []interface{}
-	for _, fromItem := range from {
-		fromRule = append(fromRule, fromItem)
-	}
-	var toRule []interface{}
-	for _, toItem := range to {
-		toRule = append(toRule, toItem)
-	}
-
-	logs, sub, err := _ERC827Token.contract.WatchLogs(opts, "Transfer", fromRule, toRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(ERC827TokenTransfer)
-				if err := _ERC827Token.contract.UnpackLog(event, "Transfer", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

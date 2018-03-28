@@ -6,12 +6,10 @@ package bindings
 import (
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // HasNoEtherTestABI is the input ABI used to generate the binding from.
@@ -30,14 +28,13 @@ func DeployHasNoEtherTest(auth *bind.TransactOpts, backend bind.ContractBackend)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &HasNoEtherTest{HasNoEtherTestCaller: HasNoEtherTestCaller{contract: contract}, HasNoEtherTestTransactor: HasNoEtherTestTransactor{contract: contract}, HasNoEtherTestFilterer: HasNoEtherTestFilterer{contract: contract}}, nil
+	return address, tx, &HasNoEtherTest{HasNoEtherTestCaller: HasNoEtherTestCaller{contract: contract}, HasNoEtherTestTransactor: HasNoEtherTestTransactor{contract: contract}}, nil
 }
 
 // HasNoEtherTest is an auto generated Go binding around an Ethereum contract.
 type HasNoEtherTest struct {
 	HasNoEtherTestCaller     // Read-only binding to the contract
 	HasNoEtherTestTransactor // Write-only binding to the contract
-	HasNoEtherTestFilterer   // Log filterer for contract events
 }
 
 // HasNoEtherTestCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -47,11 +44,6 @@ type HasNoEtherTestCaller struct {
 
 // HasNoEtherTestTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type HasNoEtherTestTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// HasNoEtherTestFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type HasNoEtherTestFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -94,16 +86,16 @@ type HasNoEtherTestTransactorRaw struct {
 
 // NewHasNoEtherTest creates a new instance of HasNoEtherTest, bound to a specific deployed contract.
 func NewHasNoEtherTest(address common.Address, backend bind.ContractBackend) (*HasNoEtherTest, error) {
-	contract, err := bindHasNoEtherTest(address, backend, backend, backend)
+	contract, err := bindHasNoEtherTest(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &HasNoEtherTest{HasNoEtherTestCaller: HasNoEtherTestCaller{contract: contract}, HasNoEtherTestTransactor: HasNoEtherTestTransactor{contract: contract}, HasNoEtherTestFilterer: HasNoEtherTestFilterer{contract: contract}}, nil
+	return &HasNoEtherTest{HasNoEtherTestCaller: HasNoEtherTestCaller{contract: contract}, HasNoEtherTestTransactor: HasNoEtherTestTransactor{contract: contract}}, nil
 }
 
 // NewHasNoEtherTestCaller creates a new read-only instance of HasNoEtherTest, bound to a specific deployed contract.
 func NewHasNoEtherTestCaller(address common.Address, caller bind.ContractCaller) (*HasNoEtherTestCaller, error) {
-	contract, err := bindHasNoEtherTest(address, caller, nil, nil)
+	contract, err := bindHasNoEtherTest(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -112,29 +104,20 @@ func NewHasNoEtherTestCaller(address common.Address, caller bind.ContractCaller)
 
 // NewHasNoEtherTestTransactor creates a new write-only instance of HasNoEtherTest, bound to a specific deployed contract.
 func NewHasNoEtherTestTransactor(address common.Address, transactor bind.ContractTransactor) (*HasNoEtherTestTransactor, error) {
-	contract, err := bindHasNoEtherTest(address, nil, transactor, nil)
+	contract, err := bindHasNoEtherTest(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &HasNoEtherTestTransactor{contract: contract}, nil
 }
 
-// NewHasNoEtherTestFilterer creates a new log filterer instance of HasNoEtherTest, bound to a specific deployed contract.
-func NewHasNoEtherTestFilterer(address common.Address, filterer bind.ContractFilterer) (*HasNoEtherTestFilterer, error) {
-	contract, err := bindHasNoEtherTest(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &HasNoEtherTestFilterer{contract: contract}, nil
-}
-
 // bindHasNoEtherTest binds a generic wrapper to an already deployed contract.
-func bindHasNoEtherTest(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindHasNoEtherTest(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(HasNoEtherTestABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -241,145 +224,4 @@ func (_HasNoEtherTest *HasNoEtherTestSession) TransferOwnership(newOwner common.
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_HasNoEtherTest *HasNoEtherTestTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _HasNoEtherTest.Contract.TransferOwnership(&_HasNoEtherTest.TransactOpts, newOwner)
-}
-
-// HasNoEtherTestOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the HasNoEtherTest contract.
-type HasNoEtherTestOwnershipTransferredIterator struct {
-	Event *HasNoEtherTestOwnershipTransferred // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *HasNoEtherTestOwnershipTransferredIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(HasNoEtherTestOwnershipTransferred)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(HasNoEtherTestOwnershipTransferred)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *HasNoEtherTestOwnershipTransferredIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *HasNoEtherTestOwnershipTransferredIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// HasNoEtherTestOwnershipTransferred represents a OwnershipTransferred event raised by the HasNoEtherTest contract.
-type HasNoEtherTestOwnershipTransferred struct {
-	PreviousOwner common.Address
-	NewOwner      common.Address
-	Raw           types.Log // Blockchain specific contextual infos
-}
-
-// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_HasNoEtherTest *HasNoEtherTestFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*HasNoEtherTestOwnershipTransferredIterator, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _HasNoEtherTest.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return &HasNoEtherTestOwnershipTransferredIterator{contract: _HasNoEtherTest.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
-}
-
-// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_HasNoEtherTest *HasNoEtherTestFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *HasNoEtherTestOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _HasNoEtherTest.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(HasNoEtherTestOwnershipTransferred)
-				if err := _HasNoEtherTest.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // MintedCrowdsaleABI is the input ABI used to generate the binding from.
@@ -22,7 +20,6 @@ const MintedCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"rate\",
 type MintedCrowdsale struct {
 	MintedCrowdsaleCaller     // Read-only binding to the contract
 	MintedCrowdsaleTransactor // Write-only binding to the contract
-	MintedCrowdsaleFilterer   // Log filterer for contract events
 }
 
 // MintedCrowdsaleCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -32,11 +29,6 @@ type MintedCrowdsaleCaller struct {
 
 // MintedCrowdsaleTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type MintedCrowdsaleTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// MintedCrowdsaleFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type MintedCrowdsaleFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -79,16 +71,16 @@ type MintedCrowdsaleTransactorRaw struct {
 
 // NewMintedCrowdsale creates a new instance of MintedCrowdsale, bound to a specific deployed contract.
 func NewMintedCrowdsale(address common.Address, backend bind.ContractBackend) (*MintedCrowdsale, error) {
-	contract, err := bindMintedCrowdsale(address, backend, backend, backend)
+	contract, err := bindMintedCrowdsale(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &MintedCrowdsale{MintedCrowdsaleCaller: MintedCrowdsaleCaller{contract: contract}, MintedCrowdsaleTransactor: MintedCrowdsaleTransactor{contract: contract}, MintedCrowdsaleFilterer: MintedCrowdsaleFilterer{contract: contract}}, nil
+	return &MintedCrowdsale{MintedCrowdsaleCaller: MintedCrowdsaleCaller{contract: contract}, MintedCrowdsaleTransactor: MintedCrowdsaleTransactor{contract: contract}}, nil
 }
 
 // NewMintedCrowdsaleCaller creates a new read-only instance of MintedCrowdsale, bound to a specific deployed contract.
 func NewMintedCrowdsaleCaller(address common.Address, caller bind.ContractCaller) (*MintedCrowdsaleCaller, error) {
-	contract, err := bindMintedCrowdsale(address, caller, nil, nil)
+	contract, err := bindMintedCrowdsale(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,29 +89,20 @@ func NewMintedCrowdsaleCaller(address common.Address, caller bind.ContractCaller
 
 // NewMintedCrowdsaleTransactor creates a new write-only instance of MintedCrowdsale, bound to a specific deployed contract.
 func NewMintedCrowdsaleTransactor(address common.Address, transactor bind.ContractTransactor) (*MintedCrowdsaleTransactor, error) {
-	contract, err := bindMintedCrowdsale(address, nil, transactor, nil)
+	contract, err := bindMintedCrowdsale(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &MintedCrowdsaleTransactor{contract: contract}, nil
 }
 
-// NewMintedCrowdsaleFilterer creates a new log filterer instance of MintedCrowdsale, bound to a specific deployed contract.
-func NewMintedCrowdsaleFilterer(address common.Address, filterer bind.ContractFilterer) (*MintedCrowdsaleFilterer, error) {
-	contract, err := bindMintedCrowdsale(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &MintedCrowdsaleFilterer{contract: contract}, nil
-}
-
 // bindMintedCrowdsale binds a generic wrapper to an already deployed contract.
-func bindMintedCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindMintedCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(MintedCrowdsaleABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -283,147 +266,4 @@ func (_MintedCrowdsale *MintedCrowdsaleSession) BuyTokens(_beneficiary common.Ad
 // Solidity: function buyTokens(_beneficiary address) returns()
 func (_MintedCrowdsale *MintedCrowdsaleTransactorSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
 	return _MintedCrowdsale.Contract.BuyTokens(&_MintedCrowdsale.TransactOpts, _beneficiary)
-}
-
-// MintedCrowdsaleTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the MintedCrowdsale contract.
-type MintedCrowdsaleTokenPurchaseIterator struct {
-	Event *MintedCrowdsaleTokenPurchase // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *MintedCrowdsaleTokenPurchaseIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(MintedCrowdsaleTokenPurchase)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(MintedCrowdsaleTokenPurchase)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *MintedCrowdsaleTokenPurchaseIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *MintedCrowdsaleTokenPurchaseIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// MintedCrowdsaleTokenPurchase represents a TokenPurchase event raised by the MintedCrowdsale contract.
-type MintedCrowdsaleTokenPurchase struct {
-	Purchaser   common.Address
-	Beneficiary common.Address
-	Value       *big.Int
-	Amount      *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterTokenPurchase is a free log retrieval operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_MintedCrowdsale *MintedCrowdsaleFilterer) FilterTokenPurchase(opts *bind.FilterOpts, purchaser []common.Address, beneficiary []common.Address) (*MintedCrowdsaleTokenPurchaseIterator, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _MintedCrowdsale.contract.FilterLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &MintedCrowdsaleTokenPurchaseIterator{contract: _MintedCrowdsale.contract, event: "TokenPurchase", logs: logs, sub: sub}, nil
-}
-
-// WatchTokenPurchase is a free log subscription operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_MintedCrowdsale *MintedCrowdsaleFilterer) WatchTokenPurchase(opts *bind.WatchOpts, sink chan<- *MintedCrowdsaleTokenPurchase, purchaser []common.Address, beneficiary []common.Address) (event.Subscription, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _MintedCrowdsale.contract.WatchLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(MintedCrowdsaleTokenPurchase)
-				if err := _MintedCrowdsale.contract.UnpackLog(event, "TokenPurchase", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

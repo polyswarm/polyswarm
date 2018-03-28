@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // CappedCrowdsaleImplABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeployCappedCrowdsaleImpl(auth *bind.TransactOpts, backend bind.ContractBac
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &CappedCrowdsaleImpl{CappedCrowdsaleImplCaller: CappedCrowdsaleImplCaller{contract: contract}, CappedCrowdsaleImplTransactor: CappedCrowdsaleImplTransactor{contract: contract}, CappedCrowdsaleImplFilterer: CappedCrowdsaleImplFilterer{contract: contract}}, nil
+	return address, tx, &CappedCrowdsaleImpl{CappedCrowdsaleImplCaller: CappedCrowdsaleImplCaller{contract: contract}, CappedCrowdsaleImplTransactor: CappedCrowdsaleImplTransactor{contract: contract}}, nil
 }
 
 // CappedCrowdsaleImpl is an auto generated Go binding around an Ethereum contract.
 type CappedCrowdsaleImpl struct {
 	CappedCrowdsaleImplCaller     // Read-only binding to the contract
 	CappedCrowdsaleImplTransactor // Write-only binding to the contract
-	CappedCrowdsaleImplFilterer   // Log filterer for contract events
 }
 
 // CappedCrowdsaleImplCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type CappedCrowdsaleImplCaller struct {
 
 // CappedCrowdsaleImplTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type CappedCrowdsaleImplTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// CappedCrowdsaleImplFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type CappedCrowdsaleImplFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type CappedCrowdsaleImplTransactorRaw struct {
 
 // NewCappedCrowdsaleImpl creates a new instance of CappedCrowdsaleImpl, bound to a specific deployed contract.
 func NewCappedCrowdsaleImpl(address common.Address, backend bind.ContractBackend) (*CappedCrowdsaleImpl, error) {
-	contract, err := bindCappedCrowdsaleImpl(address, backend, backend, backend)
+	contract, err := bindCappedCrowdsaleImpl(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &CappedCrowdsaleImpl{CappedCrowdsaleImplCaller: CappedCrowdsaleImplCaller{contract: contract}, CappedCrowdsaleImplTransactor: CappedCrowdsaleImplTransactor{contract: contract}, CappedCrowdsaleImplFilterer: CappedCrowdsaleImplFilterer{contract: contract}}, nil
+	return &CappedCrowdsaleImpl{CappedCrowdsaleImplCaller: CappedCrowdsaleImplCaller{contract: contract}, CappedCrowdsaleImplTransactor: CappedCrowdsaleImplTransactor{contract: contract}}, nil
 }
 
 // NewCappedCrowdsaleImplCaller creates a new read-only instance of CappedCrowdsaleImpl, bound to a specific deployed contract.
 func NewCappedCrowdsaleImplCaller(address common.Address, caller bind.ContractCaller) (*CappedCrowdsaleImplCaller, error) {
-	contract, err := bindCappedCrowdsaleImpl(address, caller, nil, nil)
+	contract, err := bindCappedCrowdsaleImpl(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewCappedCrowdsaleImplCaller(address common.Address, caller bind.ContractCa
 
 // NewCappedCrowdsaleImplTransactor creates a new write-only instance of CappedCrowdsaleImpl, bound to a specific deployed contract.
 func NewCappedCrowdsaleImplTransactor(address common.Address, transactor bind.ContractTransactor) (*CappedCrowdsaleImplTransactor, error) {
-	contract, err := bindCappedCrowdsaleImpl(address, nil, transactor, nil)
+	contract, err := bindCappedCrowdsaleImpl(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &CappedCrowdsaleImplTransactor{contract: contract}, nil
 }
 
-// NewCappedCrowdsaleImplFilterer creates a new log filterer instance of CappedCrowdsaleImpl, bound to a specific deployed contract.
-func NewCappedCrowdsaleImplFilterer(address common.Address, filterer bind.ContractFilterer) (*CappedCrowdsaleImplFilterer, error) {
-	contract, err := bindCappedCrowdsaleImpl(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &CappedCrowdsaleImplFilterer{contract: contract}, nil
-}
-
 // bindCappedCrowdsaleImpl binds a generic wrapper to an already deployed contract.
-func bindCappedCrowdsaleImpl(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindCappedCrowdsaleImpl(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(CappedCrowdsaleImplABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -351,147 +334,4 @@ func (_CappedCrowdsaleImpl *CappedCrowdsaleImplSession) BuyTokens(_beneficiary c
 // Solidity: function buyTokens(_beneficiary address) returns()
 func (_CappedCrowdsaleImpl *CappedCrowdsaleImplTransactorSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
 	return _CappedCrowdsaleImpl.Contract.BuyTokens(&_CappedCrowdsaleImpl.TransactOpts, _beneficiary)
-}
-
-// CappedCrowdsaleImplTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the CappedCrowdsaleImpl contract.
-type CappedCrowdsaleImplTokenPurchaseIterator struct {
-	Event *CappedCrowdsaleImplTokenPurchase // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *CappedCrowdsaleImplTokenPurchaseIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(CappedCrowdsaleImplTokenPurchase)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(CappedCrowdsaleImplTokenPurchase)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *CappedCrowdsaleImplTokenPurchaseIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *CappedCrowdsaleImplTokenPurchaseIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// CappedCrowdsaleImplTokenPurchase represents a TokenPurchase event raised by the CappedCrowdsaleImpl contract.
-type CappedCrowdsaleImplTokenPurchase struct {
-	Purchaser   common.Address
-	Beneficiary common.Address
-	Value       *big.Int
-	Amount      *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterTokenPurchase is a free log retrieval operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_CappedCrowdsaleImpl *CappedCrowdsaleImplFilterer) FilterTokenPurchase(opts *bind.FilterOpts, purchaser []common.Address, beneficiary []common.Address) (*CappedCrowdsaleImplTokenPurchaseIterator, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _CappedCrowdsaleImpl.contract.FilterLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &CappedCrowdsaleImplTokenPurchaseIterator{contract: _CappedCrowdsaleImpl.contract, event: "TokenPurchase", logs: logs, sub: sub}, nil
-}
-
-// WatchTokenPurchase is a free log subscription operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_CappedCrowdsaleImpl *CappedCrowdsaleImplFilterer) WatchTokenPurchase(opts *bind.WatchOpts, sink chan<- *CappedCrowdsaleImplTokenPurchase, purchaser []common.Address, beneficiary []common.Address) (event.Subscription, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _CappedCrowdsaleImpl.contract.WatchLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(CappedCrowdsaleImplTokenPurchase)
-				if err := _CappedCrowdsaleImpl.contract.UnpackLog(event, "TokenPurchase", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

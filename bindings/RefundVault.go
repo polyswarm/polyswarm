@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // RefundVaultABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeployRefundVault(auth *bind.TransactOpts, backend bind.ContractBackend, _w
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &RefundVault{RefundVaultCaller: RefundVaultCaller{contract: contract}, RefundVaultTransactor: RefundVaultTransactor{contract: contract}, RefundVaultFilterer: RefundVaultFilterer{contract: contract}}, nil
+	return address, tx, &RefundVault{RefundVaultCaller: RefundVaultCaller{contract: contract}, RefundVaultTransactor: RefundVaultTransactor{contract: contract}}, nil
 }
 
 // RefundVault is an auto generated Go binding around an Ethereum contract.
 type RefundVault struct {
 	RefundVaultCaller     // Read-only binding to the contract
 	RefundVaultTransactor // Write-only binding to the contract
-	RefundVaultFilterer   // Log filterer for contract events
 }
 
 // RefundVaultCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type RefundVaultCaller struct {
 
 // RefundVaultTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type RefundVaultTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// RefundVaultFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type RefundVaultFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type RefundVaultTransactorRaw struct {
 
 // NewRefundVault creates a new instance of RefundVault, bound to a specific deployed contract.
 func NewRefundVault(address common.Address, backend bind.ContractBackend) (*RefundVault, error) {
-	contract, err := bindRefundVault(address, backend, backend, backend)
+	contract, err := bindRefundVault(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &RefundVault{RefundVaultCaller: RefundVaultCaller{contract: contract}, RefundVaultTransactor: RefundVaultTransactor{contract: contract}, RefundVaultFilterer: RefundVaultFilterer{contract: contract}}, nil
+	return &RefundVault{RefundVaultCaller: RefundVaultCaller{contract: contract}, RefundVaultTransactor: RefundVaultTransactor{contract: contract}}, nil
 }
 
 // NewRefundVaultCaller creates a new read-only instance of RefundVault, bound to a specific deployed contract.
 func NewRefundVaultCaller(address common.Address, caller bind.ContractCaller) (*RefundVaultCaller, error) {
-	contract, err := bindRefundVault(address, caller, nil, nil)
+	contract, err := bindRefundVault(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewRefundVaultCaller(address common.Address, caller bind.ContractCaller) (*
 
 // NewRefundVaultTransactor creates a new write-only instance of RefundVault, bound to a specific deployed contract.
 func NewRefundVaultTransactor(address common.Address, transactor bind.ContractTransactor) (*RefundVaultTransactor, error) {
-	contract, err := bindRefundVault(address, nil, transactor, nil)
+	contract, err := bindRefundVault(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &RefundVaultTransactor{contract: contract}, nil
 }
 
-// NewRefundVaultFilterer creates a new log filterer instance of RefundVault, bound to a specific deployed contract.
-func NewRefundVaultFilterer(address common.Address, filterer bind.ContractFilterer) (*RefundVaultFilterer, error) {
-	contract, err := bindRefundVault(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &RefundVaultFilterer{contract: contract}, nil
-}
-
 // bindRefundVault binds a generic wrapper to an already deployed contract.
-func bindRefundVault(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindRefundVault(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(RefundVaultABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -383,520 +366,4 @@ func (_RefundVault *RefundVaultSession) TransferOwnership(newOwner common.Addres
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_RefundVault *RefundVaultTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _RefundVault.Contract.TransferOwnership(&_RefundVault.TransactOpts, newOwner)
-}
-
-// RefundVaultClosedIterator is returned from FilterClosed and is used to iterate over the raw logs and unpacked data for Closed events raised by the RefundVault contract.
-type RefundVaultClosedIterator struct {
-	Event *RefundVaultClosed // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RefundVaultClosedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RefundVaultClosed)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RefundVaultClosed)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RefundVaultClosedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RefundVaultClosedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RefundVaultClosed represents a Closed event raised by the RefundVault contract.
-type RefundVaultClosed struct {
-	Raw types.Log // Blockchain specific contextual infos
-}
-
-// FilterClosed is a free log retrieval operation binding the contract event 0x1cdde67b72a90f19919ac732a437ac2f7a10fc128d28c2a6e525d89ce5cd9d3a.
-//
-// Solidity: event Closed()
-func (_RefundVault *RefundVaultFilterer) FilterClosed(opts *bind.FilterOpts) (*RefundVaultClosedIterator, error) {
-
-	logs, sub, err := _RefundVault.contract.FilterLogs(opts, "Closed")
-	if err != nil {
-		return nil, err
-	}
-	return &RefundVaultClosedIterator{contract: _RefundVault.contract, event: "Closed", logs: logs, sub: sub}, nil
-}
-
-// WatchClosed is a free log subscription operation binding the contract event 0x1cdde67b72a90f19919ac732a437ac2f7a10fc128d28c2a6e525d89ce5cd9d3a.
-//
-// Solidity: event Closed()
-func (_RefundVault *RefundVaultFilterer) WatchClosed(opts *bind.WatchOpts, sink chan<- *RefundVaultClosed) (event.Subscription, error) {
-
-	logs, sub, err := _RefundVault.contract.WatchLogs(opts, "Closed")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RefundVaultClosed)
-				if err := _RefundVault.contract.UnpackLog(event, "Closed", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// RefundVaultOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the RefundVault contract.
-type RefundVaultOwnershipTransferredIterator struct {
-	Event *RefundVaultOwnershipTransferred // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RefundVaultOwnershipTransferredIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RefundVaultOwnershipTransferred)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RefundVaultOwnershipTransferred)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RefundVaultOwnershipTransferredIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RefundVaultOwnershipTransferredIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RefundVaultOwnershipTransferred represents a OwnershipTransferred event raised by the RefundVault contract.
-type RefundVaultOwnershipTransferred struct {
-	PreviousOwner common.Address
-	NewOwner      common.Address
-	Raw           types.Log // Blockchain specific contextual infos
-}
-
-// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_RefundVault *RefundVaultFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*RefundVaultOwnershipTransferredIterator, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _RefundVault.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return &RefundVaultOwnershipTransferredIterator{contract: _RefundVault.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
-}
-
-// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_RefundVault *RefundVaultFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *RefundVaultOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _RefundVault.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RefundVaultOwnershipTransferred)
-				if err := _RefundVault.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// RefundVaultRefundedIterator is returned from FilterRefunded and is used to iterate over the raw logs and unpacked data for Refunded events raised by the RefundVault contract.
-type RefundVaultRefundedIterator struct {
-	Event *RefundVaultRefunded // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RefundVaultRefundedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RefundVaultRefunded)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RefundVaultRefunded)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RefundVaultRefundedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RefundVaultRefundedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RefundVaultRefunded represents a Refunded event raised by the RefundVault contract.
-type RefundVaultRefunded struct {
-	Beneficiary common.Address
-	WeiAmount   *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterRefunded is a free log retrieval operation binding the contract event 0xd7dee2702d63ad89917b6a4da9981c90c4d24f8c2bdfd64c604ecae57d8d0651.
-//
-// Solidity: event Refunded(beneficiary indexed address, weiAmount uint256)
-func (_RefundVault *RefundVaultFilterer) FilterRefunded(opts *bind.FilterOpts, beneficiary []common.Address) (*RefundVaultRefundedIterator, error) {
-
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _RefundVault.contract.FilterLogs(opts, "Refunded", beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &RefundVaultRefundedIterator{contract: _RefundVault.contract, event: "Refunded", logs: logs, sub: sub}, nil
-}
-
-// WatchRefunded is a free log subscription operation binding the contract event 0xd7dee2702d63ad89917b6a4da9981c90c4d24f8c2bdfd64c604ecae57d8d0651.
-//
-// Solidity: event Refunded(beneficiary indexed address, weiAmount uint256)
-func (_RefundVault *RefundVaultFilterer) WatchRefunded(opts *bind.WatchOpts, sink chan<- *RefundVaultRefunded, beneficiary []common.Address) (event.Subscription, error) {
-
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _RefundVault.contract.WatchLogs(opts, "Refunded", beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RefundVaultRefunded)
-				if err := _RefundVault.contract.UnpackLog(event, "Refunded", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// RefundVaultRefundsEnabledIterator is returned from FilterRefundsEnabled and is used to iterate over the raw logs and unpacked data for RefundsEnabled events raised by the RefundVault contract.
-type RefundVaultRefundsEnabledIterator struct {
-	Event *RefundVaultRefundsEnabled // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RefundVaultRefundsEnabledIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RefundVaultRefundsEnabled)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RefundVaultRefundsEnabled)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RefundVaultRefundsEnabledIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RefundVaultRefundsEnabledIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RefundVaultRefundsEnabled represents a RefundsEnabled event raised by the RefundVault contract.
-type RefundVaultRefundsEnabled struct {
-	Raw types.Log // Blockchain specific contextual infos
-}
-
-// FilterRefundsEnabled is a free log retrieval operation binding the contract event 0x599d8e5a83cffb867d051598c4d70e805d59802d8081c1c7d6dffc5b6aca2b89.
-//
-// Solidity: event RefundsEnabled()
-func (_RefundVault *RefundVaultFilterer) FilterRefundsEnabled(opts *bind.FilterOpts) (*RefundVaultRefundsEnabledIterator, error) {
-
-	logs, sub, err := _RefundVault.contract.FilterLogs(opts, "RefundsEnabled")
-	if err != nil {
-		return nil, err
-	}
-	return &RefundVaultRefundsEnabledIterator{contract: _RefundVault.contract, event: "RefundsEnabled", logs: logs, sub: sub}, nil
-}
-
-// WatchRefundsEnabled is a free log subscription operation binding the contract event 0x599d8e5a83cffb867d051598c4d70e805d59802d8081c1c7d6dffc5b6aca2b89.
-//
-// Solidity: event RefundsEnabled()
-func (_RefundVault *RefundVaultFilterer) WatchRefundsEnabled(opts *bind.WatchOpts, sink chan<- *RefundVaultRefundsEnabled) (event.Subscription, error) {
-
-	logs, sub, err := _RefundVault.contract.WatchLogs(opts, "RefundsEnabled")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RefundVaultRefundsEnabled)
-				if err := _RefundVault.contract.UnpackLog(event, "RefundsEnabled", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

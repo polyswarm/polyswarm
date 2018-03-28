@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // AllowanceCrowdsaleABI is the input ABI used to generate the binding from.
@@ -22,7 +20,6 @@ const AllowanceCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"rate
 type AllowanceCrowdsale struct {
 	AllowanceCrowdsaleCaller     // Read-only binding to the contract
 	AllowanceCrowdsaleTransactor // Write-only binding to the contract
-	AllowanceCrowdsaleFilterer   // Log filterer for contract events
 }
 
 // AllowanceCrowdsaleCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -32,11 +29,6 @@ type AllowanceCrowdsaleCaller struct {
 
 // AllowanceCrowdsaleTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type AllowanceCrowdsaleTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// AllowanceCrowdsaleFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type AllowanceCrowdsaleFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -79,16 +71,16 @@ type AllowanceCrowdsaleTransactorRaw struct {
 
 // NewAllowanceCrowdsale creates a new instance of AllowanceCrowdsale, bound to a specific deployed contract.
 func NewAllowanceCrowdsale(address common.Address, backend bind.ContractBackend) (*AllowanceCrowdsale, error) {
-	contract, err := bindAllowanceCrowdsale(address, backend, backend, backend)
+	contract, err := bindAllowanceCrowdsale(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &AllowanceCrowdsale{AllowanceCrowdsaleCaller: AllowanceCrowdsaleCaller{contract: contract}, AllowanceCrowdsaleTransactor: AllowanceCrowdsaleTransactor{contract: contract}, AllowanceCrowdsaleFilterer: AllowanceCrowdsaleFilterer{contract: contract}}, nil
+	return &AllowanceCrowdsale{AllowanceCrowdsaleCaller: AllowanceCrowdsaleCaller{contract: contract}, AllowanceCrowdsaleTransactor: AllowanceCrowdsaleTransactor{contract: contract}}, nil
 }
 
 // NewAllowanceCrowdsaleCaller creates a new read-only instance of AllowanceCrowdsale, bound to a specific deployed contract.
 func NewAllowanceCrowdsaleCaller(address common.Address, caller bind.ContractCaller) (*AllowanceCrowdsaleCaller, error) {
-	contract, err := bindAllowanceCrowdsale(address, caller, nil, nil)
+	contract, err := bindAllowanceCrowdsale(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,29 +89,20 @@ func NewAllowanceCrowdsaleCaller(address common.Address, caller bind.ContractCal
 
 // NewAllowanceCrowdsaleTransactor creates a new write-only instance of AllowanceCrowdsale, bound to a specific deployed contract.
 func NewAllowanceCrowdsaleTransactor(address common.Address, transactor bind.ContractTransactor) (*AllowanceCrowdsaleTransactor, error) {
-	contract, err := bindAllowanceCrowdsale(address, nil, transactor, nil)
+	contract, err := bindAllowanceCrowdsale(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &AllowanceCrowdsaleTransactor{contract: contract}, nil
 }
 
-// NewAllowanceCrowdsaleFilterer creates a new log filterer instance of AllowanceCrowdsale, bound to a specific deployed contract.
-func NewAllowanceCrowdsaleFilterer(address common.Address, filterer bind.ContractFilterer) (*AllowanceCrowdsaleFilterer, error) {
-	contract, err := bindAllowanceCrowdsale(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &AllowanceCrowdsaleFilterer{contract: contract}, nil
-}
-
 // bindAllowanceCrowdsale binds a generic wrapper to an already deployed contract.
-func bindAllowanceCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindAllowanceCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(AllowanceCrowdsaleABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -335,147 +318,4 @@ func (_AllowanceCrowdsale *AllowanceCrowdsaleSession) BuyTokens(_beneficiary com
 // Solidity: function buyTokens(_beneficiary address) returns()
 func (_AllowanceCrowdsale *AllowanceCrowdsaleTransactorSession) BuyTokens(_beneficiary common.Address) (*types.Transaction, error) {
 	return _AllowanceCrowdsale.Contract.BuyTokens(&_AllowanceCrowdsale.TransactOpts, _beneficiary)
-}
-
-// AllowanceCrowdsaleTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the AllowanceCrowdsale contract.
-type AllowanceCrowdsaleTokenPurchaseIterator struct {
-	Event *AllowanceCrowdsaleTokenPurchase // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *AllowanceCrowdsaleTokenPurchaseIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(AllowanceCrowdsaleTokenPurchase)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(AllowanceCrowdsaleTokenPurchase)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *AllowanceCrowdsaleTokenPurchaseIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *AllowanceCrowdsaleTokenPurchaseIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// AllowanceCrowdsaleTokenPurchase represents a TokenPurchase event raised by the AllowanceCrowdsale contract.
-type AllowanceCrowdsaleTokenPurchase struct {
-	Purchaser   common.Address
-	Beneficiary common.Address
-	Value       *big.Int
-	Amount      *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterTokenPurchase is a free log retrieval operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_AllowanceCrowdsale *AllowanceCrowdsaleFilterer) FilterTokenPurchase(opts *bind.FilterOpts, purchaser []common.Address, beneficiary []common.Address) (*AllowanceCrowdsaleTokenPurchaseIterator, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _AllowanceCrowdsale.contract.FilterLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &AllowanceCrowdsaleTokenPurchaseIterator{contract: _AllowanceCrowdsale.contract, event: "TokenPurchase", logs: logs, sub: sub}, nil
-}
-
-// WatchTokenPurchase is a free log subscription operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_AllowanceCrowdsale *AllowanceCrowdsaleFilterer) WatchTokenPurchase(opts *bind.WatchOpts, sink chan<- *AllowanceCrowdsaleTokenPurchase, purchaser []common.Address, beneficiary []common.Address) (event.Subscription, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _AllowanceCrowdsale.contract.WatchLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(AllowanceCrowdsaleTokenPurchase)
-				if err := _AllowanceCrowdsale.contract.UnpackLog(event, "TokenPurchase", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

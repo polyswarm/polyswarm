@@ -29,14 +29,13 @@ func DeployDayLimitMock(auth *bind.TransactOpts, backend bind.ContractBackend, _
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &DayLimitMock{DayLimitMockCaller: DayLimitMockCaller{contract: contract}, DayLimitMockTransactor: DayLimitMockTransactor{contract: contract}, DayLimitMockFilterer: DayLimitMockFilterer{contract: contract}}, nil
+	return address, tx, &DayLimitMock{DayLimitMockCaller: DayLimitMockCaller{contract: contract}, DayLimitMockTransactor: DayLimitMockTransactor{contract: contract}}, nil
 }
 
 // DayLimitMock is an auto generated Go binding around an Ethereum contract.
 type DayLimitMock struct {
 	DayLimitMockCaller     // Read-only binding to the contract
 	DayLimitMockTransactor // Write-only binding to the contract
-	DayLimitMockFilterer   // Log filterer for contract events
 }
 
 // DayLimitMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -46,11 +45,6 @@ type DayLimitMockCaller struct {
 
 // DayLimitMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type DayLimitMockTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// DayLimitMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type DayLimitMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -93,16 +87,16 @@ type DayLimitMockTransactorRaw struct {
 
 // NewDayLimitMock creates a new instance of DayLimitMock, bound to a specific deployed contract.
 func NewDayLimitMock(address common.Address, backend bind.ContractBackend) (*DayLimitMock, error) {
-	contract, err := bindDayLimitMock(address, backend, backend, backend)
+	contract, err := bindDayLimitMock(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &DayLimitMock{DayLimitMockCaller: DayLimitMockCaller{contract: contract}, DayLimitMockTransactor: DayLimitMockTransactor{contract: contract}, DayLimitMockFilterer: DayLimitMockFilterer{contract: contract}}, nil
+	return &DayLimitMock{DayLimitMockCaller: DayLimitMockCaller{contract: contract}, DayLimitMockTransactor: DayLimitMockTransactor{contract: contract}}, nil
 }
 
 // NewDayLimitMockCaller creates a new read-only instance of DayLimitMock, bound to a specific deployed contract.
 func NewDayLimitMockCaller(address common.Address, caller bind.ContractCaller) (*DayLimitMockCaller, error) {
-	contract, err := bindDayLimitMock(address, caller, nil, nil)
+	contract, err := bindDayLimitMock(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,29 +105,20 @@ func NewDayLimitMockCaller(address common.Address, caller bind.ContractCaller) (
 
 // NewDayLimitMockTransactor creates a new write-only instance of DayLimitMock, bound to a specific deployed contract.
 func NewDayLimitMockTransactor(address common.Address, transactor bind.ContractTransactor) (*DayLimitMockTransactor, error) {
-	contract, err := bindDayLimitMock(address, nil, transactor, nil)
+	contract, err := bindDayLimitMock(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &DayLimitMockTransactor{contract: contract}, nil
 }
 
-// NewDayLimitMockFilterer creates a new log filterer instance of DayLimitMock, bound to a specific deployed contract.
-func NewDayLimitMockFilterer(address common.Address, filterer bind.ContractFilterer) (*DayLimitMockFilterer, error) {
-	contract, err := bindDayLimitMock(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &DayLimitMockFilterer{contract: contract}, nil
-}
-
 // bindDayLimitMock binds a generic wrapper to an already deployed contract.
-func bindDayLimitMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindDayLimitMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(DayLimitMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

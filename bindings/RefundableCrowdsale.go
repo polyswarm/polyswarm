@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // RefundableCrowdsaleABI is the input ABI used to generate the binding from.
@@ -22,7 +20,6 @@ const RefundableCrowdsaleABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"has
 type RefundableCrowdsale struct {
 	RefundableCrowdsaleCaller     // Read-only binding to the contract
 	RefundableCrowdsaleTransactor // Write-only binding to the contract
-	RefundableCrowdsaleFilterer   // Log filterer for contract events
 }
 
 // RefundableCrowdsaleCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -32,11 +29,6 @@ type RefundableCrowdsaleCaller struct {
 
 // RefundableCrowdsaleTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type RefundableCrowdsaleTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// RefundableCrowdsaleFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type RefundableCrowdsaleFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -79,16 +71,16 @@ type RefundableCrowdsaleTransactorRaw struct {
 
 // NewRefundableCrowdsale creates a new instance of RefundableCrowdsale, bound to a specific deployed contract.
 func NewRefundableCrowdsale(address common.Address, backend bind.ContractBackend) (*RefundableCrowdsale, error) {
-	contract, err := bindRefundableCrowdsale(address, backend, backend, backend)
+	contract, err := bindRefundableCrowdsale(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &RefundableCrowdsale{RefundableCrowdsaleCaller: RefundableCrowdsaleCaller{contract: contract}, RefundableCrowdsaleTransactor: RefundableCrowdsaleTransactor{contract: contract}, RefundableCrowdsaleFilterer: RefundableCrowdsaleFilterer{contract: contract}}, nil
+	return &RefundableCrowdsale{RefundableCrowdsaleCaller: RefundableCrowdsaleCaller{contract: contract}, RefundableCrowdsaleTransactor: RefundableCrowdsaleTransactor{contract: contract}}, nil
 }
 
 // NewRefundableCrowdsaleCaller creates a new read-only instance of RefundableCrowdsale, bound to a specific deployed contract.
 func NewRefundableCrowdsaleCaller(address common.Address, caller bind.ContractCaller) (*RefundableCrowdsaleCaller, error) {
-	contract, err := bindRefundableCrowdsale(address, caller, nil, nil)
+	contract, err := bindRefundableCrowdsale(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -97,29 +89,20 @@ func NewRefundableCrowdsaleCaller(address common.Address, caller bind.ContractCa
 
 // NewRefundableCrowdsaleTransactor creates a new write-only instance of RefundableCrowdsale, bound to a specific deployed contract.
 func NewRefundableCrowdsaleTransactor(address common.Address, transactor bind.ContractTransactor) (*RefundableCrowdsaleTransactor, error) {
-	contract, err := bindRefundableCrowdsale(address, nil, transactor, nil)
+	contract, err := bindRefundableCrowdsale(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &RefundableCrowdsaleTransactor{contract: contract}, nil
 }
 
-// NewRefundableCrowdsaleFilterer creates a new log filterer instance of RefundableCrowdsale, bound to a specific deployed contract.
-func NewRefundableCrowdsaleFilterer(address common.Address, filterer bind.ContractFilterer) (*RefundableCrowdsaleFilterer, error) {
-	contract, err := bindRefundableCrowdsale(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &RefundableCrowdsaleFilterer{contract: contract}, nil
-}
-
 // bindRefundableCrowdsale binds a generic wrapper to an already deployed contract.
-func bindRefundableCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindRefundableCrowdsale(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(RefundableCrowdsaleABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -554,409 +537,4 @@ func (_RefundableCrowdsale *RefundableCrowdsaleSession) TransferOwnership(newOwn
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_RefundableCrowdsale *RefundableCrowdsaleTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _RefundableCrowdsale.Contract.TransferOwnership(&_RefundableCrowdsale.TransactOpts, newOwner)
-}
-
-// RefundableCrowdsaleFinalizedIterator is returned from FilterFinalized and is used to iterate over the raw logs and unpacked data for Finalized events raised by the RefundableCrowdsale contract.
-type RefundableCrowdsaleFinalizedIterator struct {
-	Event *RefundableCrowdsaleFinalized // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RefundableCrowdsaleFinalizedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RefundableCrowdsaleFinalized)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RefundableCrowdsaleFinalized)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RefundableCrowdsaleFinalizedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RefundableCrowdsaleFinalizedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RefundableCrowdsaleFinalized represents a Finalized event raised by the RefundableCrowdsale contract.
-type RefundableCrowdsaleFinalized struct {
-	Raw types.Log // Blockchain specific contextual infos
-}
-
-// FilterFinalized is a free log retrieval operation binding the contract event 0x6823b073d48d6e3a7d385eeb601452d680e74bb46afe3255a7d778f3a9b17681.
-//
-// Solidity: event Finalized()
-func (_RefundableCrowdsale *RefundableCrowdsaleFilterer) FilterFinalized(opts *bind.FilterOpts) (*RefundableCrowdsaleFinalizedIterator, error) {
-
-	logs, sub, err := _RefundableCrowdsale.contract.FilterLogs(opts, "Finalized")
-	if err != nil {
-		return nil, err
-	}
-	return &RefundableCrowdsaleFinalizedIterator{contract: _RefundableCrowdsale.contract, event: "Finalized", logs: logs, sub: sub}, nil
-}
-
-// WatchFinalized is a free log subscription operation binding the contract event 0x6823b073d48d6e3a7d385eeb601452d680e74bb46afe3255a7d778f3a9b17681.
-//
-// Solidity: event Finalized()
-func (_RefundableCrowdsale *RefundableCrowdsaleFilterer) WatchFinalized(opts *bind.WatchOpts, sink chan<- *RefundableCrowdsaleFinalized) (event.Subscription, error) {
-
-	logs, sub, err := _RefundableCrowdsale.contract.WatchLogs(opts, "Finalized")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RefundableCrowdsaleFinalized)
-				if err := _RefundableCrowdsale.contract.UnpackLog(event, "Finalized", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// RefundableCrowdsaleOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the RefundableCrowdsale contract.
-type RefundableCrowdsaleOwnershipTransferredIterator struct {
-	Event *RefundableCrowdsaleOwnershipTransferred // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RefundableCrowdsaleOwnershipTransferredIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RefundableCrowdsaleOwnershipTransferred)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RefundableCrowdsaleOwnershipTransferred)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RefundableCrowdsaleOwnershipTransferredIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RefundableCrowdsaleOwnershipTransferredIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RefundableCrowdsaleOwnershipTransferred represents a OwnershipTransferred event raised by the RefundableCrowdsale contract.
-type RefundableCrowdsaleOwnershipTransferred struct {
-	PreviousOwner common.Address
-	NewOwner      common.Address
-	Raw           types.Log // Blockchain specific contextual infos
-}
-
-// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_RefundableCrowdsale *RefundableCrowdsaleFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*RefundableCrowdsaleOwnershipTransferredIterator, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _RefundableCrowdsale.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return &RefundableCrowdsaleOwnershipTransferredIterator{contract: _RefundableCrowdsale.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
-}
-
-// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_RefundableCrowdsale *RefundableCrowdsaleFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *RefundableCrowdsaleOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _RefundableCrowdsale.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RefundableCrowdsaleOwnershipTransferred)
-				if err := _RefundableCrowdsale.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// RefundableCrowdsaleTokenPurchaseIterator is returned from FilterTokenPurchase and is used to iterate over the raw logs and unpacked data for TokenPurchase events raised by the RefundableCrowdsale contract.
-type RefundableCrowdsaleTokenPurchaseIterator struct {
-	Event *RefundableCrowdsaleTokenPurchase // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RefundableCrowdsaleTokenPurchaseIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RefundableCrowdsaleTokenPurchase)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RefundableCrowdsaleTokenPurchase)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RefundableCrowdsaleTokenPurchaseIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RefundableCrowdsaleTokenPurchaseIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RefundableCrowdsaleTokenPurchase represents a TokenPurchase event raised by the RefundableCrowdsale contract.
-type RefundableCrowdsaleTokenPurchase struct {
-	Purchaser   common.Address
-	Beneficiary common.Address
-	Value       *big.Int
-	Amount      *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
-}
-
-// FilterTokenPurchase is a free log retrieval operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_RefundableCrowdsale *RefundableCrowdsaleFilterer) FilterTokenPurchase(opts *bind.FilterOpts, purchaser []common.Address, beneficiary []common.Address) (*RefundableCrowdsaleTokenPurchaseIterator, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _RefundableCrowdsale.contract.FilterLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return &RefundableCrowdsaleTokenPurchaseIterator{contract: _RefundableCrowdsale.contract, event: "TokenPurchase", logs: logs, sub: sub}, nil
-}
-
-// WatchTokenPurchase is a free log subscription operation binding the contract event 0x623b3804fa71d67900d064613da8f94b9617215ee90799290593e1745087ad18.
-//
-// Solidity: event TokenPurchase(purchaser indexed address, beneficiary indexed address, value uint256, amount uint256)
-func (_RefundableCrowdsale *RefundableCrowdsaleFilterer) WatchTokenPurchase(opts *bind.WatchOpts, sink chan<- *RefundableCrowdsaleTokenPurchase, purchaser []common.Address, beneficiary []common.Address) (event.Subscription, error) {
-
-	var purchaserRule []interface{}
-	for _, purchaserItem := range purchaser {
-		purchaserRule = append(purchaserRule, purchaserItem)
-	}
-	var beneficiaryRule []interface{}
-	for _, beneficiaryItem := range beneficiary {
-		beneficiaryRule = append(beneficiaryRule, beneficiaryItem)
-	}
-
-	logs, sub, err := _RefundableCrowdsale.contract.WatchLogs(opts, "TokenPurchase", purchaserRule, beneficiaryRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RefundableCrowdsaleTokenPurchase)
-				if err := _RefundableCrowdsale.contract.UnpackLog(event, "TokenPurchase", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

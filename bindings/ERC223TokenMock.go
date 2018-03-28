@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // ERC223TokenMockABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeployERC223TokenMock(auth *bind.TransactOpts, backend bind.ContractBackend
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &ERC223TokenMock{ERC223TokenMockCaller: ERC223TokenMockCaller{contract: contract}, ERC223TokenMockTransactor: ERC223TokenMockTransactor{contract: contract}, ERC223TokenMockFilterer: ERC223TokenMockFilterer{contract: contract}}, nil
+	return address, tx, &ERC223TokenMock{ERC223TokenMockCaller: ERC223TokenMockCaller{contract: contract}, ERC223TokenMockTransactor: ERC223TokenMockTransactor{contract: contract}}, nil
 }
 
 // ERC223TokenMock is an auto generated Go binding around an Ethereum contract.
 type ERC223TokenMock struct {
 	ERC223TokenMockCaller     // Read-only binding to the contract
 	ERC223TokenMockTransactor // Write-only binding to the contract
-	ERC223TokenMockFilterer   // Log filterer for contract events
 }
 
 // ERC223TokenMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type ERC223TokenMockCaller struct {
 
 // ERC223TokenMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type ERC223TokenMockTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// ERC223TokenMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type ERC223TokenMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type ERC223TokenMockTransactorRaw struct {
 
 // NewERC223TokenMock creates a new instance of ERC223TokenMock, bound to a specific deployed contract.
 func NewERC223TokenMock(address common.Address, backend bind.ContractBackend) (*ERC223TokenMock, error) {
-	contract, err := bindERC223TokenMock(address, backend, backend, backend)
+	contract, err := bindERC223TokenMock(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &ERC223TokenMock{ERC223TokenMockCaller: ERC223TokenMockCaller{contract: contract}, ERC223TokenMockTransactor: ERC223TokenMockTransactor{contract: contract}, ERC223TokenMockFilterer: ERC223TokenMockFilterer{contract: contract}}, nil
+	return &ERC223TokenMock{ERC223TokenMockCaller: ERC223TokenMockCaller{contract: contract}, ERC223TokenMockTransactor: ERC223TokenMockTransactor{contract: contract}}, nil
 }
 
 // NewERC223TokenMockCaller creates a new read-only instance of ERC223TokenMock, bound to a specific deployed contract.
 func NewERC223TokenMockCaller(address common.Address, caller bind.ContractCaller) (*ERC223TokenMockCaller, error) {
-	contract, err := bindERC223TokenMock(address, caller, nil, nil)
+	contract, err := bindERC223TokenMock(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewERC223TokenMockCaller(address common.Address, caller bind.ContractCaller
 
 // NewERC223TokenMockTransactor creates a new write-only instance of ERC223TokenMock, bound to a specific deployed contract.
 func NewERC223TokenMockTransactor(address common.Address, transactor bind.ContractTransactor) (*ERC223TokenMockTransactor, error) {
-	contract, err := bindERC223TokenMock(address, nil, transactor, nil)
+	contract, err := bindERC223TokenMock(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &ERC223TokenMockTransactor{contract: contract}, nil
 }
 
-// NewERC223TokenMockFilterer creates a new log filterer instance of ERC223TokenMock, bound to a specific deployed contract.
-func NewERC223TokenMockFilterer(address common.Address, filterer bind.ContractFilterer) (*ERC223TokenMockFilterer, error) {
-	contract, err := bindERC223TokenMock(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &ERC223TokenMockFilterer{contract: contract}, nil
-}
-
 // bindERC223TokenMock binds a generic wrapper to an already deployed contract.
-func bindERC223TokenMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindERC223TokenMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(ERC223TokenMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -268,146 +251,4 @@ func (_ERC223TokenMock *ERC223TokenMockSession) TransferERC223(_to common.Addres
 // Solidity: function transferERC223(_to address, _value uint256, _data bytes) returns(success bool)
 func (_ERC223TokenMock *ERC223TokenMockTransactorSession) TransferERC223(_to common.Address, _value *big.Int, _data []byte) (*types.Transaction, error) {
 	return _ERC223TokenMock.Contract.TransferERC223(&_ERC223TokenMock.TransactOpts, _to, _value, _data)
-}
-
-// ERC223TokenMockTransferIterator is returned from FilterTransfer and is used to iterate over the raw logs and unpacked data for Transfer events raised by the ERC223TokenMock contract.
-type ERC223TokenMockTransferIterator struct {
-	Event *ERC223TokenMockTransfer // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *ERC223TokenMockTransferIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(ERC223TokenMockTransfer)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(ERC223TokenMockTransfer)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *ERC223TokenMockTransferIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *ERC223TokenMockTransferIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// ERC223TokenMockTransfer represents a Transfer event raised by the ERC223TokenMock contract.
-type ERC223TokenMockTransfer struct {
-	From  common.Address
-	To    common.Address
-	Value *big.Int
-	Raw   types.Log // Blockchain specific contextual infos
-}
-
-// FilterTransfer is a free log retrieval operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
-//
-// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
-func (_ERC223TokenMock *ERC223TokenMockFilterer) FilterTransfer(opts *bind.FilterOpts, from []common.Address, to []common.Address) (*ERC223TokenMockTransferIterator, error) {
-
-	var fromRule []interface{}
-	for _, fromItem := range from {
-		fromRule = append(fromRule, fromItem)
-	}
-	var toRule []interface{}
-	for _, toItem := range to {
-		toRule = append(toRule, toItem)
-	}
-
-	logs, sub, err := _ERC223TokenMock.contract.FilterLogs(opts, "Transfer", fromRule, toRule)
-	if err != nil {
-		return nil, err
-	}
-	return &ERC223TokenMockTransferIterator{contract: _ERC223TokenMock.contract, event: "Transfer", logs: logs, sub: sub}, nil
-}
-
-// WatchTransfer is a free log subscription operation binding the contract event 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
-//
-// Solidity: event Transfer(from indexed address, to indexed address, value uint256)
-func (_ERC223TokenMock *ERC223TokenMockFilterer) WatchTransfer(opts *bind.WatchOpts, sink chan<- *ERC223TokenMockTransfer, from []common.Address, to []common.Address) (event.Subscription, error) {
-
-	var fromRule []interface{}
-	for _, fromItem := range from {
-		fromRule = append(fromRule, fromItem)
-	}
-	var toRule []interface{}
-	for _, toItem := range to {
-		toRule = append(toRule, toItem)
-	}
-
-	logs, sub, err := _ERC223TokenMock.contract.WatchLogs(opts, "Transfer", fromRule, toRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(ERC223TokenMockTransfer)
-				if err := _ERC223TokenMock.contract.UnpackLog(event, "Transfer", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

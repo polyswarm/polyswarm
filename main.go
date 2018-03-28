@@ -314,8 +314,9 @@ func postAssertionsHandler(w http.ResponseWriter, r *http.Request) {
 	guidInt.SetBytes(guid.Bytes())
 
 	var a struct {
-		Verdicts []bool `json:"verdicts"`
 		Bid      int    `json:"bid"`
+		Mask     []bool `json:"mask"`
+		Verdicts []bool `json:"verdicts"`
 		Metadata string `json:"metadata"`
 	}
 
@@ -326,7 +327,7 @@ func postAssertionsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	err = bountyRegistry.PostAssertion(context.Background(), guidInt, a.Verdicts, a.Bid, a.Metadata)
+	err = bountyRegistry.PostAssertion(context.Background(), guidInt, a.Bid, a.Mask, a.Verdicts, a.Metadata)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

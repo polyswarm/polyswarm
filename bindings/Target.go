@@ -19,7 +19,6 @@ const TargetABI = "[{\"constant\":false,\"inputs\":[],\"name\":\"checkInvariant\
 type Target struct {
 	TargetCaller     // Read-only binding to the contract
 	TargetTransactor // Write-only binding to the contract
-	TargetFilterer   // Log filterer for contract events
 }
 
 // TargetCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -29,11 +28,6 @@ type TargetCaller struct {
 
 // TargetTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type TargetTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// TargetFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type TargetFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -76,16 +70,16 @@ type TargetTransactorRaw struct {
 
 // NewTarget creates a new instance of Target, bound to a specific deployed contract.
 func NewTarget(address common.Address, backend bind.ContractBackend) (*Target, error) {
-	contract, err := bindTarget(address, backend, backend, backend)
+	contract, err := bindTarget(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &Target{TargetCaller: TargetCaller{contract: contract}, TargetTransactor: TargetTransactor{contract: contract}, TargetFilterer: TargetFilterer{contract: contract}}, nil
+	return &Target{TargetCaller: TargetCaller{contract: contract}, TargetTransactor: TargetTransactor{contract: contract}}, nil
 }
 
 // NewTargetCaller creates a new read-only instance of Target, bound to a specific deployed contract.
 func NewTargetCaller(address common.Address, caller bind.ContractCaller) (*TargetCaller, error) {
-	contract, err := bindTarget(address, caller, nil, nil)
+	contract, err := bindTarget(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -94,29 +88,20 @@ func NewTargetCaller(address common.Address, caller bind.ContractCaller) (*Targe
 
 // NewTargetTransactor creates a new write-only instance of Target, bound to a specific deployed contract.
 func NewTargetTransactor(address common.Address, transactor bind.ContractTransactor) (*TargetTransactor, error) {
-	contract, err := bindTarget(address, nil, transactor, nil)
+	contract, err := bindTarget(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &TargetTransactor{contract: contract}, nil
 }
 
-// NewTargetFilterer creates a new log filterer instance of Target, bound to a specific deployed contract.
-func NewTargetFilterer(address common.Address, filterer bind.ContractFilterer) (*TargetFilterer, error) {
-	contract, err := bindTarget(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &TargetFilterer{contract: contract}, nil
-}
-
 // bindTarget binds a generic wrapper to an already deployed contract.
-func bindTarget(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindTarget(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(TargetABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

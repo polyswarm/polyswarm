@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // DelayedClaimableABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeployDelayedClaimable(auth *bind.TransactOpts, backend bind.ContractBacken
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &DelayedClaimable{DelayedClaimableCaller: DelayedClaimableCaller{contract: contract}, DelayedClaimableTransactor: DelayedClaimableTransactor{contract: contract}, DelayedClaimableFilterer: DelayedClaimableFilterer{contract: contract}}, nil
+	return address, tx, &DelayedClaimable{DelayedClaimableCaller: DelayedClaimableCaller{contract: contract}, DelayedClaimableTransactor: DelayedClaimableTransactor{contract: contract}}, nil
 }
 
 // DelayedClaimable is an auto generated Go binding around an Ethereum contract.
 type DelayedClaimable struct {
 	DelayedClaimableCaller     // Read-only binding to the contract
 	DelayedClaimableTransactor // Write-only binding to the contract
-	DelayedClaimableFilterer   // Log filterer for contract events
 }
 
 // DelayedClaimableCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type DelayedClaimableCaller struct {
 
 // DelayedClaimableTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type DelayedClaimableTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// DelayedClaimableFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type DelayedClaimableFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type DelayedClaimableTransactorRaw struct {
 
 // NewDelayedClaimable creates a new instance of DelayedClaimable, bound to a specific deployed contract.
 func NewDelayedClaimable(address common.Address, backend bind.ContractBackend) (*DelayedClaimable, error) {
-	contract, err := bindDelayedClaimable(address, backend, backend, backend)
+	contract, err := bindDelayedClaimable(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &DelayedClaimable{DelayedClaimableCaller: DelayedClaimableCaller{contract: contract}, DelayedClaimableTransactor: DelayedClaimableTransactor{contract: contract}, DelayedClaimableFilterer: DelayedClaimableFilterer{contract: contract}}, nil
+	return &DelayedClaimable{DelayedClaimableCaller: DelayedClaimableCaller{contract: contract}, DelayedClaimableTransactor: DelayedClaimableTransactor{contract: contract}}, nil
 }
 
 // NewDelayedClaimableCaller creates a new read-only instance of DelayedClaimable, bound to a specific deployed contract.
 func NewDelayedClaimableCaller(address common.Address, caller bind.ContractCaller) (*DelayedClaimableCaller, error) {
-	contract, err := bindDelayedClaimable(address, caller, nil, nil)
+	contract, err := bindDelayedClaimable(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewDelayedClaimableCaller(address common.Address, caller bind.ContractCalle
 
 // NewDelayedClaimableTransactor creates a new write-only instance of DelayedClaimable, bound to a specific deployed contract.
 func NewDelayedClaimableTransactor(address common.Address, transactor bind.ContractTransactor) (*DelayedClaimableTransactor, error) {
-	contract, err := bindDelayedClaimable(address, nil, transactor, nil)
+	contract, err := bindDelayedClaimable(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &DelayedClaimableTransactor{contract: contract}, nil
 }
 
-// NewDelayedClaimableFilterer creates a new log filterer instance of DelayedClaimable, bound to a specific deployed contract.
-func NewDelayedClaimableFilterer(address common.Address, filterer bind.ContractFilterer) (*DelayedClaimableFilterer, error) {
-	contract, err := bindDelayedClaimable(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &DelayedClaimableFilterer{contract: contract}, nil
-}
-
 // bindDelayedClaimable binds a generic wrapper to an already deployed contract.
-func bindDelayedClaimable(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindDelayedClaimable(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(DelayedClaimableABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -341,145 +324,4 @@ func (_DelayedClaimable *DelayedClaimableSession) TransferOwnership(newOwner com
 // Solidity: function transferOwnership(newOwner address) returns()
 func (_DelayedClaimable *DelayedClaimableTransactorSession) TransferOwnership(newOwner common.Address) (*types.Transaction, error) {
 	return _DelayedClaimable.Contract.TransferOwnership(&_DelayedClaimable.TransactOpts, newOwner)
-}
-
-// DelayedClaimableOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the DelayedClaimable contract.
-type DelayedClaimableOwnershipTransferredIterator struct {
-	Event *DelayedClaimableOwnershipTransferred // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *DelayedClaimableOwnershipTransferredIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(DelayedClaimableOwnershipTransferred)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(DelayedClaimableOwnershipTransferred)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *DelayedClaimableOwnershipTransferredIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *DelayedClaimableOwnershipTransferredIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// DelayedClaimableOwnershipTransferred represents a OwnershipTransferred event raised by the DelayedClaimable contract.
-type DelayedClaimableOwnershipTransferred struct {
-	PreviousOwner common.Address
-	NewOwner      common.Address
-	Raw           types.Log // Blockchain specific contextual infos
-}
-
-// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_DelayedClaimable *DelayedClaimableFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*DelayedClaimableOwnershipTransferredIterator, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _DelayedClaimable.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return &DelayedClaimableOwnershipTransferredIterator{contract: _DelayedClaimable.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
-}
-
-// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_DelayedClaimable *DelayedClaimableFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *DelayedClaimableOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _DelayedClaimable.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(DelayedClaimableOwnershipTransferred)
-				if err := _DelayedClaimable.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

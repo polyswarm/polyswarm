@@ -7,12 +7,10 @@ import (
 	"math/big"
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // SecureTargetBountyABI is the input ABI used to generate the binding from.
@@ -31,14 +29,13 @@ func DeploySecureTargetBounty(auth *bind.TransactOpts, backend bind.ContractBack
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &SecureTargetBounty{SecureTargetBountyCaller: SecureTargetBountyCaller{contract: contract}, SecureTargetBountyTransactor: SecureTargetBountyTransactor{contract: contract}, SecureTargetBountyFilterer: SecureTargetBountyFilterer{contract: contract}}, nil
+	return address, tx, &SecureTargetBounty{SecureTargetBountyCaller: SecureTargetBountyCaller{contract: contract}, SecureTargetBountyTransactor: SecureTargetBountyTransactor{contract: contract}}, nil
 }
 
 // SecureTargetBounty is an auto generated Go binding around an Ethereum contract.
 type SecureTargetBounty struct {
 	SecureTargetBountyCaller     // Read-only binding to the contract
 	SecureTargetBountyTransactor // Write-only binding to the contract
-	SecureTargetBountyFilterer   // Log filterer for contract events
 }
 
 // SecureTargetBountyCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -48,11 +45,6 @@ type SecureTargetBountyCaller struct {
 
 // SecureTargetBountyTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type SecureTargetBountyTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// SecureTargetBountyFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type SecureTargetBountyFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -95,16 +87,16 @@ type SecureTargetBountyTransactorRaw struct {
 
 // NewSecureTargetBounty creates a new instance of SecureTargetBounty, bound to a specific deployed contract.
 func NewSecureTargetBounty(address common.Address, backend bind.ContractBackend) (*SecureTargetBounty, error) {
-	contract, err := bindSecureTargetBounty(address, backend, backend, backend)
+	contract, err := bindSecureTargetBounty(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &SecureTargetBounty{SecureTargetBountyCaller: SecureTargetBountyCaller{contract: contract}, SecureTargetBountyTransactor: SecureTargetBountyTransactor{contract: contract}, SecureTargetBountyFilterer: SecureTargetBountyFilterer{contract: contract}}, nil
+	return &SecureTargetBounty{SecureTargetBountyCaller: SecureTargetBountyCaller{contract: contract}, SecureTargetBountyTransactor: SecureTargetBountyTransactor{contract: contract}}, nil
 }
 
 // NewSecureTargetBountyCaller creates a new read-only instance of SecureTargetBounty, bound to a specific deployed contract.
 func NewSecureTargetBountyCaller(address common.Address, caller bind.ContractCaller) (*SecureTargetBountyCaller, error) {
-	contract, err := bindSecureTargetBounty(address, caller, nil, nil)
+	contract, err := bindSecureTargetBounty(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,29 +105,20 @@ func NewSecureTargetBountyCaller(address common.Address, caller bind.ContractCal
 
 // NewSecureTargetBountyTransactor creates a new write-only instance of SecureTargetBounty, bound to a specific deployed contract.
 func NewSecureTargetBountyTransactor(address common.Address, transactor bind.ContractTransactor) (*SecureTargetBountyTransactor, error) {
-	contract, err := bindSecureTargetBounty(address, nil, transactor, nil)
+	contract, err := bindSecureTargetBounty(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &SecureTargetBountyTransactor{contract: contract}, nil
 }
 
-// NewSecureTargetBountyFilterer creates a new log filterer instance of SecureTargetBounty, bound to a specific deployed contract.
-func NewSecureTargetBountyFilterer(address common.Address, filterer bind.ContractFilterer) (*SecureTargetBountyFilterer, error) {
-	contract, err := bindSecureTargetBounty(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &SecureTargetBountyFilterer{contract: contract}, nil
-}
-
 // bindSecureTargetBounty binds a generic wrapper to an already deployed contract.
-func bindSecureTargetBounty(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindSecureTargetBounty(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(SecureTargetBountyABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -430,267 +413,4 @@ func (_SecureTargetBounty *SecureTargetBountySession) WithdrawPayments() (*types
 // Solidity: function withdrawPayments() returns()
 func (_SecureTargetBounty *SecureTargetBountyTransactorSession) WithdrawPayments() (*types.Transaction, error) {
 	return _SecureTargetBounty.Contract.WithdrawPayments(&_SecureTargetBounty.TransactOpts)
-}
-
-// SecureTargetBountyOwnershipTransferredIterator is returned from FilterOwnershipTransferred and is used to iterate over the raw logs and unpacked data for OwnershipTransferred events raised by the SecureTargetBounty contract.
-type SecureTargetBountyOwnershipTransferredIterator struct {
-	Event *SecureTargetBountyOwnershipTransferred // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *SecureTargetBountyOwnershipTransferredIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(SecureTargetBountyOwnershipTransferred)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(SecureTargetBountyOwnershipTransferred)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *SecureTargetBountyOwnershipTransferredIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *SecureTargetBountyOwnershipTransferredIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// SecureTargetBountyOwnershipTransferred represents a OwnershipTransferred event raised by the SecureTargetBounty contract.
-type SecureTargetBountyOwnershipTransferred struct {
-	PreviousOwner common.Address
-	NewOwner      common.Address
-	Raw           types.Log // Blockchain specific contextual infos
-}
-
-// FilterOwnershipTransferred is a free log retrieval operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_SecureTargetBounty *SecureTargetBountyFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, previousOwner []common.Address, newOwner []common.Address) (*SecureTargetBountyOwnershipTransferredIterator, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _SecureTargetBounty.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return &SecureTargetBountyOwnershipTransferredIterator{contract: _SecureTargetBounty.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
-}
-
-// WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
-//
-// Solidity: event OwnershipTransferred(previousOwner indexed address, newOwner indexed address)
-func (_SecureTargetBounty *SecureTargetBountyFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink chan<- *SecureTargetBountyOwnershipTransferred, previousOwner []common.Address, newOwner []common.Address) (event.Subscription, error) {
-
-	var previousOwnerRule []interface{}
-	for _, previousOwnerItem := range previousOwner {
-		previousOwnerRule = append(previousOwnerRule, previousOwnerItem)
-	}
-	var newOwnerRule []interface{}
-	for _, newOwnerItem := range newOwner {
-		newOwnerRule = append(newOwnerRule, newOwnerItem)
-	}
-
-	logs, sub, err := _SecureTargetBounty.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(SecureTargetBountyOwnershipTransferred)
-				if err := _SecureTargetBounty.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// SecureTargetBountyTargetCreatedIterator is returned from FilterTargetCreated and is used to iterate over the raw logs and unpacked data for TargetCreated events raised by the SecureTargetBounty contract.
-type SecureTargetBountyTargetCreatedIterator struct {
-	Event *SecureTargetBountyTargetCreated // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *SecureTargetBountyTargetCreatedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(SecureTargetBountyTargetCreated)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(SecureTargetBountyTargetCreated)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *SecureTargetBountyTargetCreatedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *SecureTargetBountyTargetCreatedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// SecureTargetBountyTargetCreated represents a TargetCreated event raised by the SecureTargetBounty contract.
-type SecureTargetBountyTargetCreated struct {
-	CreatedAddress common.Address
-	Raw            types.Log // Blockchain specific contextual infos
-}
-
-// FilterTargetCreated is a free log retrieval operation binding the contract event 0xe62d909feaad4aecbcea8fef32a9b41552373e45f5acb7ce7fc0a997180e7ae5.
-//
-// Solidity: event TargetCreated(createdAddress address)
-func (_SecureTargetBounty *SecureTargetBountyFilterer) FilterTargetCreated(opts *bind.FilterOpts) (*SecureTargetBountyTargetCreatedIterator, error) {
-
-	logs, sub, err := _SecureTargetBounty.contract.FilterLogs(opts, "TargetCreated")
-	if err != nil {
-		return nil, err
-	}
-	return &SecureTargetBountyTargetCreatedIterator{contract: _SecureTargetBounty.contract, event: "TargetCreated", logs: logs, sub: sub}, nil
-}
-
-// WatchTargetCreated is a free log subscription operation binding the contract event 0xe62d909feaad4aecbcea8fef32a9b41552373e45f5acb7ce7fc0a997180e7ae5.
-//
-// Solidity: event TargetCreated(createdAddress address)
-func (_SecureTargetBounty *SecureTargetBountyFilterer) WatchTargetCreated(opts *bind.WatchOpts, sink chan<- *SecureTargetBountyTargetCreated) (event.Subscription, error) {
-
-	logs, sub, err := _SecureTargetBounty.contract.WatchLogs(opts, "TargetCreated")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(SecureTargetBountyTargetCreated)
-				if err := _SecureTargetBounty.contract.UnpackLog(event, "TargetCreated", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

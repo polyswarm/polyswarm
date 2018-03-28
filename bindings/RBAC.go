@@ -6,12 +6,10 @@ package bindings
 import (
 	"strings"
 
-	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/event"
 )
 
 // RBACABI is the input ABI used to generate the binding from.
@@ -30,14 +28,13 @@ func DeployRBAC(auth *bind.TransactOpts, backend bind.ContractBackend) (common.A
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &RBAC{RBACCaller: RBACCaller{contract: contract}, RBACTransactor: RBACTransactor{contract: contract}, RBACFilterer: RBACFilterer{contract: contract}}, nil
+	return address, tx, &RBAC{RBACCaller: RBACCaller{contract: contract}, RBACTransactor: RBACTransactor{contract: contract}}, nil
 }
 
 // RBAC is an auto generated Go binding around an Ethereum contract.
 type RBAC struct {
 	RBACCaller     // Read-only binding to the contract
 	RBACTransactor // Write-only binding to the contract
-	RBACFilterer   // Log filterer for contract events
 }
 
 // RBACCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -47,11 +44,6 @@ type RBACCaller struct {
 
 // RBACTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type RBACTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// RBACFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type RBACFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -94,16 +86,16 @@ type RBACTransactorRaw struct {
 
 // NewRBAC creates a new instance of RBAC, bound to a specific deployed contract.
 func NewRBAC(address common.Address, backend bind.ContractBackend) (*RBAC, error) {
-	contract, err := bindRBAC(address, backend, backend, backend)
+	contract, err := bindRBAC(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &RBAC{RBACCaller: RBACCaller{contract: contract}, RBACTransactor: RBACTransactor{contract: contract}, RBACFilterer: RBACFilterer{contract: contract}}, nil
+	return &RBAC{RBACCaller: RBACCaller{contract: contract}, RBACTransactor: RBACTransactor{contract: contract}}, nil
 }
 
 // NewRBACCaller creates a new read-only instance of RBAC, bound to a specific deployed contract.
 func NewRBACCaller(address common.Address, caller bind.ContractCaller) (*RBACCaller, error) {
-	contract, err := bindRBAC(address, caller, nil, nil)
+	contract, err := bindRBAC(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -112,29 +104,20 @@ func NewRBACCaller(address common.Address, caller bind.ContractCaller) (*RBACCal
 
 // NewRBACTransactor creates a new write-only instance of RBAC, bound to a specific deployed contract.
 func NewRBACTransactor(address common.Address, transactor bind.ContractTransactor) (*RBACTransactor, error) {
-	contract, err := bindRBAC(address, nil, transactor, nil)
+	contract, err := bindRBAC(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &RBACTransactor{contract: contract}, nil
 }
 
-// NewRBACFilterer creates a new log filterer instance of RBAC, bound to a specific deployed contract.
-func NewRBACFilterer(address common.Address, filterer bind.ContractFilterer) (*RBACFilterer, error) {
-	contract, err := bindRBAC(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &RBACFilterer{contract: contract}, nil
-}
-
 // bindRBAC binds a generic wrapper to an already deployed contract.
-func bindRBAC(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindRBAC(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(RBACABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and
@@ -291,250 +274,4 @@ func (_RBAC *RBACSession) AdminRemoveRole(addr common.Address, roleName string) 
 // Solidity: function adminRemoveRole(addr address, roleName string) returns()
 func (_RBAC *RBACTransactorSession) AdminRemoveRole(addr common.Address, roleName string) (*types.Transaction, error) {
 	return _RBAC.Contract.AdminRemoveRole(&_RBAC.TransactOpts, addr, roleName)
-}
-
-// RBACRoleAddedIterator is returned from FilterRoleAdded and is used to iterate over the raw logs and unpacked data for RoleAdded events raised by the RBAC contract.
-type RBACRoleAddedIterator struct {
-	Event *RBACRoleAdded // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RBACRoleAddedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RBACRoleAdded)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RBACRoleAdded)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RBACRoleAddedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RBACRoleAddedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RBACRoleAdded represents a RoleAdded event raised by the RBAC contract.
-type RBACRoleAdded struct {
-	Addr     common.Address
-	RoleName string
-	Raw      types.Log // Blockchain specific contextual infos
-}
-
-// FilterRoleAdded is a free log retrieval operation binding the contract event 0xbfec83d64eaa953f2708271a023ab9ee82057f8f3578d548c1a4ba0b5b700489.
-//
-// Solidity: event RoleAdded(addr address, roleName string)
-func (_RBAC *RBACFilterer) FilterRoleAdded(opts *bind.FilterOpts) (*RBACRoleAddedIterator, error) {
-
-	logs, sub, err := _RBAC.contract.FilterLogs(opts, "RoleAdded")
-	if err != nil {
-		return nil, err
-	}
-	return &RBACRoleAddedIterator{contract: _RBAC.contract, event: "RoleAdded", logs: logs, sub: sub}, nil
-}
-
-// WatchRoleAdded is a free log subscription operation binding the contract event 0xbfec83d64eaa953f2708271a023ab9ee82057f8f3578d548c1a4ba0b5b700489.
-//
-// Solidity: event RoleAdded(addr address, roleName string)
-func (_RBAC *RBACFilterer) WatchRoleAdded(opts *bind.WatchOpts, sink chan<- *RBACRoleAdded) (event.Subscription, error) {
-
-	logs, sub, err := _RBAC.contract.WatchLogs(opts, "RoleAdded")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RBACRoleAdded)
-				if err := _RBAC.contract.UnpackLog(event, "RoleAdded", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
-}
-
-// RBACRoleRemovedIterator is returned from FilterRoleRemoved and is used to iterate over the raw logs and unpacked data for RoleRemoved events raised by the RBAC contract.
-type RBACRoleRemovedIterator struct {
-	Event *RBACRoleRemoved // Event containing the contract specifics and raw log
-
-	contract *bind.BoundContract // Generic contract to use for unpacking event data
-	event    string              // Event name to use for unpacking event data
-
-	logs chan types.Log        // Log channel receiving the found contract events
-	sub  ethereum.Subscription // Subscription for errors, completion and termination
-	done bool                  // Whether the subscription completed delivering logs
-	fail error                 // Occurred error to stop iteration
-}
-
-// Next advances the iterator to the subsequent event, returning whether there
-// are any more events found. In case of a retrieval or parsing error, false is
-// returned and Error() can be queried for the exact failure.
-func (it *RBACRoleRemovedIterator) Next() bool {
-	// If the iterator failed, stop iterating
-	if it.fail != nil {
-		return false
-	}
-	// If the iterator completed, deliver directly whatever's available
-	if it.done {
-		select {
-		case log := <-it.logs:
-			it.Event = new(RBACRoleRemoved)
-			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-				it.fail = err
-				return false
-			}
-			it.Event.Raw = log
-			return true
-
-		default:
-			return false
-		}
-	}
-	// Iterator still in progress, wait for either a data or an error event
-	select {
-	case log := <-it.logs:
-		it.Event = new(RBACRoleRemoved)
-		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-			it.fail = err
-			return false
-		}
-		it.Event.Raw = log
-		return true
-
-	case err := <-it.sub.Err():
-		it.done = true
-		it.fail = err
-		return it.Next()
-	}
-}
-
-// Error returns any retrieval or parsing error occurred during filtering.
-func (it *RBACRoleRemovedIterator) Error() error {
-	return it.fail
-}
-
-// Close terminates the iteration process, releasing any pending underlying
-// resources.
-func (it *RBACRoleRemovedIterator) Close() error {
-	it.sub.Unsubscribe()
-	return nil
-}
-
-// RBACRoleRemoved represents a RoleRemoved event raised by the RBAC contract.
-type RBACRoleRemoved struct {
-	Addr     common.Address
-	RoleName string
-	Raw      types.Log // Blockchain specific contextual infos
-}
-
-// FilterRoleRemoved is a free log retrieval operation binding the contract event 0xd211483f91fc6eff862467f8de606587a30c8fc9981056f051b897a418df803a.
-//
-// Solidity: event RoleRemoved(addr address, roleName string)
-func (_RBAC *RBACFilterer) FilterRoleRemoved(opts *bind.FilterOpts) (*RBACRoleRemovedIterator, error) {
-
-	logs, sub, err := _RBAC.contract.FilterLogs(opts, "RoleRemoved")
-	if err != nil {
-		return nil, err
-	}
-	return &RBACRoleRemovedIterator{contract: _RBAC.contract, event: "RoleRemoved", logs: logs, sub: sub}, nil
-}
-
-// WatchRoleRemoved is a free log subscription operation binding the contract event 0xd211483f91fc6eff862467f8de606587a30c8fc9981056f051b897a418df803a.
-//
-// Solidity: event RoleRemoved(addr address, roleName string)
-func (_RBAC *RBACFilterer) WatchRoleRemoved(opts *bind.WatchOpts, sink chan<- *RBACRoleRemoved) (event.Subscription, error) {
-
-	logs, sub, err := _RBAC.contract.WatchLogs(opts, "RoleRemoved")
-	if err != nil {
-		return nil, err
-	}
-	return event.NewSubscription(func(quit <-chan struct{}) error {
-		defer sub.Unsubscribe()
-		for {
-			select {
-			case log := <-logs:
-				// New log arrived, parse the event and forward to the user
-				event := new(RBACRoleRemoved)
-				if err := _RBAC.contract.UnpackLog(event, "RoleRemoved", log); err != nil {
-					return err
-				}
-				event.Raw = log
-
-				select {
-				case sink <- event:
-				case err := <-sub.Err():
-					return err
-				case <-quit:
-					return nil
-				}
-			case err := <-sub.Err():
-				return err
-			case <-quit:
-				return nil
-			}
-		}
-	}), nil
 }

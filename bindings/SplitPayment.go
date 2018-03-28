@@ -29,14 +29,13 @@ func DeploySplitPayment(auth *bind.TransactOpts, backend bind.ContractBackend, _
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &SplitPayment{SplitPaymentCaller: SplitPaymentCaller{contract: contract}, SplitPaymentTransactor: SplitPaymentTransactor{contract: contract}, SplitPaymentFilterer: SplitPaymentFilterer{contract: contract}}, nil
+	return address, tx, &SplitPayment{SplitPaymentCaller: SplitPaymentCaller{contract: contract}, SplitPaymentTransactor: SplitPaymentTransactor{contract: contract}}, nil
 }
 
 // SplitPayment is an auto generated Go binding around an Ethereum contract.
 type SplitPayment struct {
 	SplitPaymentCaller     // Read-only binding to the contract
 	SplitPaymentTransactor // Write-only binding to the contract
-	SplitPaymentFilterer   // Log filterer for contract events
 }
 
 // SplitPaymentCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -46,11 +45,6 @@ type SplitPaymentCaller struct {
 
 // SplitPaymentTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type SplitPaymentTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// SplitPaymentFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type SplitPaymentFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -93,16 +87,16 @@ type SplitPaymentTransactorRaw struct {
 
 // NewSplitPayment creates a new instance of SplitPayment, bound to a specific deployed contract.
 func NewSplitPayment(address common.Address, backend bind.ContractBackend) (*SplitPayment, error) {
-	contract, err := bindSplitPayment(address, backend, backend, backend)
+	contract, err := bindSplitPayment(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &SplitPayment{SplitPaymentCaller: SplitPaymentCaller{contract: contract}, SplitPaymentTransactor: SplitPaymentTransactor{contract: contract}, SplitPaymentFilterer: SplitPaymentFilterer{contract: contract}}, nil
+	return &SplitPayment{SplitPaymentCaller: SplitPaymentCaller{contract: contract}, SplitPaymentTransactor: SplitPaymentTransactor{contract: contract}}, nil
 }
 
 // NewSplitPaymentCaller creates a new read-only instance of SplitPayment, bound to a specific deployed contract.
 func NewSplitPaymentCaller(address common.Address, caller bind.ContractCaller) (*SplitPaymentCaller, error) {
-	contract, err := bindSplitPayment(address, caller, nil, nil)
+	contract, err := bindSplitPayment(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,29 +105,20 @@ func NewSplitPaymentCaller(address common.Address, caller bind.ContractCaller) (
 
 // NewSplitPaymentTransactor creates a new write-only instance of SplitPayment, bound to a specific deployed contract.
 func NewSplitPaymentTransactor(address common.Address, transactor bind.ContractTransactor) (*SplitPaymentTransactor, error) {
-	contract, err := bindSplitPayment(address, nil, transactor, nil)
+	contract, err := bindSplitPayment(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &SplitPaymentTransactor{contract: contract}, nil
 }
 
-// NewSplitPaymentFilterer creates a new log filterer instance of SplitPayment, bound to a specific deployed contract.
-func NewSplitPaymentFilterer(address common.Address, filterer bind.ContractFilterer) (*SplitPaymentFilterer, error) {
-	contract, err := bindSplitPayment(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &SplitPaymentFilterer{contract: contract}, nil
-}
-
 // bindSplitPayment binds a generic wrapper to an already deployed contract.
-func bindSplitPayment(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindSplitPayment(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(SplitPaymentABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

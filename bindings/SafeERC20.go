@@ -28,14 +28,13 @@ func DeploySafeERC20(auth *bind.TransactOpts, backend bind.ContractBackend) (com
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &SafeERC20{SafeERC20Caller: SafeERC20Caller{contract: contract}, SafeERC20Transactor: SafeERC20Transactor{contract: contract}, SafeERC20Filterer: SafeERC20Filterer{contract: contract}}, nil
+	return address, tx, &SafeERC20{SafeERC20Caller: SafeERC20Caller{contract: contract}, SafeERC20Transactor: SafeERC20Transactor{contract: contract}}, nil
 }
 
 // SafeERC20 is an auto generated Go binding around an Ethereum contract.
 type SafeERC20 struct {
 	SafeERC20Caller     // Read-only binding to the contract
 	SafeERC20Transactor // Write-only binding to the contract
-	SafeERC20Filterer   // Log filterer for contract events
 }
 
 // SafeERC20Caller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,11 +44,6 @@ type SafeERC20Caller struct {
 
 // SafeERC20Transactor is an auto generated write-only Go binding around an Ethereum contract.
 type SafeERC20Transactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// SafeERC20Filterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type SafeERC20Filterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -92,16 +86,16 @@ type SafeERC20TransactorRaw struct {
 
 // NewSafeERC20 creates a new instance of SafeERC20, bound to a specific deployed contract.
 func NewSafeERC20(address common.Address, backend bind.ContractBackend) (*SafeERC20, error) {
-	contract, err := bindSafeERC20(address, backend, backend, backend)
+	contract, err := bindSafeERC20(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &SafeERC20{SafeERC20Caller: SafeERC20Caller{contract: contract}, SafeERC20Transactor: SafeERC20Transactor{contract: contract}, SafeERC20Filterer: SafeERC20Filterer{contract: contract}}, nil
+	return &SafeERC20{SafeERC20Caller: SafeERC20Caller{contract: contract}, SafeERC20Transactor: SafeERC20Transactor{contract: contract}}, nil
 }
 
 // NewSafeERC20Caller creates a new read-only instance of SafeERC20, bound to a specific deployed contract.
 func NewSafeERC20Caller(address common.Address, caller bind.ContractCaller) (*SafeERC20Caller, error) {
-	contract, err := bindSafeERC20(address, caller, nil, nil)
+	contract, err := bindSafeERC20(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -110,29 +104,20 @@ func NewSafeERC20Caller(address common.Address, caller bind.ContractCaller) (*Sa
 
 // NewSafeERC20Transactor creates a new write-only instance of SafeERC20, bound to a specific deployed contract.
 func NewSafeERC20Transactor(address common.Address, transactor bind.ContractTransactor) (*SafeERC20Transactor, error) {
-	contract, err := bindSafeERC20(address, nil, transactor, nil)
+	contract, err := bindSafeERC20(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &SafeERC20Transactor{contract: contract}, nil
 }
 
-// NewSafeERC20Filterer creates a new log filterer instance of SafeERC20, bound to a specific deployed contract.
-func NewSafeERC20Filterer(address common.Address, filterer bind.ContractFilterer) (*SafeERC20Filterer, error) {
-	contract, err := bindSafeERC20(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &SafeERC20Filterer{contract: contract}, nil
-}
-
 // bindSafeERC20 binds a generic wrapper to an already deployed contract.
-func bindSafeERC20(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindSafeERC20(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(SafeERC20ABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

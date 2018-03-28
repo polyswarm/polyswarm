@@ -29,14 +29,13 @@ func DeployPullPayment(auth *bind.TransactOpts, backend bind.ContractBackend) (c
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &PullPayment{PullPaymentCaller: PullPaymentCaller{contract: contract}, PullPaymentTransactor: PullPaymentTransactor{contract: contract}, PullPaymentFilterer: PullPaymentFilterer{contract: contract}}, nil
+	return address, tx, &PullPayment{PullPaymentCaller: PullPaymentCaller{contract: contract}, PullPaymentTransactor: PullPaymentTransactor{contract: contract}}, nil
 }
 
 // PullPayment is an auto generated Go binding around an Ethereum contract.
 type PullPayment struct {
 	PullPaymentCaller     // Read-only binding to the contract
 	PullPaymentTransactor // Write-only binding to the contract
-	PullPaymentFilterer   // Log filterer for contract events
 }
 
 // PullPaymentCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -46,11 +45,6 @@ type PullPaymentCaller struct {
 
 // PullPaymentTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type PullPaymentTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// PullPaymentFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type PullPaymentFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -93,16 +87,16 @@ type PullPaymentTransactorRaw struct {
 
 // NewPullPayment creates a new instance of PullPayment, bound to a specific deployed contract.
 func NewPullPayment(address common.Address, backend bind.ContractBackend) (*PullPayment, error) {
-	contract, err := bindPullPayment(address, backend, backend, backend)
+	contract, err := bindPullPayment(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &PullPayment{PullPaymentCaller: PullPaymentCaller{contract: contract}, PullPaymentTransactor: PullPaymentTransactor{contract: contract}, PullPaymentFilterer: PullPaymentFilterer{contract: contract}}, nil
+	return &PullPayment{PullPaymentCaller: PullPaymentCaller{contract: contract}, PullPaymentTransactor: PullPaymentTransactor{contract: contract}}, nil
 }
 
 // NewPullPaymentCaller creates a new read-only instance of PullPayment, bound to a specific deployed contract.
 func NewPullPaymentCaller(address common.Address, caller bind.ContractCaller) (*PullPaymentCaller, error) {
-	contract, err := bindPullPayment(address, caller, nil, nil)
+	contract, err := bindPullPayment(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,29 +105,20 @@ func NewPullPaymentCaller(address common.Address, caller bind.ContractCaller) (*
 
 // NewPullPaymentTransactor creates a new write-only instance of PullPayment, bound to a specific deployed contract.
 func NewPullPaymentTransactor(address common.Address, transactor bind.ContractTransactor) (*PullPaymentTransactor, error) {
-	contract, err := bindPullPayment(address, nil, transactor, nil)
+	contract, err := bindPullPayment(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &PullPaymentTransactor{contract: contract}, nil
 }
 
-// NewPullPaymentFilterer creates a new log filterer instance of PullPayment, bound to a specific deployed contract.
-func NewPullPaymentFilterer(address common.Address, filterer bind.ContractFilterer) (*PullPaymentFilterer, error) {
-	contract, err := bindPullPayment(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &PullPaymentFilterer{contract: contract}, nil
-}
-
 // bindPullPayment binds a generic wrapper to an already deployed contract.
-func bindPullPayment(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindPullPayment(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(PullPaymentABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

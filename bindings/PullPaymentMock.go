@@ -29,14 +29,13 @@ func DeployPullPaymentMock(auth *bind.TransactOpts, backend bind.ContractBackend
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &PullPaymentMock{PullPaymentMockCaller: PullPaymentMockCaller{contract: contract}, PullPaymentMockTransactor: PullPaymentMockTransactor{contract: contract}, PullPaymentMockFilterer: PullPaymentMockFilterer{contract: contract}}, nil
+	return address, tx, &PullPaymentMock{PullPaymentMockCaller: PullPaymentMockCaller{contract: contract}, PullPaymentMockTransactor: PullPaymentMockTransactor{contract: contract}}, nil
 }
 
 // PullPaymentMock is an auto generated Go binding around an Ethereum contract.
 type PullPaymentMock struct {
 	PullPaymentMockCaller     // Read-only binding to the contract
 	PullPaymentMockTransactor // Write-only binding to the contract
-	PullPaymentMockFilterer   // Log filterer for contract events
 }
 
 // PullPaymentMockCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -46,11 +45,6 @@ type PullPaymentMockCaller struct {
 
 // PullPaymentMockTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type PullPaymentMockTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// PullPaymentMockFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type PullPaymentMockFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -93,16 +87,16 @@ type PullPaymentMockTransactorRaw struct {
 
 // NewPullPaymentMock creates a new instance of PullPaymentMock, bound to a specific deployed contract.
 func NewPullPaymentMock(address common.Address, backend bind.ContractBackend) (*PullPaymentMock, error) {
-	contract, err := bindPullPaymentMock(address, backend, backend, backend)
+	contract, err := bindPullPaymentMock(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &PullPaymentMock{PullPaymentMockCaller: PullPaymentMockCaller{contract: contract}, PullPaymentMockTransactor: PullPaymentMockTransactor{contract: contract}, PullPaymentMockFilterer: PullPaymentMockFilterer{contract: contract}}, nil
+	return &PullPaymentMock{PullPaymentMockCaller: PullPaymentMockCaller{contract: contract}, PullPaymentMockTransactor: PullPaymentMockTransactor{contract: contract}}, nil
 }
 
 // NewPullPaymentMockCaller creates a new read-only instance of PullPaymentMock, bound to a specific deployed contract.
 func NewPullPaymentMockCaller(address common.Address, caller bind.ContractCaller) (*PullPaymentMockCaller, error) {
-	contract, err := bindPullPaymentMock(address, caller, nil, nil)
+	contract, err := bindPullPaymentMock(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,29 +105,20 @@ func NewPullPaymentMockCaller(address common.Address, caller bind.ContractCaller
 
 // NewPullPaymentMockTransactor creates a new write-only instance of PullPaymentMock, bound to a specific deployed contract.
 func NewPullPaymentMockTransactor(address common.Address, transactor bind.ContractTransactor) (*PullPaymentMockTransactor, error) {
-	contract, err := bindPullPaymentMock(address, nil, transactor, nil)
+	contract, err := bindPullPaymentMock(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &PullPaymentMockTransactor{contract: contract}, nil
 }
 
-// NewPullPaymentMockFilterer creates a new log filterer instance of PullPaymentMock, bound to a specific deployed contract.
-func NewPullPaymentMockFilterer(address common.Address, filterer bind.ContractFilterer) (*PullPaymentMockFilterer, error) {
-	contract, err := bindPullPaymentMock(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &PullPaymentMockFilterer{contract: contract}, nil
-}
-
 // bindPullPaymentMock binds a generic wrapper to an already deployed contract.
-func bindPullPaymentMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindPullPaymentMock(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(PullPaymentMockABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

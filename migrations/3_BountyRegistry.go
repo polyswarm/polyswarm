@@ -24,7 +24,7 @@ func BuyNectar(address common.Address, network *network.Network) error {
 		return errors.New("Invalid NectarToken session")
 	}
 
-	nectarTokenSession.TransactOpts.GasLimit = 1000000
+	nectarTokenSession.TransactOpts.GasLimit = big.NewInt(1000000)
 	initialSupply := big.NewInt(2000000000)
 	initialSupply.Mul(initialSupply, big.NewInt(1000000000000000000))
 	tx, err := nectarTokenSession.Mint(address, initialSupply)
@@ -47,7 +47,7 @@ func ApproveRegistry(address common.Address, network *network.Network) error {
 		return errors.New("Invalid NectarToken session")
 	}
 
-	nectarTokenSession.TransactOpts.GasLimit = 1000000
+	nectarTokenSession.TransactOpts.GasLimit = big.NewInt(1000000)
 	initialSupply := big.NewInt(2000000000)
 	initialSupply.Mul(initialSupply, big.NewInt(1000000000000000000))
 	tx, err := nectarTokenSession.Approve(address, initialSupply)

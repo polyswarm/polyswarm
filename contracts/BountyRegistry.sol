@@ -41,7 +41,7 @@ contract BountyRegistry is Pausable {
         uint256 bid,
         uint256 mask,
         uint256 verdicts,
-        string metdata
+        string metadata
     );
 
     event NewVerdict(

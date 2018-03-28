@@ -29,14 +29,13 @@ func DeployDayLimit(auth *bind.TransactOpts, backend bind.ContractBackend, _limi
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &DayLimit{DayLimitCaller: DayLimitCaller{contract: contract}, DayLimitTransactor: DayLimitTransactor{contract: contract}, DayLimitFilterer: DayLimitFilterer{contract: contract}}, nil
+	return address, tx, &DayLimit{DayLimitCaller: DayLimitCaller{contract: contract}, DayLimitTransactor: DayLimitTransactor{contract: contract}}, nil
 }
 
 // DayLimit is an auto generated Go binding around an Ethereum contract.
 type DayLimit struct {
 	DayLimitCaller     // Read-only binding to the contract
 	DayLimitTransactor // Write-only binding to the contract
-	DayLimitFilterer   // Log filterer for contract events
 }
 
 // DayLimitCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -46,11 +45,6 @@ type DayLimitCaller struct {
 
 // DayLimitTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type DayLimitTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// DayLimitFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type DayLimitFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -93,16 +87,16 @@ type DayLimitTransactorRaw struct {
 
 // NewDayLimit creates a new instance of DayLimit, bound to a specific deployed contract.
 func NewDayLimit(address common.Address, backend bind.ContractBackend) (*DayLimit, error) {
-	contract, err := bindDayLimit(address, backend, backend, backend)
+	contract, err := bindDayLimit(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &DayLimit{DayLimitCaller: DayLimitCaller{contract: contract}, DayLimitTransactor: DayLimitTransactor{contract: contract}, DayLimitFilterer: DayLimitFilterer{contract: contract}}, nil
+	return &DayLimit{DayLimitCaller: DayLimitCaller{contract: contract}, DayLimitTransactor: DayLimitTransactor{contract: contract}}, nil
 }
 
 // NewDayLimitCaller creates a new read-only instance of DayLimit, bound to a specific deployed contract.
 func NewDayLimitCaller(address common.Address, caller bind.ContractCaller) (*DayLimitCaller, error) {
-	contract, err := bindDayLimit(address, caller, nil, nil)
+	contract, err := bindDayLimit(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,29 +105,20 @@ func NewDayLimitCaller(address common.Address, caller bind.ContractCaller) (*Day
 
 // NewDayLimitTransactor creates a new write-only instance of DayLimit, bound to a specific deployed contract.
 func NewDayLimitTransactor(address common.Address, transactor bind.ContractTransactor) (*DayLimitTransactor, error) {
-	contract, err := bindDayLimit(address, nil, transactor, nil)
+	contract, err := bindDayLimit(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &DayLimitTransactor{contract: contract}, nil
 }
 
-// NewDayLimitFilterer creates a new log filterer instance of DayLimit, bound to a specific deployed contract.
-func NewDayLimitFilterer(address common.Address, filterer bind.ContractFilterer) (*DayLimitFilterer, error) {
-	contract, err := bindDayLimit(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &DayLimitFilterer{contract: contract}, nil
-}
-
 // bindDayLimit binds a generic wrapper to an already deployed contract.
-func bindDayLimit(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindDayLimit(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(DayLimitABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

@@ -28,14 +28,13 @@ func DeployRoles(auth *bind.TransactOpts, backend bind.ContractBackend) (common.
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
-	return address, tx, &Roles{RolesCaller: RolesCaller{contract: contract}, RolesTransactor: RolesTransactor{contract: contract}, RolesFilterer: RolesFilterer{contract: contract}}, nil
+	return address, tx, &Roles{RolesCaller: RolesCaller{contract: contract}, RolesTransactor: RolesTransactor{contract: contract}}, nil
 }
 
 // Roles is an auto generated Go binding around an Ethereum contract.
 type Roles struct {
 	RolesCaller     // Read-only binding to the contract
 	RolesTransactor // Write-only binding to the contract
-	RolesFilterer   // Log filterer for contract events
 }
 
 // RolesCaller is an auto generated read-only Go binding around an Ethereum contract.
@@ -45,11 +44,6 @@ type RolesCaller struct {
 
 // RolesTransactor is an auto generated write-only Go binding around an Ethereum contract.
 type RolesTransactor struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
-}
-
-// RolesFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
-type RolesFilterer struct {
 	contract *bind.BoundContract // Generic contract wrapper for the low level calls
 }
 
@@ -92,16 +86,16 @@ type RolesTransactorRaw struct {
 
 // NewRoles creates a new instance of Roles, bound to a specific deployed contract.
 func NewRoles(address common.Address, backend bind.ContractBackend) (*Roles, error) {
-	contract, err := bindRoles(address, backend, backend, backend)
+	contract, err := bindRoles(address, backend, backend)
 	if err != nil {
 		return nil, err
 	}
-	return &Roles{RolesCaller: RolesCaller{contract: contract}, RolesTransactor: RolesTransactor{contract: contract}, RolesFilterer: RolesFilterer{contract: contract}}, nil
+	return &Roles{RolesCaller: RolesCaller{contract: contract}, RolesTransactor: RolesTransactor{contract: contract}}, nil
 }
 
 // NewRolesCaller creates a new read-only instance of Roles, bound to a specific deployed contract.
 func NewRolesCaller(address common.Address, caller bind.ContractCaller) (*RolesCaller, error) {
-	contract, err := bindRoles(address, caller, nil, nil)
+	contract, err := bindRoles(address, caller, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -110,29 +104,20 @@ func NewRolesCaller(address common.Address, caller bind.ContractCaller) (*RolesC
 
 // NewRolesTransactor creates a new write-only instance of Roles, bound to a specific deployed contract.
 func NewRolesTransactor(address common.Address, transactor bind.ContractTransactor) (*RolesTransactor, error) {
-	contract, err := bindRoles(address, nil, transactor, nil)
+	contract, err := bindRoles(address, nil, transactor)
 	if err != nil {
 		return nil, err
 	}
 	return &RolesTransactor{contract: contract}, nil
 }
 
-// NewRolesFilterer creates a new log filterer instance of Roles, bound to a specific deployed contract.
-func NewRolesFilterer(address common.Address, filterer bind.ContractFilterer) (*RolesFilterer, error) {
-	contract, err := bindRoles(address, nil, nil, filterer)
-	if err != nil {
-		return nil, err
-	}
-	return &RolesFilterer{contract: contract}, nil
-}
-
 // bindRoles binds a generic wrapper to an already deployed contract.
-func bindRoles(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+func bindRoles(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor) (*bind.BoundContract, error) {
 	parsed, err := abi.JSON(strings.NewReader(RolesABI))
 	if err != nil {
 		return nil, err
 	}
-	return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+	return bind.NewBoundContract(address, parsed, caller, transactor), nil
 }
 
 // Call invokes the (constant) contract method with params as input values and

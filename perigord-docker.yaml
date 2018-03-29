@@ -1,5 +1,5 @@
 project: github.com/polyswarm/polyswarm
-license: Apache 2.0
+license: MIT
 
 networks:
     dev:
